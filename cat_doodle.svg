@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 260" width="320" height="260">
+  <rect width="320" height="260" fill="#ffffff"/>
+  <g fill="none" stroke="#333" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- head (wobbly) -->
+    <path d="M112 92 C104 62 132 46 160 48 C192 50 214 66 210 96 C207 122 186 136 158 135 C130 134 116 118 112 92 Z"/>
+    <!-- ears -->
+    <path d="M124 66 L120 34 L146 52"/>
+    <path d="M178 51 L201 31 L203 66"/>
+    <!-- eyes -->
+    <path d="M141 86 l1 1"/>
+    <path d="M178 85 l1 1"/>
+    <!-- nose + mouth -->
+    <path d="M158 99 l4 3 l4 -3"/>
+    <path d="M162 102 c-2 7 -9 8 -12 4"/>
+    <path d="M162 102 c2 7 9 8 12 3"/>
+    <!-- whiskers -->
+    <path d="M136 103 L100 98"/>
+    <path d="M136 109 L102 114"/>
+    <path d="M188 102 L224 95"/>
+    <path d="M188 108 L222 113"/>
+    <!-- body -->
+    <path d="M132 131 C112 160 112 210 130 226 L192 226 C208 206 204 160 186 131"/>
+    <!-- legs -->
+    <path d="M146 226 L146 206"/>
+    <path d="M176 226 L176 206"/>
+    <!-- tail -->
+    <path d="M199 210 C236 206 248 178 232 160"/>
+  </g>
+</svg>
