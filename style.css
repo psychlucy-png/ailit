@@ -92,14 +92,38 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--blue);}
 /* likert */
 .lk{margin:14px 0;}
 .lk .lq{font-weight:700;margin-bottom:6px;}
-.lk .row{display:flex;gap:6px;}
-.lk .row label{flex:1;text-align:center;font-size:13px;border:1.5px solid var(--line);border-radius:10px;padding:8px 2px;background:#fff;cursor:pointer;line-height:1.3;}
-.lk .row label:has(input:checked){border-color:var(--blue);background:var(--blue-soft);}
-.lk .row input{display:block;margin:0 auto 4px;}
-.lk .num{display:block;font-weight:800;font-size:15px;}
+.row{display:flex;gap:6px;}
+.row label{flex:1;text-align:center;font-size:13px;border:1.5px solid var(--line);border-radius:10px;padding:8px 2px;background:#fff;cursor:pointer;line-height:1.3;}
+.row label:has(input:checked){border-color:var(--blue);background:var(--blue-soft);}
+.row input{display:block;margin:0 auto 4px;}
+.num{display:block;font-weight:800;font-size:15px;}
 @media (max-width:560px){
   .jspsych-display-element{font-size:16px;}
   h1{font-size:24px;}
-  .lk .row label{font-size:11px;}
+  .row label{font-size:11px;}
   .bub{max-width:92%;}
 }
+
+/* 설문 */
+.consent h3{margin:20px 0 6px;font-size:17px;color:var(--blue);}
+.consent h3:first-child{margin-top:0;}
+.consent ol{margin:6px 0;padding-left:22px;}
+.opts.row2{flex-direction:row;flex-wrap:wrap;}
+.opts.row2 label{flex:1;min-width:120px;}
+.vproxy{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;border:0;padding:0;}
+.lk{position:relative;}
+.lk + .lk{border-top:1px solid var(--line);padding-top:14px;}
+.sd{display:grid;grid-template-columns:110px 1fr 110px;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
+.sd:last-child{border-bottom:0;}
+.sd .l{text-align:right;font-weight:700;font-size:15px;}
+.sd .r{font-weight:700;font-size:15px;}
+.sd .row label{padding:8px 2px;}
+@media (max-width:560px){.sd{grid-template-columns:1fr 1fr;}.sd .row{grid-column:1/3;grid-row:2;}.sd .l{text-align:left;}.sd .r{text-align:right;}}
+.rank .rk{display:flex;gap:10px;align-items:flex-start;text-align:left;font:inherit;font-size:15.5px;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;}
+.rank .rk .badge{flex:0 0 26px;height:26px;border-radius:13px;border:1.5px solid #C9CEE0;font-weight:800;font-size:14px;line-height:23px;text-align:center;color:#fff;}
+.rank .rk.on{border-color:var(--blue);background:var(--blue-soft);}
+.rank .rk.on .badge{background:var(--blue);border-color:var(--blue);}
+.ladder{display:flex;flex-direction:column;gap:4px;max-width:320px;margin:8px auto;border-left:6px solid #C9B9F5;border-right:6px solid #C9B9F5;padding:4px 10px;}
+.ladder label{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:6px 12px;background:#fff;cursor:pointer;font-weight:700;}
+.ladder label:has(input:checked){border-color:var(--blue);background:var(--blue-soft);}
+input.other{margin-top:8px;}

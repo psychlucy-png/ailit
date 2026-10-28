@@ -14,12 +14,14 @@ const CONFIG = {
   // 활동 페이지 최소 체류 시간(초). 0이면 제한 없음. 예: 60으로 하면 1분 전에는 '다음'을 눌러도 넘어가지 않음
   MIN_ACTIVITY_SEC: 0,
 
-  // 연구 정보 (동의서·디브리핑에 표시)
-  STUDY_TITLE: "AI 리터러시 프로그램",
-  RESEARCHER_CONTACT: "[연구자 이름 · 소속 · 이메일을 입력하세요]",
-  IRB_INFO: "[IRB 승인 번호를 입력하세요]",
-  COUNSELING_INFO: "[학교 상담센터 이름 · 전화번호 · 위치를 입력하세요]",
-  EST_MINUTES: 30,
+  // 사전·사후 설문 문항을 꼭 답해야 넘어가는지 (true: 필수, false: 비워 두고 넘어갈 수 있음)
+  // 동의·참여 대상 확인·활동 페이지에는 영향 없음
+  SURVEY_REQUIRED: false,
+
+  // 연구 정보 (안내문·디브리핑에 표시)
+  STUDY_TITLE: "생성형 AI 활용 역량 증진을 위한 교육 프로그램 개발 및 평가",
+  CONTACT_HTML: "연구 책임자: 양수진 교수 (sujinyang@ewha.ac.kr)<br>이화여자대학교 심리학과 대학원 성장경험연구실<br>문의: 석사과정생 이가희 (전화번호: 010-2468-1127 / 이메일: agelabewhaai@gmail.com)",
+  RESEARCHER_CONTACT: "석사과정생 이가희, agelabewhaai@gmail.com",
 
   // 종료 후 패널 업체 등으로 돌려보낼 주소 (선택). {pid}는 참가자 ID로 바뀝니다.
   REDIRECT_URL: "",

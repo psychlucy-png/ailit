@@ -140,18 +140,73 @@ const browserCheck = {
   data: { task: "browser" },
 };
 
+const yesno = (name, q) => `<div class="lk"><div class="lq">${q}</div><div class="opts row2">
+  <label><input type="radio" name="${name}" value="1" required> 예</label><label><input type="radio" name="${name}" value="2" required> 아니오</label></div></div>`;
+const agreeQ = (name, q) => `<div class="lk"><div class="lq">${q}</div><div class="opts row2">
+  <label><input type="radio" name="${name}" value="1" required> 동의한다</label><label><input type="radio" name="${name}" value="2" required> 동의하지 않는다</label></div></div>`;
+
 const consent = {
   type: jsPsychSurveyHtmlForm,
-  html: `<h1>${CONFIG.STUDY_TITLE}</h1>
-    <div class="card">
-      <p>이 프로그램은 짧은 영상 3편과 활동 2개로 이루어져 있으며, 약 <b>${CONFIG.EST_MINUTES}분</b>이 걸립니다.</p>
-      <p>[연구 목적, 절차, 예상되는 위험과 이익, 자발적 참여와 중도 철회, 개인정보 보호, 보상 등 IRB 승인 동의서 내용을 여기에 넣으세요.]</p>
-      <p class="sub">${CONFIG.IRB_INFO}<br>문의: ${CONFIG.RESEARCHER_CONTACT}</p>
+  html: `<h1>연구 참여 안내문</h1>
+    <div class="card consent">
+      <h3>연구 제목</h3><p>${CONFIG.STUDY_TITLE}</p>
+      <p>본 연구는 생성형 AI를 비판적이고 건강하게 활용할 수 있도록 돕는 교육 프로그램을 개발하여 그 효과를 검증하고자 합니다. 귀하의 참여는 향후 AI 리터러시 증진 및 건강한 AI 사용을 위한 교육 프로그램 개발에 중요한 기초자료가 될 것입니다.</p>
+      <h3>연구 참여 대상</h3>
+      <p>AI를 사용하는 만 19세~30세 성인 대학생 및 대학원생</p>
+      <ol><li>컴퓨터 또는 모바일 기기를 활용하여 온라인 프로그램에 참여할 수 있음</li><li>한국어를 통한 의사소통에 어려움이 없음</li></ol>
+      <p class="sub">* 현재 우울증, 불안장애, 그리고 기타 중증도 이상의 심리적 질환으로 인한 정기적인 상담이나 병원/약물 치료를 받고 있는 자는 연구 참여에서 배제됩니다.</p>
+      <h3>연구 참여 절차</h3>
+      <ol><li>사전 온라인 설문: 20분 이내 소요</li><li>온라인 AI 리터러시 교육 프로그램 참여: 1주일</li><li>프로그램 종료 직후 온라인 설문: 20분 이내 소요</li><li>참여 1주일 뒤 온라인 설문: 20분 이내 소요</li><li>참여 1개월 뒤 온라인 설문: 20분 이내 소요</li></ol>
+      <p class="sub">* 보상: 전문조사기관으로 참여해주시는 분들께서는 설문 조사 기관의 보상 절차에 따라 소정의 보상을 받게 됩니다. 온라인 모집으로 본 연구에 참여해주신 분들께는 참여 시간에 대해 소정의 보상을 절차에 따라 지급해드릴 것입니다. 단, 중도에 참여를 철회하시는 경우 철회 이후의 보상은 지급하지 않습니다.</p>
+      <h3>위험 및 불편 사항</h3>
+      <p>연구 참여와 관련하여 시간이 소요되거나 컴퓨터 사용으로 인한 눈의 피로 외에 알려진 위험 요소는 없습니다.</p>
+      <h3>자발적 참여 및 철회</h3>
+      <p>연구 참여는 전적으로 자발적이며, 언제든지 설문창을 닫아 참여를 철회할 수 있습니다. 이 경우 귀하의 데이터는 즉시 삭제됩니다. 단, 데이터는 익명으로 저장되기 때문에 설문이 완료된 후에는 철회가 불가능합니다.</p>
+      <h3>개인정보 보호 및 기밀 유지</h3>
+      <p>모든 데이터는 익명으로 처리되며, 연구자만 접근 가능한 암호화된 클라우드 드라이브에 안전하게 보관됩니다. 법규에 따라 데이터는 연구 종료 후 3년 동안 보관되며, 이후 영구적으로 삭제됩니다.</p>
+      <h3>연락처</h3>
+      <p>${CONFIG.CONTACT_HTML}</p>
     </div>
-    <div class="opts"><label><input type="checkbox" name="consent" value="yes" required> 위 내용을 읽고 이해했으며, 연구 참여에 동의합니다.</label></div>`,
+    <div class="card">
+      ${agreeQ("consent_purpose", "본 연구의 연구 목적을 이해하고 연구에 참여하기를 희망합니다.")}
+      ${agreeQ("consent_withdraw", "본 연구 도중 자유롭게 참여를 철회할 수 있음을 이해하였습니다.")}
+    </div>`,
   button_label: "다음",
   data: { task: "consent" },
-  on_finish: flatten,
+  on_finish: d => {
+    flatten(d);
+    if (d.consent_purpose !== "1" || d.consent_withdraw !== "1") {
+      window.removeEventListener("beforeunload", warnLeave);
+      jsPsych.endExperiment(`<div class="jspsych-content"><h1>참여해 주셔서 감사합니다</h1><div class="card"><p>연구 참여에 동의하지 않으셨기 때문에 여기서 마칩니다. 어떤 응답도 저장되지 않았습니다. 이 창을 닫아 주세요.</p></div></div>`);
+    }
+  },
+};
+
+let ELIGIBLE = true;
+const screening = {
+  type: jsPsychSurveyHtmlForm,
+  html: `<h1>참여 대상 확인</h1><div class="card">
+    ${yesno("scr_student", "현재 대학생 또는 대학원생이십니까?")}
+    ${yesno("scr_age", "만 19세 이상 30세 이하이십니까?")}
+    ${yesno("scr_ai", "생성형 AI(ChatGPT, Gemini, Claude 등)를 사용하고 계십니까?")}
+    ${yesno("scr_treat", "현재 우울증, 불안장애, 그리고 기타 중증도 이상의 심리적 질환으로 인한 정기적인 상담이나 병원/약물 치료를 받고 계십니까?")}
+  </div>`,
+  button_label: "다음",
+  data: { task: "screening" },
+  on_finish: d => {
+    flatten(d);
+    ELIGIBLE = d.scr_student === "1" && d.scr_age === "1" && d.scr_ai === "1" && d.scr_treat === "2";
+    d.eligible = ELIGIBLE;
+    jsPsych.data.addProperties({ eligible: ELIGIBLE });
+  },
+};
+const screenOutPage = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: () => { window.removeEventListener("beforeunload", warnLeave);
+    return `<h1>참여해 주셔서 감사합니다</h1><div class="card"><p>아쉽지만 이번 연구의 참여 대상에 해당하지 않아 여기서 마칩니다. 이 창을 닫아 주세요.</p>
+      <p class="sub">${CONFIG.CONTACT_HTML}</p></div>`; },
+  choices: [],
+  data: { task: "screen_out" },
 };
 
 const setupGuide = {
@@ -199,31 +254,90 @@ const soundCheck = {
   },
 };
 
-function demographicsHTML() {
-  return DEMOGRAPHICS.map(q => {
-    if (q.type === "number") return `<div class="lk"><div class="lq">${q.text}</div><input type="number" name="${q.id}" min="${q.min}" max="${q.max}" required style="max-width:160px"></div>`;
-    return `<div class="lk"><div class="lq">${q.text}</div><div class="opts">${q.options.map((o, i) =>
-      `<label><input type="radio" name="${q.id}" value="${i + 1}" required> ${o}</label>`).join("")}</div></div>`;
-  }).join("");
+/* ---------- 설문 블록 렌더링 ---------- */
+function scaleRow(name, sc, required = true) {
+  return `<div class="row">${Array.from({ length: sc.n }, (_, i) => i + 1).map(v =>
+    `<label><input type="radio" name="${name}" value="${v}" ${required ? "required" : ""}><span class="num">${v}</span>${sc.labels[v] || ""}</label>`).join("")}</div>`;
 }
-function measureTrial(block, stepIdx, task, extra) {
+const proxy = name => `<input class="vproxy" id="${name}__proxy" tabindex="-1" aria-hidden="true">`;
+function itemHTML(block, it, name) {
+  const t = it.type || "likert";
+  const sc = it.scale || block.scale;
+  const show = it.showIf ? ` data-showif="${name.slice(0, name.length - it.id.length)}${it.showIf.id}" data-showval="${it.showIf.value}" hidden` : "";
+  const q = it.text ? `<div class="lq">${it.text}</div>` : "";
+  let body = "";
+  if (t === "likert") body = scaleRow(name, sc);
+  else if (t === "semdiff") return `<div class="sd"><span class="l">${it.left}</span>${scaleRow(name, sc)}<span class="r">${it.right}</span></div>`;
+  else if (t === "text") body = `<input type="text" name="${name}" required placeholder="${it.placeholder || ""}" style="max-width:280px">`;
+  else if (t === "textarea") body = `<textarea name="${name}" ${it.optional ? "" : "required"}></textarea>`;
+  else if (t === "number") body = `<input type="number" name="${name}" min="${it.min}" max="${it.max}" required style="max-width:160px"> <span class="sub">만 ${it.min}~${it.max}세</span>`;
+  else if (t === "choice") body = `<div class="opts">${it.options.map((o, i) => `<label><input type="radio" name="${name}" value="${it.values ? it.values[i] : i + 1}" required> ${o}</label>`).join("")}</div>`;
+  else if (t === "multi") body = `<div class="opts" data-multi="${name}">${it.options.map((o, i) => `<label><input type="checkbox" name="${name}_${i + 1}" value="1"> ${o}</label>`).join("")}</div>${proxy(name)}`;
+  else if (t === "rank") body = `<p class="sub">가장 자주 하는 것부터 차례로 누르세요. 다시 누르면 취소돼요. (최대 ${it.max}개)</p>
+      <div class="opts rank" data-rank="${name}" data-max="${it.max}">${it.options.map((o, i) => `<button type="button" class="rk" data-v="${i + 1}"><span class="badge"></span><span>${o}</span></button>`).join("")}</div>
+      ${Array.from({ length: it.max }, (_, k) => `<input type="hidden" name="${name}${k + 1}" id="${name}${k + 1}">`).join("")}${proxy(name)}`;
+  else if (t === "ladder") body = `<div class="ladder">${Array.from({ length: 10 }, (_, k) => 10 - k).map(v =>
+      `<label><input type="radio" name="${name}" value="${v}" required><span>${v}${v === 10 ? " (가장 높음)" : v === 1 ? " (가장 낮음)" : ""}</span></label>`).join("")}</div>`;
+  if (it.other) body += `<input type="text" name="${name}_other" class="other" data-for="${name}" data-opt="${it.other}" placeholder="기타 내용을 적어 주세요" disabled hidden>`;
+  return `<div class="lk"${show}>${q}${body}</div>`;
+}
+function wireBlock(root) {
+  const REQ = CONFIG.SURVEY_REQUIRED !== false;
+  if (!REQ) root.querySelectorAll("[required]").forEach(e => e.required = false);
+  // 조건부 문항
+  root.querySelectorAll("[data-showif]").forEach(box => {
+    const ctl = box.dataset.showif, want = box.dataset.showval;
+    const nm = ctl;
+    const upd = () => { const sel = root.querySelector(`input[name="${nm}"]:checked`); const on = sel && sel.value === want;
+      box.hidden = !on; box.querySelectorAll("input").forEach(i => i.disabled = !on); };
+    root.querySelectorAll(`input[name="${nm}"]`).forEach(r => r.addEventListener("change", upd)); upd();
+  });
+  // '기타' 직접 입력
+  root.querySelectorAll("input.other").forEach(o => {
+    const nm = o.dataset.for, opt = o.dataset.opt;
+    const upd = () => {
+      const r = root.querySelector(`input[name="${nm}"][value="${opt}"]`), c = root.querySelector(`input[name="${nm}_${opt}"]`);
+      const rk = root.querySelector(`[data-rank="${nm}"] .rk[data-v="${opt}"]`);
+      const on = (r && r.checked) || (c && c.checked) || (rk && rk.classList.contains("on"));
+      o.hidden = !on; o.disabled = !on; o.required = REQ && !!on;
+    };
+    root.addEventListener("change", upd); root.addEventListener("click", () => setTimeout(upd, 0)); upd();
+  });
+  // 복수 선택: 1개 이상
+  root.querySelectorAll("[data-multi]").forEach(g => {
+    const px = document.getElementById(g.dataset.multi + "__proxy");
+    const upd = () => px.setCustomValidity(!REQ || [...g.querySelectorAll("input")].some(c => c.checked) ? "" : "하나 이상 선택해 주세요.");
+    g.addEventListener("change", upd); upd();
+  });
+  // 순위 선택
+  root.querySelectorAll("[data-rank]").forEach(g => {
+    const nm = g.dataset.rank, max = +g.dataset.max, order = [];
+    const px = document.getElementById(nm + "__proxy");
+    const render = () => {
+      g.querySelectorAll(".rk").forEach(b => { const k = order.indexOf(b.dataset.v); b.classList.toggle("on", k >= 0); b.querySelector(".badge").textContent = k >= 0 ? k + 1 : ""; });
+      for (let k = 0; k < max; k++) document.getElementById(nm + (k + 1)).value = order[k] || "";
+      px.setCustomValidity(!REQ || order.length ? "" : "하나 이상 선택해 주세요.");
+    };
+    g.querySelectorAll(".rk").forEach(b => b.addEventListener("click", () => {
+      const k = order.indexOf(b.dataset.v);
+      if (k >= 0) order.splice(k, 1); else if (order.length < max) order.push(b.dataset.v);
+      render();
+    }));
+    render();
+  });
+}
+function blockTrial(block, prefix, stepIdx, task) {
+  const name = it => `${prefix}${block.id}_${it.id}`;
   return {
     type: jsPsychSurveyHtmlForm,
-    html: `${steps(stepIdx)}<h1>${block.title}</h1><p>${block.instruction}</p>${extra || ""}
-      <div class="card">${block.items.map(it => likert(it.id, it.text, it.scale)).join("")}
-      ${block.open ? `<div class="lk"><div class="lq">${block.open.text}</div><textarea name="${block.open.id}"></textarea></div>` : ""}</div>`,
+    html: `${steps(stepIdx)}<h1>${block.title}</h1>${block.instruction ? `<div class="note">${block.instruction}</div>` : ""}
+      <div class="card">${block.items.map(it => itemHTML(block, it, name(it))).join("")}</div>`,
     button_label: "다음",
-    data: { task },
-    on_finish: flatten,
+    data: { task, block: block.id },
+    on_load: () => wireBlock(document.getElementById("jspsych-survey-html-form")),
+    on_finish: d => { flatten(d); window.scrollTo(0, 0); },
   };
 }
-const demographics = {
-  type: jsPsychSurveyHtmlForm,
-  html: `${steps(0)}<h1>기본 정보</h1><div class="card">${demographicsHTML()}</div>`,
-  button_label: "다음",
-  data: { task: "demographics" },
-  on_finish: flatten,
-};
 
 /* ---------- 2. 영상 페이지 ---------- */
 function videoTrial(n, stepIdx, title) {
@@ -521,11 +635,9 @@ const debrief = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `${steps(6)}<h1>참여해 주셔서 감사합니다</h1>
     <div class="card">
+      <p>본 연구는 생성형 AI를 비판적이고 건강하게 활용할 수 있도록 돕는 교육 프로그램을 개발하여 그 효과를 검증하고자 합니다.</p>
       <p>활동에서 본 AI 답변 2개와 대화 3개는 <b>연구자가 교육 목적으로 구성한 가상 예시</b>입니다. 특정 서비스의 실제 대화가 아닙니다.</p>
-      <p>[연구 목적에 대한 추가 설명을 넣으세요.]</p>
-      <p>프로그램을 하며 마음이 불편했거나 도움이 필요하다면 아래로 연락해 주세요.</p>
-      <p><b>${CONFIG.COUNSELING_INFO}</b></p>
-      <p class="sub">문의: ${CONFIG.RESEARCHER_CONTACT}</p>
+      <p class="sub">${CONFIG.CONTACT_HTML}</p>
     </div>
     <p class="center sub">아래 버튼을 누르면 응답이 저장됩니다.</p>`,
   choices: ["응답 저장하기"],
@@ -598,38 +710,49 @@ const endPage = {
 };
 
 /* ---------- 타임라인 ---------- */
-const timeline = [
-  browserCheck, consent, setupGuide, soundCheck,
-  demographics, measureTrial(PRE_MEASURES, 0, "pre"),
-  videoTrial(1, 1, "AI는 어떻게 답을 만들까?"),
+const preBlocks = [...PRE_ONLY.map(b => blockTrial(b, "", 0, "pre")), ...PREPOST.map(b => blockTrial(b, "pre_", 0, "pre"))];
+const postBlocks = PREPOST.map(b => blockTrial(b, "post_", 6, "post"));
+const video1 = videoTrial(1, 1, "AI는 어떻게 답을 만들까?");
+const video2 = videoTrial(2, 3, "AI에게 무엇을 맡기고 있나요?");
+const video3 = videoTrial(3, 5, "주체적으로 AI 사용하기");
+const main = [
+  ...preBlocks,
+  setupGuide, soundCheck,
+  video1,
   checkTrial(1, 1, "영상에서 설명한, AI가 답을 만드는 방식에 가장 가까운 것은?", [
     "질문의 의미를 사람처럼 이해한 뒤 답한다",
     "학습한 패턴을 바탕으로 다음에 올 표현을 확률적으로 예측한다",
     "답을 내기 전에 항상 사실인지 스스로 확인한다",
     "모르는 내용은 반드시 모른다고 답한다"], 2),
   act1Intro, act1A, act1B,
-  videoTrial(2, 3, "AI에게 무엇을 맡기고 있나요?"),
+  video2,
   checkTrial(2, 3, "영상에서 말한 ‘인지적 외주화’의 뜻으로 알맞은 것은?", [
     "AI 회사가 업무를 외부 업체에 맡기는 것",
     "여러 사람이 과제를 나누어 하는 것",
     "생각하고 판단하는 정신적 노력을 외부 도구에 맡기는 것",
     "AI가 사람 대신 감정을 느끼는 것"], 3),
   act2Intro, act2S1, act2S2, act2S3,
-  videoTrial(3, 5, "주체적으로 AI 사용하기"),
+  video3,
   checkTrial(3, 5, "영상에서 AI가 ‘아첨’하는 답을 하게 되는 이유로 설명한 것은?", [
     "사람들이 자기 생각에 동의하는 답을 더 좋게 평가하는 경향이 있어서",
     "AI가 사용자를 진심으로 좋아해서",
     "법으로 항상 친절하게 답하도록 정해져 있어서",
     "AI가 사용자의 모든 정보를 알고 있어서"], 1),
   myChange,
-  measureTrial(POST_MEASURES, 6, "post"),
+  ...postBlocks,
 ];
-if (PROGRAM_FEEDBACK.items.length) timeline.push(measureTrial(PROGRAM_FEEDBACK, 6, "feedback"));
-timeline.push(debrief, save, endPage);
+if (PROGRAM_FEEDBACK.items.length) main.push(blockTrial(PROGRAM_FEEDBACK, "", 6, "feedback"));
+main.push(debrief, save, endPage);
+
+const timeline = [
+  browserCheck, consent, screening,
+  { timeline: [save, screenOutPage], conditional_function: () => !ELIGIBLE },
+  { timeline: main, conditional_function: () => ELIGIBLE },
+];
 
 // ?debug=1&start=act1 또는 ?preview=1&start=video2 처럼 특정 지점부터 시작 (연구자 확인용, 데이터에 debug/preview 표시됨)
 const PREVIEW = URLP.get("preview") === "1";
 if (PREVIEW) jsPsych.data.addProperties({ preview: true });
 const START = (DEBUG || PREVIEW) ? URLP.get("start") : null;
-const STARTS = { video1: 6, act1: 8, video2: 11, act2: 13, video3: 17, change: 19, post: 20 };
-jsPsych.run(START && STARTS[START] != null ? [browserCheck, ...timeline.slice(STARTS[START])] : timeline);
+const STARTS = { pre: preBlocks[0], video1, act1: act1Intro, video2, act2: act2Intro, video3, change: myChange, post: postBlocks[0] };
+jsPsych.run(START && STARTS[START] ? [browserCheck, ...main.slice(main.indexOf(STARTS[START]))] : timeline);
