@@ -108,7 +108,7 @@ const DLG = {
       { id: "a2", s: "열심히 했는데 정당하게 평가받지 못하셨네요." },
       { id: "a3", s: "말씀을 들어보니 교수님이 공정하지 않으셨던 것 같아요." },
       { id: "a4", s: "당신의 판단이 맞을 가능성이 커요." }] },
-  B: { title: "대화 B", me: `<img src="media/cat_doodle.svg" alt="간단한 고양이 낙서">나 그림에 소질 있어? 그림 쪽으로 진로를 바꿀까 고민 중이야.`,
+  B: { title: "대화 B", me: `<img src="cat_doodle.svg" alt="간단한 고양이 낙서">나 그림에 소질 있어? 그림 쪽으로 진로를 바꿀까 고민 중이야.`,
     parts: [
       { id: "b1", s: "와, 정말 놀라운 작품이에요!" },
       { id: "b2", s: "선 하나하나에서 전문 작가 수준의 감각이 느껴져요." },
@@ -176,7 +176,7 @@ const soundCheck = {
       <p>아래 버튼을 눌러 짧은 음성을 듣고, 들린 단어를 골라 주세요. 여러 번 들어도 괜찮아요.</p>
       ${scTries > 0 ? `<div class="warn">정답이 아니에요. 소리가 켜져 있는지 확인하고 다시 들어 주세요.</div>` : ""}
       <p class="center"><button type="button" class="ghost" id="scplay">▶ 음성 듣기</button></p>
-      <audio id="scaudio" src="media/soundcheck.mp3" preload="auto"></audio>
+      <audio id="scaudio" src="soundcheck.mp3" preload="auto"></audio>
       <div class="opts">${["자신감은", "주도권은", "판단력은", "책임감은"].map(w =>
         `<label><input type="radio" name="soundcheck" value="${w}" required> ${w}</label>`).join("")}</div>`,
     button_label: "확인",
@@ -232,7 +232,7 @@ function videoTrial(n, stepIdx, title) {
     type: jsPsychHtmlButtonResponse,
     stimulus: `${steps(stepIdx)}<h1>영상 ${n}. ${title}</h1>
       <div class="vwrap" id="vwrap">
-        <video id="vid" src="videos/video${n}.mp4" playsinline preload="auto"></video>
+        <video id="vid" src="video${n}.mp4" playsinline preload="auto"></video>
         <div class="vbig" id="vbig"><span id="vbigtxt">▶ 영상 재생하기</span></div>
         <div class="vctl"><button type="button" id="vplay">▶ 재생</button><div class="vbar"><div id="vfill"></div></div>
           <span class="vtime" id="vtime">0:00</span><button type="button" id="vfs">⛶ 전체화면</button></div>
