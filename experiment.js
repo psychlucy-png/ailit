@@ -534,13 +534,27 @@ const debrief = {
 
 let saveStatus = "pending";
 function csvData() { return jsPsych.data.get().filterCustom(t => t.task !== undefined).ignore("stimulus").csv(); }
+let lastSaveError = "";
+let saveFilename = null;
 async function sendToDataPipe() {
-  const res = await fetch("https://pipe.jspsych.org/api/data/", {
-    method: "POST", headers: { "Content-Type": "application/json", Accept: "*/*" },
-    body: JSON.stringify({ experimentID: CONFIG.DATAPIPE_ID, filename: `${PID}_${Date.now()}.csv`, data: csvData() }),
-  });
-  if (!res.ok) throw new Error("HTTP " + res.status);
-  return res;
+  if (!saveFilename) saveFilename = `${PID}_${Date.now()}.csv`;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 20000);
+  try {
+    const res = await fetch("https://pipe.jspsych.org/api/data/", {
+      method: "POST", headers: { "Content-Type": "application/json", Accept: "*/*" },
+      body: JSON.stringify({ experimentID: CONFIG.DATAPIPE_ID, filename: saveFilename, data: csvData() }),
+      signal: ctrl.signal,
+    });
+    const txt = await res.text().catch(() => "");
+    console.log("[DataPipe]", res.status, txt);
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${txt.slice(0, 300)}`);
+    return res;
+  } catch (e) {
+    lastSaveError = e.name === "AbortError" ? "응답 시간 초과(20초)" : String(e.message || e);
+    console.error("[DataPipe] 저장 실패:", lastSaveError);
+    throw e;
+  } finally { clearTimeout(timer); }
 }
 const save = {
   type: jsPsychCallFunction,
@@ -548,9 +562,9 @@ const save = {
   func: done => {
     jsPsych.data.addProperties({ finished_at: new Date().toISOString() });
     if (!CONFIG.DATAPIPE_ID) { saveStatus = "local"; done({ save: "local" }); return; }
-    document.getElementById("app").innerHTML = `<div class="jspsych-content center"><h2>응답을 저장하는 중이에요…</h2><p class="sub">창을 닫지 말아 주세요.</p></div>`;
+    jsPsych.getDisplayElement().innerHTML = `<div class="center"><h2>응답을 저장하는 중이에요…</h2><p class="sub">창을 닫지 말아 주세요.</p></div>`;
     const attempt = (k) => sendToDataPipe().then(() => { saveStatus = "ok"; done({ save: "ok" }); })
-      .catch(() => { if (k < 3) setTimeout(() => attempt(k + 1), 1500 * k); else { saveStatus = "fail"; done({ save: "fail" }); } });
+      .catch(() => { if (k < 2) setTimeout(() => attempt(k + 1), 1000); else { saveStatus = "fail"; done({ save: "fail" }); } });
     attempt(1);
   },
 };
@@ -569,7 +583,8 @@ const endPage = {
       <p class="center"><button type="button" class="ghost" onclick="downloadCSV()">CSV 내려받기</button></p></div>`;
     return `<h1>저장에 실패했어요</h1><div class="card"><p>인터넷 연결 문제로 응답을 보내지 못했어요. <b>창을 닫지 말고</b> 아래 버튼을 눌러 주세요.</p>
       <p class="center"><button type="button" class="ghost" id="retry">다시 저장하기</button> <button type="button" class="ghost" onclick="downloadCSV()">파일로 내려받기</button></p>
-      <p class="sub">파일로 내려받았다면 연구자(${CONFIG.RESEARCHER_CONTACT})에게 보내 주세요.</p><p id="rmsg"></p></div>`;
+      <p class="sub">파일로 내려받았다면 연구자(${CONFIG.RESEARCHER_CONTACT})에게 보내 주세요.</p><p id="rmsg"></p>
+      <p class="sub">오류 내용: ${esc(lastSaveError)}</p></div>`;
   },
   choices: () => (CONFIG.REDIRECT_URL && saveStatus !== "fail") ? ["돌아가기"] : [],
   data: { task: "end" },
