@@ -1,8 +1,12 @@
 // ===================== 연구자가 수정하는 설정 =====================
 // 이 파일만 고치면 대부분의 설정을 바꿀 수 있습니다.
 const CONFIG = {
-  // DataPipe(https://pipe.jspsych.org)에서 Google Drive 저장으로 만든 실험 ID.
-  // 비워 두면 "로컬 테스트 모드": 데이터를 서버로 보내지 않고 마지막 화면에서 CSV 파일로 내려받습니다.
+  // Google 스프레드시트 저장 주소 (Apps Script 웹 앱 URL, https://script.google.com/macros/s/.../exec)
+  // 참가자 1명당 스프레드시트 1줄로 저장됩니다.
+  SHEETS_URL: "https://script.google.com/macros/s/AKfycbxXnc3tcl3I7Mb8Wb_RGJlZweBpKzkk759Ik8V_Lev95ga4b3HiebRl-IqbiwsVqke2/exec",
+
+  // (선택) DataPipe 백업: 화면별 원자료 CSV를 Google Drive에 따로 남김. 필요 없으면 "" 로 비우세요.
+  // SHEETS_URL과 DATAPIPE_ID가 둘 다 비어 있으면 "로컬 테스트 모드": 마지막 화면에서 CSV로 내려받습니다.
   DATAPIPE_ID: "1kKB1xVeGkvG",
 
   // 영상 시청 인정 기준: 실제 재생 시간이 영상 길이의 몇 % 이상이어야 '다음' 버튼이 열리는지
