@@ -668,20 +668,67 @@ async function sendToDataPipe() {
     throw e;
   } finally { clearTimeout(timer); }
 }
+/* ---------- Google 스프레드시트 저장 (참가자 1명 = 1줄) ---------- */
+const META_KEYS = new Set(["pid", "debug", "started_at", "url_params", "preview", "eligible", "soundcheck_failed", "finished_at"]);
+const SKIP_KEYS = new Set(["trial_type", "trial_index", "time_elapsed", "internal_node_id", "response", "stimulus", "task", "block", "rt", "video", "save"]);
+const VIDEO_KEYS = ["completed", "video_duration", "watched_sec", "watched_ratio", "max_position", "n_plays", "n_pauses",
+  "n_tab_hidden", "tab_hidden_sec", "n_paused_by_tab", "n_seek_blocked", "n_load_errors", "n_fullscreen", "first_play_ms"];
+function wideRow() {
+  const all = jsPsych.data.get().values();
+  const last = all[all.length - 1] || {};
+  const row = { pid: PID, saved_at: new Date().toISOString() };
+  ["started_at", "finished_at", "eligible", "debug", "preview", "soundcheck_failed"].forEach(k => { if (last[k] !== undefined) row[k] = last[k]; });
+  row.total_min = +((last.time_elapsed || 0) / 60000).toFixed(1);
+  for (const t of all) {
+    if (!t.task) continue;
+    if (t.task === "video") {
+      VIDEO_KEYS.forEach(k => { row[`v${t.video}_${k}`] = t[k]; });
+      row[`v${t.video}_page_sec`] = Math.round((t.rt || 0) / 1000);
+      continue;
+    }
+    for (const [k, v] of Object.entries(t)) {
+      if (SKIP_KEYS.has(k) || META_KEYS.has(k) || v === null || v === undefined || typeof v === "object") continue;
+      row[k] = v;
+    }
+    if (t.rt != null && t.task !== "browser") row[`sec_${t.task}${t.block ? "_" + t.block : ""}${t.video ? "_v" + t.video : ""}`] = Math.round(t.rt / 1000);
+  }
+  return row;
+}
+async function sendToSheets() {
+  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 25000);
+  try {
+    // text/plain 으로 보내야 브라우저 사전 확인(CORS preflight) 없이 Apps Script로 전달됨
+    const res = await fetch(CONFIG.SHEETS_URL, { method: "POST", body: JSON.stringify({ row: wideRow() }), signal: ctrl.signal });
+    const txt = await res.text().catch(() => "");
+    console.log("[Sheets]", res.status, txt);
+    let ok = res.ok; try { ok = ok && JSON.parse(txt).ok === true; } catch (e) { ok = false; }
+    if (!ok) throw new Error(`Sheets ${res.status} ${txt.slice(0, 200)}`);
+  } catch (e) {
+    lastSaveError = e.name === "AbortError" ? "스프레드시트 응답 시간 초과" : String(e.message || e);
+    console.error("[Sheets] 저장 실패:", lastSaveError); throw e;
+  } finally { clearTimeout(timer); }
+}
+// 스프레드시트가 주 저장소, DataPipe(설정한 경우)는 원자료 백업
+async function sendAll() {
+  if (CONFIG.DATAPIPE_ID && CONFIG.SHEETS_URL) sendToDataPipe().catch(() => {});
+  if (CONFIG.SHEETS_URL) return sendToSheets();
+  return sendToDataPipe();
+}
 const save = {
   type: jsPsychCallFunction,
   async: true,
   func: done => {
     jsPsych.data.addProperties({ finished_at: new Date().toISOString() });
-    if (!CONFIG.DATAPIPE_ID) { saveStatus = "local"; done({ save: "local" }); return; }
+    if (!CONFIG.DATAPIPE_ID && !CONFIG.SHEETS_URL) { saveStatus = "local"; done({ save: "local" }); return; }
     jsPsych.getDisplayElement().innerHTML = `<div class="center"><h2>응답을 저장하는 중이에요…</h2><p class="sub">창을 닫지 말아 주세요.</p></div>`;
-    const attempt = (k) => sendToDataPipe().then(() => { saveStatus = "ok"; done({ save: "ok" }); })
+    const attempt = (k) => sendAll().then(() => { saveStatus = "ok"; done({ save: "ok" }); })
       .catch(() => { if (k < 2) setTimeout(() => attempt(k + 1), 1000); else { saveStatus = "fail"; done({ save: "fail" }); } });
     attempt(1);
   },
 };
+function toCSV(row) { const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`; return Object.keys(row).map(q).join(",") + "\n" + Object.values(row).map(q).join(","); }
 function downloadCSV() {
-  const blob = new Blob(["﻿" + csvData()], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob(["﻿" + (CONFIG.SHEETS_URL ? toCSV(wideRow()) : csvData())], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `ai_literacy_${PID}.csv`; a.click();
 }
 const endPage = {
@@ -703,7 +750,7 @@ const endPage = {
   on_load: () => {
     const r = document.getElementById("retry");
     if (r) r.onclick = () => { r.disabled = true; document.getElementById("rmsg").textContent = "저장 중…";
-      sendToDataPipe().then(() => { document.getElementById("rmsg").innerHTML = "<b>✓ 저장되었어요. 창을 닫아도 됩니다.</b>"; })
+      sendAll().then(() => { document.getElementById("rmsg").innerHTML = "<b>✓ 저장되었어요. 창을 닫아도 됩니다.</b>"; })
         .catch(() => { r.disabled = false; document.getElementById("rmsg").textContent = "다시 실패했어요. 파일로 내려받아 주세요."; }); };
   },
   on_finish: () => { if (CONFIG.REDIRECT_URL) location.href = CONFIG.REDIRECT_URL.replace("{pid}", encodeURIComponent(PID)); },
