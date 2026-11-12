@@ -43,8 +43,8 @@ function checkTrial(n, stepIdx, q, options, correct) {
       <div class="opts">${options.map((o, i) => `<label><input type="radio" name="check_v${n}" value="${i + 1}" required> ${o}</label>`).join("")}</div></div>
       <h2>영상 ${n}에 대한 생각</h2>
       <div class="card">
-        ${likert(`rate_v${n}_like`, "이 영상이 마음에 들었다.", OPT5)}
-        ${likert(`rate_v${n}_imp`, "이 영상의 내용이 나에게 중요하게 느껴졌다.", OPT5)}
+        ${likert(`rate_v${n}_like`, "이 영상이 흥미롭다.", OPT5)}
+        ${likert(`rate_v${n}_imp`, "이 영상의 내용이 중요하게 느껴진다.", OPT5)}
         ${likert(`rate_v${n}_int`, "나는 이 영상에서 제안한 내용을 실천해 볼 의향이 있다.", OPT5)}
       </div>`,
     button_label: "다음",

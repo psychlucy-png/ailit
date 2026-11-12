@@ -73,7 +73,7 @@ jsPsych 7.3.4로 만든 온라인 실험입니다. **사전 설문과 프로그�
 | 공통 | `pid`, `form`(pre/program), `saved_at`, `started_at`, `finished_at`, `total_min`, `debug`, `preview`, `soundcheck_failed`, `sec_화면이름`(화면별 체류 초) |
 | 영상 (n=1~4) | `vn_watched_ratio`, `vn_completed`, `vn_tab_hidden_sec`, `vn_n_seek_blocked` 등 노출 지표 |
 | 영상 확인 (이해) | `check_vn`(보기 번호), `check_vn_correct`(0/1). 정답: 영상 1=2번, 2=3번, 3=2번, 4=1번 |
-| 영상 평정 (수용성, 1~5) | `rate_vn_like`(호감), `rate_vn_imp`(내면화), `rate_vn_int`(실천 의도) |
+| 영상 평정 (수용성, 1~5) | `rate_vn_like`(흥미), `rate_vn_imp`(중요성), `rate_vn_int`(실천 의도) |
 | 활동 1 (수행) | `a1a_A1`~`A5`(1 일치, 2 다름, 3 확인 불가), `a1a_Ak_ok`, `a1a_score`(0~5) · `a1b_B1`~`B5`(보기 1~5), `a1b_Bk_ok`, `a1b_score`(0~5), `a1b_order`(화면에 나온 순서) · `act1_total`(0~10) |
 | 활동 2 (수행) | `a2s1_A_feel`, `a2s1_A_more`(B, C도 같음, 1~5) · `a2a_A1`~`A5`(단서 1~5), `a2a_Ak_ok`, `a2a_score`, `a2a_order`, `a2a_change`(1 달라지지 않음, 2 조금, 3 많이) · `a2b_B1`~`B5`(보기 1~3), `a2b_Bk_ok`, `a2b_score`, `a2b_felt`(1 있다, 2 없다, 3 모르겠다) · `act2_total`(0~10) |
 | 활동 참여 평정 (1~5) | `eng_a1_beh`, `eng_a1_emo`, `eng_a1_cog`, `eng_a1_diff`(난도, 참여 점수에서 제외) · `eng_a2_*` 같음 |
