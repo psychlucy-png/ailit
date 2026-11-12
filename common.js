@@ -194,7 +194,9 @@ function blockTrial(block, prefix, stepIdx, task) {
 }
 
 /* ---------- 2. 영상 페이지 ---------- */
-function videoTrial(n, stepIdx, title) { // video{n}.mp4
+// task (선택): { at: 초, skipTo: 초, html: 입력 화면 HTML, collect: form => 값 객체 또는 오류 문자열 }
+//  → 영상이 task.at에 이르면 멈추고 영상 아래에 입력창을 띄웁니다. 입력하면 skipTo부터 이어서 재생합니다.
+function videoTrial(n, stepIdx, title, task) { // video{n}.mp4
   const S = {}; let cleanup = () => {};
   return {
     type: jsPsychHtmlButtonResponse,
@@ -205,6 +207,8 @@ function videoTrial(n, stepIdx, title) { // video{n}.mp4
         <div class="vctl"><button type="button" id="vplay">▶ 재생</button><div class="vbar"><div id="vfill"></div></div>
           <span class="vtime" id="vtime">0:00</span><button type="button" id="vfs">⛶ 전체화면</button></div>
       </div>
+      ${task ? `<form class="vtask" id="vtask" style="display:none" onsubmit="return false">${task.html}
+        <div class="vtaskerr" id="vtaskerr"></div><p class="center"><button type="button" class="jspsych-btn" id="vtaskgo">입력하고 이어서 보기</button></p></form>` : ""}
       <div class="vstatus" id="vstatus">영상을 끝까지 보면 아래 '다음' 버튼이 활성화돼요.</div>`,
     choices: ["다음"],
     data: { task: "video", video: n },
@@ -217,16 +221,34 @@ function videoTrial(n, stepIdx, title) { // video{n}.mp4
       const next = document.querySelector("#jspsych-html-button-response-button-0 button");
       if (!DEBUG) next.disabled = true; else st.textContent = "[디버그 모드] 영상을 건너뛸 수 있어요.";
 
-      const toggle = () => { if (v.paused || v.ended) { const p = v.play(); if (p && p.catch) p.catch(() => {}); } else v.pause(); };
+      S.taskOn = false; S.taskDone = false; S.taskVals = {};
+      const toggle = () => { if (S.taskOn) return; if (v.paused || v.ended) { const p = v.play(); if (p && p.catch) p.catch(() => {}); } else v.pause(); };
       big.addEventListener("click", toggle); btnP.addEventListener("click", toggle);
       v.addEventListener("play", () => { S.plays++; if (S.firstPlayMs == null) S.firstPlayMs = Math.round(performance.now() - S.t0); big.style.display = "none"; btnP.textContent = "❚❚ 일시정지"; S.last = v.currentTime; });
-      v.addEventListener("pause", () => { if (v.ended) return; S.pauses++; big.style.display = "flex"; bigTxt.textContent = "▶ 이어서 보기"; btnP.textContent = "▶ 재생"; });
+      v.addEventListener("pause", () => { if (v.ended) return; S.pauses++; if (S.taskOn) { big.style.display = "none"; btnP.textContent = "▶ 재생"; return; } big.style.display = "flex"; bigTxt.textContent = "▶ 이어서 보기"; btnP.textContent = "▶ 재생"; });
       v.addEventListener("loadedmetadata", () => { tm.textContent = `0:00 / ${fmt(v.duration)}`; bigTxt.textContent = `▶ 영상 재생하기 (${fmt(v.duration)})`; });
       v.addEventListener("timeupdate", () => {
         const t = v.currentTime, d = t - S.last;
         if (d > 0 && d < 1.5 && !v.paused) S.watched += d;
         S.last = t; if (t > S.maxPos) S.maxPos = t;
         if (v.duration) { fill.style.width = (100 * t / v.duration) + "%"; tm.textContent = `${fmt(t)} / ${fmt(v.duration)}`; }
+        if (task && !S.taskDone && !S.taskOn && t >= task.at) {
+          S.taskOn = true; S.taskShownAt = performance.now(); v.pause();
+          if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+          const f = document.getElementById("vtask"); f.style.display = "block"; st.textContent = "아래에 입력하면 영상이 이어서 재생돼요.";
+          setTimeout(() => f.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
+        }
+      });
+      if (task) document.getElementById("vtaskgo").addEventListener("click", () => {
+        const f = document.getElementById("vtask"), r = task.collect(f);
+        if (typeof r === "string") { document.getElementById("vtaskerr").textContent = r; return; }
+        S.taskVals = r; S.taskSec = +((performance.now() - S.taskShownAt) / 1000).toFixed(1); S.taskDone = true; S.taskOn = false;
+        f.querySelectorAll("input,textarea,select,button").forEach(x => x.disabled = true);
+        document.getElementById("vtaskgo").textContent = "✓ 입력 완료"; document.getElementById("vtaskerr").textContent = "";
+        st.textContent = "영상을 끝까지 보면 아래 '다음' 버튼이 활성화돼요.";
+        if (task.skipTo && v.currentTime < task.skipTo) { S.watched += task.skipTo - v.currentTime; S.maxPos = Math.max(S.maxPos, task.skipTo); v.currentTime = task.skipTo; S.last = task.skipTo; }
+        wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+        const p = v.play(); if (p && p.catch) p.catch(() => { big.style.display = "flex"; bigTxt.textContent = "▶ 이어서 보기"; });
       });
       v.addEventListener("seeking", () => {
         if (v.currentTime > S.maxPos + 0.75) { S.seekBlocked++; v.currentTime = S.maxPos; }
@@ -272,6 +294,7 @@ function videoTrial(n, stepIdx, title) { // video{n}.mp4
         tab_hidden_sec: +(S.hiddenMs / 1000).toFixed(1), n_paused_by_tab: S.hidPaused, n_seek_blocked: S.seekBlocked,
         n_load_errors: S.errors, n_fullscreen: S.fsCount, first_play_ms: S.firstPlayMs,
       });
+      if (task) Object.assign(d, S.taskVals, { task_keys: Object.keys(S.taskVals), task_shown: S.taskShownAt != null, task_sec: S.taskSec ?? null });
     },
   };
 }
@@ -316,6 +339,8 @@ function wideRow() {
     if (t.task === "video") {
       VIDEO_KEYS.forEach(k => { row[`v${t.video}_${k}`] = t[k]; });
       row[`v${t.video}_page_sec`] = Math.round((t.rt || 0) / 1000);
+      if (t.task_shown !== undefined) { row[`v${t.video}_task_shown`] = t.task_shown; row[`v${t.video}_task_sec`] = t.task_sec; }
+      (t.task_keys || []).forEach(k => { row[k] = t[k]; });
       continue;
     }
     for (const [k, v] of Object.entries(t)) {
