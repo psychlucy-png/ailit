@@ -127,3 +127,33 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--blue);}
 .ladder label{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:6px 12px;background:#fff;cursor:pointer;font-weight:700;}
 .ladder label:has(input:checked){border-color:var(--blue);background:var(--blue-soft);}
 input.other{margin-top:8px;}
+
+/* ===== 활동 선택형 문항 (v4) ===== */
+.qitem{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0;box-shadow:0 3px 10px rgba(35,40,74,.04);}
+.qstem{display:flex;gap:10px;align-items:flex-start;font-weight:700;margin-bottom:8px;}
+.qstem .qn{flex:0 0 26px;height:26px;border-radius:13px;background:var(--blue);color:#fff;font-size:14px;font-weight:800;text-align:center;line-height:26px;margin-top:1px;}
+.opts.compact{gap:6px;margin:4px 0 0;}
+.opts.compact label{padding:8px 12px;font-size:15.5px;}
+.opts label:has(input:checked){border-color:var(--blue);background:var(--blue-soft);}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+.twocol .chat{margin:0;}
+@media (max-width:720px){.twocol{grid-template-columns:1fr;}}
+.notice{background:#fff;border:1.5px solid #CFE3DA;border-radius:14px;overflow:hidden;}
+.notice .nhd{background:var(--mint);color:#fff;font-weight:800;padding:10px 14px;font-size:15.5px;}
+.notice .nsub{padding:10px 14px 0;font-weight:800;}
+.notice ul{margin:6px 0 12px;padding-left:30px;font-size:15.5px;}
+.notice li{margin:4px 0;}
+.scorebox{display:inline-block;background:var(--blue-soft);color:var(--blue);font-weight:800;border-radius:14px;padding:8px 18px;margin:4px 0 10px;font-size:18px;}
+.scorebox span{font-size:30px;}
+.fbrow{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0;}
+.fbrow.ok{border-left:5px solid var(--mint);}
+.fbrow.ng{border-left:5px solid var(--red);}
+.fbmark{flex:0 0 28px;height:28px;border-radius:14px;color:#fff;font-weight:900;text-align:center;line-height:28px;}
+.fbrow.ok .fbmark{background:var(--mint);}
+.fbrow.ng .fbmark{background:var(--red);}
+.fbstem{font-weight:700;}
+.fbans{margin-top:6px;font-size:15.5px;}
+.fbwhy{margin-top:6px;font-size:15px;color:var(--sub);background:#F6F7FB;border-radius:8px;padding:8px 10px;}
+details.card summary{cursor:pointer;color:var(--blue);}
+.opts.compact.inline{flex-direction:row;flex-wrap:wrap;}
+.opts.compact.inline label{flex:1;min-width:150px;}
