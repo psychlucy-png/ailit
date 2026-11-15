@@ -8,11 +8,14 @@ function randomId() {
   return s;
 }
 
+// SID: 이번 접속(세션) 고유 번호. 같은 pid로 다시 들어와도 줄이 섞이지 않게, 스프레드시트에서 이 번호로 같은 줄을 찾아 덮어씁니다.
+const SID = Date.now().toString(36) + "-" + randomId().slice(0, 6);
 const jsPsych = initJsPsych({
   display_element: "app",
+  on_trial_finish: d => autosave(d),
   on_finish: () => window.removeEventListener("beforeunload", warnLeave),
 });
-jsPsych.data.addProperties({ pid: PID, form: FORM, debug: DEBUG, started_at: new Date().toISOString(), url_params: location.search });
+jsPsych.data.addProperties({ pid: PID, sid: SID, form: FORM, debug: DEBUG, started_at: new Date().toISOString(), url_params: location.search });
 
 function warnLeave(e) { e.preventDefault(); e.returnValue = ""; }
 if (!DEBUG) window.addEventListener("beforeunload", warnLeave);
@@ -323,15 +326,43 @@ async function sendToDataPipe() {
     throw e;
   } finally { clearTimeout(timer); }
 }
-/* ---------- Google 스프레드시트 저장 (참가자 1명 = 1줄) ---------- */
-const META_KEYS = new Set(["pid", "form", "debug", "started_at", "url_params", "preview", "eligible", "soundcheck_failed", "finished_at"]);
+/* ---------- Google 스프레드시트 저장 (참가자 1명 = 1줄) ----------
+   · 진행 중 자동 저장: 응답을 제출하는 화면(설문·영상·활동)이 끝날 때마다 지금까지의 응답을 같은 줄에 덮어씁니다 (status = in_progress).
+   · 창을 닫거나 다른 페이지로 나가면 마지막 상태를 한 번 더 보냅니다 (status = left).
+   · 끝까지 마치면 status = complete (사전 설문에서 대상이 아니면 screened_out).
+   · seq(보낸 순서)가 더 큰 것만 반영되므로, 늦게 도착한 예전 저장이 최신 응답을 덮어쓰지 않습니다. */
+const SAVE_STATE = { status: "in_progress", seq: 0, busy: false, again: false, done: false };
+function sheetName() { return FORM === "pre" ? CONFIG.SHEET_PRE : FORM === "pilot" ? (CONFIG.SHEET_PILOT || "파일럿") : CONFIG.SHEET_PROGRAM; }
+function sheetPayload() { return JSON.stringify({ sheet: sheetName(), row: wideRow() }); }
+const AUTOSAVE_SKIP = new Set(["browser", "welcome", "pilot_intro", "setup", "act1_intro", "act2_intro", "debrief"]);
+function autosave(d) {
+  if (!CONFIG.SHEETS_URL || SAVE_STATE.done || window.ARTIFACT_PREVIEW) return;
+  if (!d || !d.task || AUTOSAVE_SKIP.has(d.task) || d.task.endsWith("_fb") || d.trial_type === "call-function") return;
+  if (SAVE_STATE.busy) { SAVE_STATE.again = true; return; }
+  SAVE_STATE.busy = true;
+  fetch(CONFIG.SHEETS_URL, { method: "POST", body: sheetPayload(), keepalive: false })
+    .then(r => r.text()).then(t => console.log("[autosave]", t)).catch(e => console.warn("[autosave] 실패 (다음 화면에서 다시 시도)", e))
+    .finally(() => { SAVE_STATE.busy = false; if (SAVE_STATE.again && !SAVE_STATE.done) { SAVE_STATE.again = false; autosave({ task: "retry" }); } });
+}
+// 창을 닫거나 나갈 때: 그때까지의 응답을 sendBeacon으로 한 번 더 보냄
+let _lastBeacon = 0;
+function beaconLeave() {
+  if (!CONFIG.SHEETS_URL || SAVE_STATE.done || window.ARTIFACT_PREVIEW || jsPsych.data.get().count() < 2) return;
+  if (Date.now() - _lastBeacon < 15000) return; _lastBeacon = Date.now(); // 탭을 자주 오가도 15초에 한 번만
+  SAVE_STATE.status = "left";
+  try { navigator.sendBeacon(CONFIG.SHEETS_URL, new Blob([sheetPayload()], { type: "text/plain;charset=utf-8" })); } catch (e) {}
+  SAVE_STATE.status = "in_progress";
+}
+window.addEventListener("pagehide", beaconLeave);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") beaconLeave(); });
+const META_KEYS = new Set(["pid", "sid", "form", "debug", "started_at", "url_params", "preview", "eligible", "soundcheck_failed", "finished_at"]);
 const SKIP_KEYS = new Set(["trial_type", "trial_index", "time_elapsed", "internal_node_id", "response", "stimulus", "task", "block", "rt", "video", "save"]);
 const VIDEO_KEYS = ["completed", "video_duration", "watched_sec", "watched_ratio", "max_position", "n_plays", "n_pauses",
   "n_tab_hidden", "tab_hidden_sec", "n_paused_by_tab", "n_seek_blocked", "n_load_errors", "n_fullscreen", "first_play_ms"];
 function wideRow() {
   const all = jsPsych.data.get().values();
   const last = all[all.length - 1] || {};
-  const row = { pid: PID, form: FORM, saved_at: new Date().toISOString() };
+  const row = { pid: PID, sid: SID, form: FORM, status: SAVE_STATE.status, seq: ++SAVE_STATE.seq, last_task: last.task || "", n_screens: all.length, saved_at: new Date().toISOString() };
   ["started_at", "finished_at", "eligible", "debug", "preview", "soundcheck_failed"].forEach(k => { if (last[k] !== undefined) row[k] = last[k]; });
   row.total_min = +((last.time_elapsed || 0) / 60000).toFixed(1);
   for (const t of all) {
@@ -355,7 +386,7 @@ async function sendToSheets() {
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 25000);
   try {
     // text/plain 으로 보내야 브라우저 사전 확인(CORS preflight) 없이 Apps Script로 전달됨
-    const res = await fetch(CONFIG.SHEETS_URL, { method: "POST", body: JSON.stringify({ sheet: FORM === "pre" ? CONFIG.SHEET_PRE : FORM === "pilot" ? (CONFIG.SHEET_PILOT || "파일럿") : CONFIG.SHEET_PROGRAM, row: wideRow() }), signal: ctrl.signal });
+    const res = await fetch(CONFIG.SHEETS_URL, { method: "POST", body: sheetPayload(), signal: ctrl.signal });
     const txt = await res.text().catch(() => "");
     console.log("[Sheets]", res.status, txt);
     let ok = res.ok; try { ok = ok && JSON.parse(txt).ok === true; } catch (e) { ok = false; }
@@ -376,10 +407,12 @@ const save = {
   async: true,
   func: done => {
     jsPsych.data.addProperties({ finished_at: new Date().toISOString() });
+    SAVE_STATE.status = (typeof ELIGIBLE !== "undefined" && !ELIGIBLE) ? "screened_out" : "complete";
+    SAVE_STATE.done = true; // 이후 자동 저장·나가기 저장은 보내지 않음
     if (!CONFIG.DATAPIPE_ID && !CONFIG.SHEETS_URL) { saveStatus = "local"; done({ save: "local" }); return; }
     jsPsych.getDisplayElement().innerHTML = `<div class="center"><h2>응답을 저장하는 중이에요…</h2><p class="sub">창을 닫지 말아 주세요.</p></div>`;
     const attempt = (k) => sendAll().then(() => { saveStatus = "ok"; done({ save: "ok" }); })
-      .catch(() => { if (k < 2) setTimeout(() => attempt(k + 1), 1000); else { saveStatus = "fail"; done({ save: "fail" }); } });
+      .catch(() => { if (k < 4) setTimeout(() => attempt(k + 1), 1500 * k); else { saveStatus = "fail"; done({ save: "fail" }); } });
     attempt(1);
   },
 };

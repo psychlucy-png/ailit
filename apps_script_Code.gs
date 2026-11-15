@@ -1,13 +1,20 @@
 /**
- * AI 리터러시 프로그램 – 응답을 이 스프레드시트에 1명당 1줄로 저장합니다.
- * 사전 설문과 프로그램은 서로 다른 탭(config.js의 SHEET_PRE, SHEET_PROGRAM)에 저장됩니다.
- * 설치: 스프레드시트 > 확장 프로그램 > Apps Script 에 이 코드를 붙여 넣고 '웹 앱'으로 배포하세요.
+ * AI 리터러시 프로그램 – 응답을 이 스프레드시트에 1명(1회 접속)당 1줄로 저장합니다.
+ * · 사전 설문·프로그램·파일럿은 서로 다른 탭(config.js의 SHEET_PRE, SHEET_PROGRAM, SHEET_PILOT)에 저장됩니다.
+ * · 참여 중에도 화면을 제출할 때마다 자동 저장되며, 같은 접속(sid)의 줄을 찾아 최신 응답으로 덮어씁니다.
+ *   중간에 그만둔 사람도 마지막으로 제출한 화면까지 남습니다(status 열: in_progress / left / complete / screened_out).
+ * · seq(보낸 순서)가 지금 줄보다 큰 저장만 반영하므로, 늦게 도착한 예전 저장이 최신 응답을 덮어쓰지 않습니다.
+ * · 여러 사람이 동시에 저장해도 LockService로 한 번에 하나씩 처리합니다.
  */
 const SHEET_NAME = '응답';
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
-  lock.waitLock(30000);
+  try {
+    lock.waitLock(28000);
+  } catch (err) {
+    return json({ ok: false, error: 'busy' }); // 사이트가 잠시 뒤 다시 보냅니다
+  }
   try {
     const body = JSON.parse(e.postData.contents);
     const row = body.row || {};
@@ -31,6 +38,22 @@ function doPost(e) {
       if (typeof v === 'string' && /^[=+\-@]/.test(v)) return "'" + v;
       return v;
     });
+
+    // 같은 접속(sid)의 줄이 있으면 덮어쓰기, 없으면 새 줄
+    const sidCol = headers.indexOf('sid') + 1, seqCol = headers.indexOf('seq') + 1;
+    const last = sh.getLastRow();
+    if (row.sid && sidCol > 0 && last > 1) {
+      const sids = sh.getRange(2, sidCol, last - 1, 1).getValues();
+      for (let i = sids.length - 1; i >= 0; i--) {
+        if (String(sids[i][0]) === String(row.sid)) {
+          const r = i + 2;
+          const oldSeq = seqCol > 0 ? Number(sh.getRange(r, seqCol).getValue()) || 0 : 0;
+          if (Number(row.seq || 0) <= oldSeq) return json({ ok: true, row: r, skipped: 'older' });
+          sh.getRange(r, 1, 1, values.length).setValues([values]);
+          return json({ ok: true, row: r, updated: true });
+        }
+      }
+    }
     sh.appendRow(values);
     return json({ ok: true, row: sh.getLastRow() });
   } catch (err) {
