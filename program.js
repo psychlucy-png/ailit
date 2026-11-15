@@ -39,7 +39,25 @@ const welcome = {
 };
 
 /* ---------- 1. 영상 + 확인 문항·영상 평정 ---------- */
+// 파일럿(RA 평정)용 영상 평가 5문항
+const LEN5 = ["너무 길다", "조금 길다", "적절하다", "조금 짧다", "너무 짧다"];
+const SPD5 = ["너무 빠르다", "조금 빠르다", "적절하다", "조금 느리다", "너무 느리다"];
+function pilotVideoRate(n, stepIdx) {
+  return {
+    type: jsPsychSurveyHtmlForm,
+    html: `${steps(stepIdx)}<h1>영상 ${n}에 대한 평가</h1><div class="card">
+      ${likert(`pv${n}_understand`, "영상에서 설명하는 내용을 쉽게 이해할 수 있었다.", OPT5)}
+      ${likert(`pv${n}_length`, "영상의 길이는 적절하였다.", LEN5)}
+      ${likert(`pv${n}_speed`, "영상의 설명 속도는 적절하였다.", SPD5)}
+      ${likert(`pv${n}_relevance`, "영상에서 제시하는 내용은 대학(원)생의 실제 AI 사용 상황과 관련이 있다.", OPT5)}
+      ${likert(`pv${n}_apply`, "영상에서 제시하는 AI 활용 방법을 실제 생활에 적용할 수 있을 것 같다.", OPT5)}</div>`,
+    button_label: "다음",
+    data: { task: "video_rate", video: n },
+    on_finish: d => { flatten(d); window.scrollTo(0, 0); },
+  };
+}
 function checkTrial(n, stepIdx, q, options, correct) {
+  if (IS_PILOT) return pilotVideoRate(n, stepIdx);
   return {
     type: jsPsychSurveyHtmlForm,
     html: `${steps(stepIdx)}<h2>영상 ${n} 확인 문항</h2>
@@ -131,6 +149,16 @@ function feedbackTrial(stepIdx, task, title, prefix, items, options, footHtml, h
   };
 }
 function engageTrial(stepIdx, k) {
+  if (IS_PILOT) return {
+    type: jsPsychSurveyHtmlForm,
+    html: `${steps(stepIdx)}<h1>활동 ${k}에 대한 평가</h1><div class="card">
+      ${likert(`pa${k}_fit`, "활동의 내용과 난이도는 대학(원)생에게 적절하였다.", OPT5)}
+      ${likert(`pa${k}_interest`, "활동에 흥미를 느꼈다.", OPT5)}
+      ${likert(`pa${k}_apply`, "활동에서 배운 내용을 실제 AI 사용 상황에 적용할 수 있을 것 같다.", OPT5)}</div>`,
+    button_label: "다음",
+    data: { task: `act${k}_rate` },
+    on_finish: d => { flatten(d); window.scrollTo(0, 0); },
+  };
   return {
     type: jsPsychSurveyHtmlForm,
     html: `${steps(stepIdx)}<h1>활동 ${k}에 대한 생각</h1><div class="card">
@@ -353,6 +381,55 @@ const debrief = {
   data: { task: "debrief" },
 };
 
+// 파일럿: 참여 전 인적 사항
+const pilotInfo = {
+  type: jsPsychSurveyHtmlForm,
+  html: `<h1>참여자 정보</h1><div class="card pinfo">
+    <div class="fld"><label class="f"><b>이름</b></label><input type="text" name="info_name" required maxlength="30"></div>
+    <div class="fld"><label class="f"><b>나이</b> (만)</label><input type="number" name="info_age" required min="15" max="99"></div>
+    <div class="fld"><label class="f"><b>성별</b></label><div class="opts row2">${["남성", "여성"].map((o, i) => `<label><input type="radio" name="info_gender" value="${i + 1}" required> ${o}</label>`).join("")}</div></div>
+    <div class="fld"><label class="f"><b>전화번호</b></label><input type="tel" name="info_phone" required pattern="0[0-9\\-\\s]{8,13}" placeholder="010-0000-0000"></div>
+    <div class="fld"><label class="f"><b>이메일</b></label><input type="email" name="info_email" required placeholder="example@ewha.ac.kr"></div></div>`,
+  button_label: "다음",
+  data: { task: "pilot_info" },
+  on_finish: flatten,
+};
+// 파일럿: 참여 후 프로그램 평가 (문항 1~8, 12)
+const pilotPost = {
+  type: jsPsychSurveyHtmlForm,
+  html: `${steps(6)}<h1>프로그램에 대한 평가</h1>
+    <div class="note">본 프로그램은 AI 리터러시 교육 프로그램으로, 4개의 영상과 2개의 활동으로 구성되었습니다. AI 리터러시 교육 프로그램에 대한 여러분의 생각을 묻는 질문입니다. 각 문항을 읽고 자신의 생각과 가장 일치하는 응답을 선택해 주세요.</div>
+    <div class="card">
+      <div class="lq">1. 영상 1~4 중 가장 흥미롭게 시청한 영상은 무엇인가요?</div>
+      <div class="opts">${["영상 1", "영상 2", "영상 3", "영상 4", "특별히 없음"].map((o, i) => `<label><input type="radio" name="best_video" value="${i + 1}" required> ${o}</label>`).join("")}</div>
+      <div id="bvr" style="display:none"><div class="lq" style="margin-top:12px">2. 해당 영상을 가장 흥미롭게 시청한 이유는 무엇인가요?</div>
+      <textarea name="best_video_reason"></textarea></div>
+    </div>
+    <div class="card">
+      <div class="lq">3. 활동 1, 2 중 더 흥미롭게 참여한 것은 무엇인가요?</div>
+      <div class="opts row2">${["활동 1", "활동 2"].map((o, i) => `<label><input type="radio" name="best_activity" value="${i + 1}" required> ${o}</label>`).join("")}</div>
+      <div class="lq" style="margin-top:12px">4. 해당 활동을 가장 흥미롭게 참여한 이유는 무엇인가요?</div>
+      <textarea name="best_activity_reason" required></textarea>
+    </div>
+    <div class="card">
+      ${likert("prog_interest", "5. 프로그램의 내용이 흥미로웠다.", OPT5)}
+      ${likert("prog_reflect", "6. 프로그램 참여 후, 평소 나의 AI 사용 습관을 돌아보게 되었다.", OPT5)}
+      ${likert("prog_change", "7. 프로그램 참여 후, AI를 보다 적절하게 사용하기 위해 나의 AI 사용 방식을 바꾸고 싶어졌다.", OPT5)}
+      ${likert("prog_fit", "8. 프로그램은 대학(원)생을 위한 AI 리터러시 교육 자료로서 전반적으로 적절하다.", OPT5)}
+    </div>
+    <div class="card"><label class="f"><b>9. 프로그램에서 이해하기 어렵거나 설명이 부족하다고 느낀 부분, 불필요하거나 지나치게 길다고 느낀 부분, 그 외 영상의 내용, 구성, 자막, 그림 등에 관하여 개선이 필요하다고 생각하는 부분 등을 자유롭게 작성해 주세요.</b></label>
+      <textarea name="prog_open" required style="min-height:140px"></textarea></div>`,
+  button_label: "다음",
+  data: { task: "pilot_post" },
+  on_load: () => {
+    const box = document.getElementById("bvr"), ta = box.querySelector("textarea");
+    document.querySelectorAll('input[name="best_video"]').forEach(r => r.addEventListener("change", () => {
+      const show = r.value !== "5"; box.style.display = show ? "block" : "none"; ta.required = show; if (!show) ta.value = "";
+    }));
+  },
+  on_finish: d => { flatten(d); window.scrollTo(0, 0); },
+};
+
 const pilotIntro = {
   type: jsPsychHtmlButtonResponse,
   stimulus: () => `<h1>AI 리터러시 프로그램 · 파일럿</h1><div class="card">${CONFIG.PILOT_INTRO_HTML}</div>
@@ -371,10 +448,9 @@ const main = [
   video3, check3,
   act2Intro, act2S1, act2A, act2AFb, act2B, act2BFb, act2Eng,
   video4, check4,
-  best,
-  ...(IS_PILOT ? [] : postBlocks),
+  ...(IS_PILOT ? [pilotPost] : [best, ...postBlocks]),
 ];
-if (PROGRAM_FEEDBACK.items.length) main.push(blockTrial(PROGRAM_FEEDBACK, "", 6, "feedback"));
+if (!IS_PILOT && PROGRAM_FEEDBACK.items.length) main.push(blockTrial(PROGRAM_FEEDBACK, "", 6, "feedback"));
 main.push(debrief, save, endPage);
 
 // ?debug=1&start=act1 또는 ?preview=1&start=video2 처럼 특정 지점부터 시작 (연구자 확인용, 데이터에 debug/preview 표시됨)
@@ -382,5 +458,5 @@ const PREVIEW = URLP.get("preview") === "1";
 if (PREVIEW) jsPsych.data.addProperties({ preview: true });
 const START = (DEBUG || PREVIEW) ? URLP.get("start") : null;
 const STARTS = { video1, video2, act1: act1Intro, video3, act2: act2Intro, video4, best, post: postBlocks[0] };
-const head = IS_PILOT ? [browserCheck, pilotIntro] : [browserCheck, ...(HAS_PID ? [] : [pidEntry])];
+const head = IS_PILOT ? [browserCheck, pilotIntro, pilotInfo] : [browserCheck, ...(HAS_PID ? [] : [pidEntry])];
 jsPsych.run(START && STARTS[START] && main.includes(STARTS[START]) ? [browserCheck, ...main.slice(main.indexOf(STARTS[START]))] : [...head, ...main]);

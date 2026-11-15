@@ -178,3 +178,7 @@ details.card summary{cursor:pointer;color:var(--blue);}
 .vtask{background:#fff;border:2px solid var(--blue);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:0 10px 26px rgba(76,111,232,.15);}
 .vtask h2{margin-top:0;}
 .vtaskerr{color:var(--red);font-weight:700;min-height:20px;}
+.pinfo .fld{margin:0 0 14px;}
+.pinfo .fld label.f{display:block;margin-bottom:6px;}
+.pinfo input[type=text],.pinfo input[type=number],.pinfo input[type=tel],.pinfo input[type=email]{display:block;width:100%;max-width:360px;box-sizing:border-box;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;background:#fff;}
+.pinfo input[type=number]{max-width:140px;}
