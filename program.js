@@ -3,6 +3,10 @@
 
 STEPS = ["영상 1", "영상 2", "활동 1", "영상 3", "활동 2", "영상 4", "마무리"];
 const HAS_PID = !!(URLP.get("pid") || URLP.get("id") || URLP.get("PROLIFIC_PID"));
+const IS_PILOT = typeof PILOT !== "undefined" && PILOT === true; // pilot.html: 영상·활동·평정만 (사전·사후 설문 없음)
+// 파일럿에서만: 영상·활동마다 자유 의견 칸
+const pilotComment = name => IS_PILOT ? `<div class="card"><label class="f"><b>어색하거나 이해하기 어려웠던 부분, 고치면 좋을 점이 있다면 적어 주세요.</b> <span class="sub">(선택)</span></label>
+  <textarea name="${name}" placeholder="예: 0:45쯤 글자가 너무 빨리 지나갔어요"></textarea></div>` : "";
 
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const OPT5 = ["전혀 그렇지 않다", "그렇지 않다", "보통이다", "그렇다", "매우 그렇다"];
@@ -46,7 +50,7 @@ function checkTrial(n, stepIdx, q, options, correct) {
         ${likert(`rate_v${n}_like`, "이 영상이 흥미롭다.", OPT5)}
         ${likert(`rate_v${n}_imp`, "이 영상의 내용이 중요하게 느껴진다.", OPT5)}
         ${likert(`rate_v${n}_int`, "나는 이 영상에서 제안한 내용을 실천해 볼 의향이 있다.", OPT5)}
-      </div>`,
+      </div>${pilotComment(`cm_v${n}`)}`,
     button_label: "다음",
     data: { task: "video_check", video: n },
     on_finish: d => { flatten(d); d[`check_v${n}_correct`] = Number(d[`check_v${n}`]) === correct ? 1 : 0; window.scrollTo(0, 0); },
@@ -132,7 +136,7 @@ function engageTrial(stepIdx, k) {
     html: `${steps(stepIdx)}<h1>활동 ${k}에 대한 생각</h1><div class="card">
       ${likert(`eng_a${k}_beh`, "나는 이 활동에 집중해서 참여했다.", OPT5)}
       ${likert(`eng_a${k}_emo`, "이 활동은 흥미로웠다.", OPT5)}
-      ${likert(`eng_a${k}_diff`, "이 활동은 어려웠다.", OPT5)}</div>`,
+      ${likert(`eng_a${k}_diff`, "이 활동은 어려웠다.", OPT5)}</div>${pilotComment(`cm_a${k}`)}`,
     button_label: "다음",
     data: { task: `act${k}_eng` },
     on_finish: d => { flatten(d); window.scrollTo(0, 0); },
@@ -349,6 +353,14 @@ const debrief = {
   data: { task: "debrief" },
 };
 
+const pilotIntro = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: () => `<h1>AI 리터러시 프로그램 · 파일럿</h1><div class="card">${CONFIG.PILOT_INTRO_HTML}</div>
+    <p class="sub center">${CONFIG.CONTACT_HTML}</p>`,
+  choices: ["안내를 읽었으며 참여에 동의합니다"],
+  data: { task: "pilot_intro" },
+};
+
 /* ---------- 타임라인 ---------- */
 const postBlocks = PREPOST.map(b => blockTrial(b, "post_", 6, "post"));
 const main = [
@@ -360,7 +372,7 @@ const main = [
   act2Intro, act2S1, act2A, act2AFb, act2B, act2BFb, act2Eng,
   video4, check4,
   best,
-  ...postBlocks,
+  ...(IS_PILOT ? [] : postBlocks),
 ];
 if (PROGRAM_FEEDBACK.items.length) main.push(blockTrial(PROGRAM_FEEDBACK, "", 6, "feedback"));
 main.push(debrief, save, endPage);
@@ -370,5 +382,5 @@ const PREVIEW = URLP.get("preview") === "1";
 if (PREVIEW) jsPsych.data.addProperties({ preview: true });
 const START = (DEBUG || PREVIEW) ? URLP.get("start") : null;
 const STARTS = { video1, video2, act1: act1Intro, video3, act2: act2Intro, video4, best, post: postBlocks[0] };
-const head = [browserCheck, ...(HAS_PID ? [] : [pidEntry])];
-jsPsych.run(START && STARTS[START] ? [browserCheck, ...main.slice(main.indexOf(STARTS[START]))] : [...head, ...main]);
+const head = IS_PILOT ? [browserCheck, pilotIntro] : [browserCheck, ...(HAS_PID ? [] : [pidEntry])];
+jsPsych.run(START && STARTS[START] && main.includes(STARTS[START]) ? [browserCheck, ...main.slice(main.indexOf(STARTS[START]))] : [...head, ...main]);

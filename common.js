@@ -355,7 +355,7 @@ async function sendToSheets() {
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 25000);
   try {
     // text/plain 으로 보내야 브라우저 사전 확인(CORS preflight) 없이 Apps Script로 전달됨
-    const res = await fetch(CONFIG.SHEETS_URL, { method: "POST", body: JSON.stringify({ sheet: FORM === "pre" ? CONFIG.SHEET_PRE : CONFIG.SHEET_PROGRAM, row: wideRow() }), signal: ctrl.signal });
+    const res = await fetch(CONFIG.SHEETS_URL, { method: "POST", body: JSON.stringify({ sheet: FORM === "pre" ? CONFIG.SHEET_PRE : FORM === "pilot" ? (CONFIG.SHEET_PILOT || "파일럿") : CONFIG.SHEET_PROGRAM, row: wideRow() }), signal: ctrl.signal });
     const txt = await res.text().catch(() => "");
     console.log("[Sheets]", res.status, txt);
     let ok = res.ok; try { ok = ok && JSON.parse(txt).ok === true; } catch (e) { ok = false; }
