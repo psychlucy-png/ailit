@@ -75,7 +75,7 @@ function END_EXTRA() {
     ${url ? `<p style="margin-top:14px"><a class="jspsych-btn" style="display:inline-block;text-decoration:none" href="${url}">프로그램 시작하기</a></p>` : ""}</div>`;
 }
 
-const preBlocks = [...PRE_ONLY.map(b => blockTrial(b, "", 1, "pre")), ...PREPOST.map(b => blockTrial(b, "pre_", 1, "pre"))];
+const preBlocks = waveBlocks(1).map(b => blockTrial(b, null, 1, "pre")); // 척도북 T1 (measures.js의 WAVES[1])
 
 const timeline = [
   browserCheck, consent, screening,

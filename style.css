@@ -182,3 +182,27 @@ details.card summary{cursor:pointer;color:var(--blue);}
 .pinfo .fld label.f{display:block;margin-bottom:6px;}
 .pinfo input[type=text],.pinfo input[type=number],.pinfo input[type=tel],.pinfo input[type=email]{display:block;width:100%;max-width:360px;box-sizing:border-box;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;background:#fff;}
 .pinfo input[type=number]{max-width:140px;}
+
+/* 2026-11-16: 해당 없음 보기, 나의 작은 변화, 5일 복습 카드뉴스 */
+.row.hasna label.na{flex:1.3;background:#F6F7FB;color:var(--sub);}
+.mychange{background:var(--mint-soft);border-radius:10px;padding:8px 12px;margin:8px 0 2px;font-size:15px;font-weight:400;}
+.cardnews{max-width:560px;margin:8px auto 0;}
+.cardnews img{width:100%;border-radius:18px;display:block;}
+.cn-in{min-height:380px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px 30px;box-sizing:border-box;
+  display:flex;flex-direction:column;justify-content:center;box-shadow:0 8px 24px rgba(35,40,74,.08);}
+.cn-in h2{font-size:26px;margin:6px 0 14px;}
+.cn-in p{font-size:19px;line-height:1.7;}
+.cn-k{font-size:14px;font-weight:800;color:var(--blue);letter-spacing:.5px;}
+.cn-in.cover{background:linear-gradient(160deg,var(--blue-soft),var(--lav-soft));}
+.cn-in.cover h2{font-size:30px;}
+.cn-in.today{background:var(--mint-soft);border-color:#BFE6DA;}
+.cn-in.today .cn-k{color:var(--mint);font-size:16px;}
+.cn-in.today p{font-size:22px;font-weight:700;}
+.cnnav{max-width:560px;margin:14px auto 0;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cnnav span{color:var(--sub);font-weight:700;}
+.cnnav .ghost:disabled{opacity:.35;cursor:default;}
+.help{text-align:center;margin-top:14px;}
+.dots{display:flex;gap:8px;justify-content:center;margin:10px 0;}
+.dots span{width:14px;height:14px;border-radius:50%;background:#E3E5EF;}
+.dots span.on{background:var(--mint);}
+@media (max-width:560px){.cn-in{padding:26px 22px;}.cn-in h2{font-size:22px;}.cn-in p{font-size:17px;}}

@@ -13,6 +13,10 @@ const CONFIG = {
   SHEET_PRE: "사전설문",
   SHEET_PROGRAM: "프로그램",
   SHEET_PILOT: "파일럿",
+  SHEET_DAILY: "5일복습",   // daily.html?day=1~5 (하루 1줄, day 열로 구분)
+  SHEET_T2: "T2_직후",      // survey.html?t=2
+  SHEET_T3: "T3_1주뒤",     // survey.html?t=3
+  SHEET_T4: "T4_1달뒤",     // survey.html?t=4
 
   // 파일럿(pilot.html) 첫 화면 안내문. 승인받은 파일럿 안내문·동의 문구로 바꿔 주세요.
   PILOT_INTRO_HTML: `<p>이 파일럿은 AI 리터러시 프로그램의 <b>영상 4편과 활동 2개</b>를 본 연구 전에 미리 점검하기 위한 것입니다.</p>
@@ -23,6 +27,14 @@ const CONFIG = {
   // 같은 참여 번호(pid)가 자동으로 이어집니다. 비워 두면 참여 번호만 보여 주고 끝납니다.
   // 예: "https://내아이디.github.io/저장소이름/program.html"
   PROGRAM_URL: "",
+
+  // 프로그램 마지막 화면에 보여 줄 다음 일정 안내 (비우면 안 보임)
+  AFTER_PROGRAM_HTML: `<p><b>내일부터 5일 동안</b> 매일 저녁 복습 링크가 가요. 카드뉴스를 보고 짧은 질문에 답하면 돼요(하루 약 5분).</p>
+    <p class="sub">5일 복습이 끝나면 마지막 설문 링크를 보내 드려요.</p>`,
+
+  // 5일 복습 카드뉴스 이미지: true로 바꾸고 cards/day1_1.png ~ cards/day5_6.png 를 올리면 이미지로 보여 줌.
+  // false면 카드 내용을 글로 보여 줌 (daily.js의 DAYS 참고)
+  CARD_IMAGES: false,
 
   // 영상 시청 인정 기준: 실제 재생 시간이 영상 길이의 몇 % 이상이어야 '다음' 버튼이 열리는지
   MIN_WATCH_RATIO: 0.95,

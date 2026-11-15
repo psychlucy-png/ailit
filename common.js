@@ -1,4 +1,4 @@
-/* 공통 도우미 — 사전 설문(pre-survey.html)과 프로그램(program.html)이 함께 씁니다. jsPsych 7.3.4 */
+/* 공통 도우미 — 사전 설문·프로그램·5일 복습·사후/추적 설문 페이지가 함께 씁니다. jsPsych 7.3.4 */
 const URLP = new URLSearchParams(location.search);
 const DEBUG = URLP.get("debug") === "1" || window.ARTIFACT_PREVIEW === true;
 let PID = (URLP.get("pid") || URLP.get("id") || URLP.get("PROLIFIC_PID") || randomId()).replace(/[^\w-]/g, "").slice(0, 40);
@@ -113,15 +113,21 @@ const soundCheck = {
 
 /* ---------- 설문 블록 렌더링 ---------- */
 function scaleRow(name, sc, required = true) {
-  return `<div class="row">${Array.from({ length: sc.n }, (_, i) => i + 1).map(v =>
-    `<label><input type="radio" name="${name}" value="${v}" ${required ? "required" : ""}><span class="num">${v}</span>${sc.labels[v] || ""}</label>`).join("")}</div>`;
+  const st = sc.start ?? 1, req = required ? "required" : "";
+  return `<div class="row${sc.na ? " hasna" : ""}">${Array.from({ length: sc.n }, (_, i) => i + st).map(v =>
+    `<label><input type="radio" name="${name}" value="${v}" ${req}><span class="num">${v}</span>${sc.labels[v] || ""}</label>`).join("")}${
+    sc.na ? `<label class="na"><input type="radio" name="${name}" value="NA" ${req}><span class="num">–</span>${sc.na}</label>` : ""}</div>`;
 }
+// 프로그램에서 고른 '나의 작은 변화' (같은 기기·브라우저일 때만 기억됨)
+function myChange() { try { return localStorage.getItem("ailit_change_" + PID) || localStorage.getItem("ailit_change") || ""; } catch (e) { return ""; } }
+function rememberChange(txt) { try { localStorage.setItem("ailit_change_" + PID, txt); localStorage.setItem("ailit_change", txt); } catch (e) {} }
+function changeBox() { const c = myChange(); return c ? `<div class="mychange">내가 고른 작은 변화: <b>${esc(c)}</b></div>` : ""; }
 const proxy = name => `<input class="vproxy" id="${name}__proxy" tabindex="-1" aria-hidden="true">`;
 function itemHTML(block, it, name) {
   const t = it.type || "likert";
   const sc = it.scale || block.scale;
   const show = it.showIf ? ` data-showif="${name.slice(0, name.length - it.id.length)}${it.showIf.id}" data-showval="${it.showIf.value}" hidden` : "";
-  const q = it.text ? `<div class="lq">${it.text}</div>` : "";
+  const q = it.text ? `<div class="lq">${it.text.replace("{{change}}", changeBox())}</div>` : "";
   let body = "";
   if (t === "likert") body = scaleRow(name, sc);
   else if (t === "semdiff") return `<div class="sd"><span class="l">${it.left}</span>${scaleRow(name, sc)}<span class="r">${it.right}</span></div>`;
@@ -184,15 +190,41 @@ function wireBlock(root) {
   });
 }
 function blockTrial(block, prefix, stepIdx, task) {
+  if (prefix == null) prefix = block.prefix || "";
   const name = it => `${prefix}${block.id}_${it.id}`;
   return {
     type: jsPsychSurveyHtmlForm,
-    html: `${steps(stepIdx)}<h1>${block.title}</h1>${block.instruction ? `<div class="note">${block.instruction}</div>` : ""}
+    html: () => `${steps(stepIdx)}<h1>${block.title}</h1>${block.instruction ? `<div class="note">${block.instruction}</div>` : ""}
       <div class="card">${block.items.map(it => itemHTML(block, it, name(it))).join("")}</div>`,
     button_label: "다음",
     data: { task, block: block.id },
     on_load: () => wireBlock(document.getElementById("jspsych-survey-html-form")),
-    on_finish: d => { flatten(d); window.scrollTo(0, 0); },
+    on_finish: d => {
+      flatten(d); window.scrollTo(0, 0);
+      if (block.quiz) { // 정답 채점: 열이름_ok (0/1), 앞부분_quiz_score
+        let sc = 0;
+        block.items.forEach(it => { if (it.answer == null) return; const ok = Number(d[name(it)]) === it.answer ? 1 : 0; d[name(it) + "_ok"] = ok; sc += ok; });
+        d[`${prefix}${block.id}_score`] = sc;
+      }
+    },
+  };
+}
+// 참여 번호 입력 (주소에 pid가 없을 때)
+const HAS_PID = !!(URLP.get("pid") || URLP.get("id") || URLP.get("PROLIFIC_PID"));
+function pidEntryTrial(title) {
+  return {
+    type: jsPsychSurveyHtmlForm,
+    html: `<h1>${title}</h1>
+      <div class="card"><p>사전 설문 마지막 화면에서 받은 <b>참여 번호</b>를 입력해 주세요.</p>
+      <input type="text" name="pid_entered" required pattern="[A-Za-z0-9_\\-]{3,40}" placeholder="예: P001" style="max-width:280px">
+      <p class="sub">영문·숫자만 입력해요. 번호를 모르면 연구자(${CONFIG.RESEARCHER_CONTACT})에게 문의해 주세요.</p></div>`,
+    button_label: "다음",
+    data: { task: "pid_entry" },
+    on_finish: d => {
+      flatten(d);
+      PID = String(d.pid_entered || "").trim().replace(/[^\w-]/g, "").slice(0, 40) || PID;
+      jsPsych.data.addProperties({ pid: PID });
+    },
   };
 }
 
@@ -332,7 +364,11 @@ async function sendToDataPipe() {
    · 끝까지 마치면 status = complete (사전 설문에서 대상이 아니면 screened_out).
    · seq(보낸 순서)가 더 큰 것만 반영되므로, 늦게 도착한 예전 저장이 최신 응답을 덮어쓰지 않습니다. */
 const SAVE_STATE = { status: "in_progress", seq: 0, busy: false, again: false, done: false };
-function sheetName() { return FORM === "pre" ? CONFIG.SHEET_PRE : FORM === "pilot" ? (CONFIG.SHEET_PILOT || "파일럿") : CONFIG.SHEET_PROGRAM; }
+function sheetName() {
+  const m = { pre: CONFIG.SHEET_PRE, pilot: CONFIG.SHEET_PILOT || "파일럿", program: CONFIG.SHEET_PROGRAM,
+    t2: CONFIG.SHEET_T2 || "T2_직후", t3: CONFIG.SHEET_T3 || "T3_1주뒤", t4: CONFIG.SHEET_T4 || "T4_1달뒤" };
+  return m[FORM] || (FORM.startsWith("day") ? (CONFIG.SHEET_DAILY || "5일복습") : CONFIG.SHEET_PROGRAM);
+}
 function sheetPayload() { return JSON.stringify({ sheet: sheetName(), row: wideRow() }); }
 const AUTOSAVE_SKIP = new Set(["browser", "welcome", "pilot_intro", "setup", "act1_intro", "act2_intro", "debrief"]);
 function autosave(d) {

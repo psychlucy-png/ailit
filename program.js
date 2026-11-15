@@ -2,7 +2,6 @@
    주소 예: program.html?pid=P001  (사전 설문에서 받은 참여 번호. 주소에 없으면 첫 화면에서 입력받습니다) */
 
 STEPS = ["영상 1", "영상 2", "활동 1", "영상 3", "활동 2", "영상 4", "마무리"];
-const HAS_PID = !!(URLP.get("pid") || URLP.get("id") || URLP.get("PROLIFIC_PID"));
 const IS_PILOT = typeof PILOT !== "undefined" && PILOT === true; // pilot.html: 영상·활동·평정만 (사전·사후 설문 없음)
 // 파일럿에서만: 영상·활동마다 자유 의견 칸
 const pilotComment = name => IS_PILOT ? `<div class="card"><label class="f"><b>어색하거나 이해하기 어려웠던 부분, 고치면 좋을 점이 있다면 적어 주세요.</b> <span class="sub">(선택)</span></label>
@@ -12,20 +11,7 @@ function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { co
 const OPT5 = ["전혀 그렇지 않다", "그렇지 않다", "보통이다", "그렇다", "매우 그렇다"];
 
 /* ---------- 0. 시작 ---------- */
-const pidEntry = {
-  type: jsPsychSurveyHtmlForm,
-  html: `<h1>AI 리터러시 프로그램</h1>
-    <div class="card"><p>사전 설문 마지막 화면에서 받은 <b>참여 번호</b>를 입력해 주세요.</p>
-    <input type="text" name="pid_entered" required pattern="[A-Za-z0-9_\\-]{3,40}" placeholder="예: P001" style="max-width:280px">
-    <p class="sub">영문·숫자만 입력해요. 번호를 모르면 연구자(${CONFIG.RESEARCHER_CONTACT})에게 문의해 주세요.</p></div>`,
-  button_label: "다음",
-  data: { task: "pid_entry" },
-  on_finish: d => {
-    flatten(d);
-    PID = String(d.pid_entered || "").trim().replace(/[^\w-]/g, "").slice(0, 40) || PID;
-    jsPsych.data.addProperties({ pid: PID });
-  },
-};
+const pidEntry = pidEntryTrial("AI 리터러시 프로그램");
 
 const welcome = {
   type: jsPsychHtmlButtonResponse,
@@ -106,6 +92,7 @@ const video4 = videoTrial(4, 5, "주체적으로 AI 사용하기", {
     const pick = f.querySelector('input[name="change_pick"]:checked'), txt = f.querySelector('textarea[name="change_text"]').value.trim();
     if (!pick) return "위의 보기 중 하나를 골라 주세요.";
     if (txt.length < 2) return "해 볼 변화를 적어 주세요.";
+    rememberChange(txt || (Number(pick.value) < 4 ? CHANGE_OPTS[Number(pick.value) - 1] : ""));
     return { change_pick: Number(pick.value), change_text: txt };
   },
 });
@@ -448,8 +435,14 @@ const pilotIntro = {
   data: { task: "pilot_intro" },
 };
 
+// 마지막 화면: 내가 고른 작은 변화 + 다음 일정 안내 (본 실험만)
+function END_EXTRA() {
+  if (IS_PILOT) return "";
+  return `${changeBox() ? `<div class="card center">${changeBox()}<p class="sub">5일 복습과 추적 설문에서 이 문장을 다시 물어봐요. 화면을 캡처해 두면 좋아요.</p></div>` : ""}
+    ${CONFIG.AFTER_PROGRAM_HTML ? `<div class="card">${CONFIG.AFTER_PROGRAM_HTML}</div>` : ""}`;
+}
+
 /* ---------- 타임라인 ---------- */
-const postBlocks = PREPOST.map(b => blockTrial(b, "post_", 6, "post"));
 const main = [
   welcome, setupGuide, soundCheck,
   video1, check1,
@@ -458,7 +451,7 @@ const main = [
   video3, check3,
   act2Intro, act2S1, act2A, act2AFb, act2B, act2BFb, act2Eng,
   video4, check4,
-  ...(IS_PILOT ? [pilotPost, pilotOpen] : [best, ...postBlocks]),
+  ...(IS_PILOT ? [pilotPost, pilotOpen] : [best]),
 ].filter(Boolean);
 if (!IS_PILOT && PROGRAM_FEEDBACK.items.length) main.push(blockTrial(PROGRAM_FEEDBACK, "", 6, "feedback"));
 main.push(debrief, save, endPage);
@@ -467,6 +460,6 @@ main.push(debrief, save, endPage);
 const PREVIEW = URLP.get("preview") === "1";
 if (PREVIEW) jsPsych.data.addProperties({ preview: true });
 const START = (DEBUG || PREVIEW) ? URLP.get("start") : null;
-const STARTS = { video1, video2, act1: act1Intro, video3, act2: act2Intro, video4, best, post: postBlocks[0] };
+const STARTS = { video1, video2, act1: act1Intro, video3, act2: act2Intro, video4, best };
 const head = IS_PILOT ? [browserCheck, pilotIntro, pilotInfo] : [browserCheck, ...(HAS_PID ? [] : [pidEntry])];
 jsPsych.run(START && STARTS[START] && main.includes(STARTS[START]) ? [browserCheck, ...main.slice(main.indexOf(STARTS[START]))] : [...head, ...main]);
