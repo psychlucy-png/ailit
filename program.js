@@ -42,24 +42,23 @@ const welcome = {
 // 파일럿(RA 평정)용 영상 평가 5문항
 const LEN5 = ["너무 길다", "조금 길다", "적절하다", "조금 짧다", "너무 짧다"];
 const SPD5 = ["너무 빠르다", "조금 빠르다", "적절하다", "조금 느리다", "너무 느리다"];
-// 파일럿: 프로그램을 모두 마친 뒤 영상 4편을 한 화면에서 평가
-const VTITLES = ["AI는 어떻게 답을 만들까?", "AI에게 생각을 맡길 때", "AI에게 마음을 기댈 때", "주체적으로 AI 사용하기"];
-const pilotVideoRates = {
-  type: jsPsychSurveyHtmlForm,
-  html: `${steps(6)}<h1>영상에 대한 평가</h1>
-    <div class="note">시청한 영상 4편을 각각 떠올리며 답해 주세요.</div>
-    ${[1, 2, 3, 4].map(n => `<div class="card"><h2 style="margin-top:0">영상 ${n}. ${VTITLES[n - 1]}</h2>
+// 파일럿: 영상 바로 뒤에 그 영상 평가 5문항
+function pilotVideoRate(n, stepIdx) {
+  return {
+    type: jsPsychSurveyHtmlForm,
+    html: `${steps(stepIdx)}<h1>영상 ${n}에 대한 평가</h1><div class="card">
       ${likert(`pv${n}_understand`, "영상에서 설명하는 내용을 쉽게 이해할 수 있었다.", OPT5)}
       ${likert(`pv${n}_length`, "영상의 길이는 적절하였다.", LEN5)}
       ${likert(`pv${n}_speed`, "영상의 설명 속도는 적절하였다.", SPD5)}
       ${likert(`pv${n}_relevance`, "영상에서 제시하는 내용은 대학(원)생의 실제 AI 사용 상황과 관련이 있다.", OPT5)}
-      ${likert(`pv${n}_apply`, "영상에서 제시하는 AI 활용 방법을 실제 생활에 적용할 수 있을 것 같다.", OPT5)}</div>`).join("")}`,
-  button_label: "다음",
-  data: { task: "pilot_video_rate" },
-  on_finish: d => { flatten(d); window.scrollTo(0, 0); },
-};
+      ${likert(`pv${n}_apply`, "영상에서 제시하는 AI 활용 방법을 실제 생활에 적용할 수 있을 것 같다.", OPT5)}</div>`,
+    button_label: "다음",
+    data: { task: "video_rate", video: n },
+    on_finish: d => { flatten(d); window.scrollTo(0, 0); },
+  };
+}
 function checkTrial(n, stepIdx, q, options, correct) {
-  if (IS_PILOT) return null; // 파일럿은 영상마다 묻지 않음
+  if (IS_PILOT) return pilotVideoRate(n, stepIdx);
   return {
     type: jsPsychSurveyHtmlForm,
     html: `${steps(stepIdx)}<h2>영상 ${n} 확인 문항</h2>
@@ -150,22 +149,17 @@ function feedbackTrial(stepIdx, task, title, prefix, items, options, footHtml, h
     on_load: () => window.scrollTo(0, 0),
   };
 }
-// 파일럿: 프로그램을 모두 마친 뒤 활동 2개를 한 화면에서 평가
-const ATITLES = ["AI 답변 확인하기", "AI의 다정함 다시 보기"];
-const pilotActRates = {
-  type: jsPsychSurveyHtmlForm,
-  html: `${steps(6)}<h1>활동에 대한 평가</h1>
-    <div class="note">참여한 활동 2개를 각각 떠올리며 답해 주세요.</div>
-    ${[1, 2].map(k => `<div class="card"><h2 style="margin-top:0">활동 ${k}. ${ATITLES[k - 1]}</h2>
+function engageTrial(stepIdx, k) {
+  if (IS_PILOT) return { // 파일럿: 활동 바로 뒤에 그 활동 평가 3문항
+    type: jsPsychSurveyHtmlForm,
+    html: `${steps(stepIdx)}<h1>활동 ${k}에 대한 평가</h1><div class="card">
       ${likert(`pa${k}_fit`, "활동의 내용과 난이도는 대학(원)생에게 적절하였다.", OPT5)}
       ${likert(`pa${k}_interest`, "활동에 흥미를 느꼈다.", OPT5)}
-      ${likert(`pa${k}_apply`, "활동에서 배운 내용을 실제 AI 사용 상황에 적용할 수 있을 것 같다.", OPT5)}</div>`).join("")}`,
-  button_label: "다음",
-  data: { task: "pilot_act_rate" },
-  on_finish: d => { flatten(d); window.scrollTo(0, 0); },
-};
-function engageTrial(stepIdx, k) {
-  if (IS_PILOT) return null; // 파일럿은 활동마다 묻지 않음
+      ${likert(`pa${k}_apply`, "활동에서 배운 내용을 실제 AI 사용 상황에 적용할 수 있을 것 같다.", OPT5)}</div>`,
+    button_label: "다음",
+    data: { task: `act${k}_rate` },
+    on_finish: d => { flatten(d); window.scrollTo(0, 0); },
+  };
   return {
     type: jsPsychSurveyHtmlForm,
     html: `${steps(stepIdx)}<h1>활동 ${k}에 대한 생각</h1><div class="card">
@@ -464,7 +458,7 @@ const main = [
   video3, check3,
   act2Intro, act2S1, act2A, act2AFb, act2B, act2BFb, act2Eng,
   video4, check4,
-  ...(IS_PILOT ? [pilotPost, pilotVideoRates, pilotActRates, pilotOpen] : [best, ...postBlocks]),
+  ...(IS_PILOT ? [pilotPost, pilotOpen] : [best, ...postBlocks]),
 ].filter(Boolean);
 if (!IS_PILOT && PROGRAM_FEEDBACK.items.length) main.push(blockTrial(PROGRAM_FEEDBACK, "", 6, "feedback"));
 main.push(debrief, save, endPage);
