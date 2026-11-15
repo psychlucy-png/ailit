@@ -32,9 +32,9 @@ const CONFIG = {
   AFTER_PROGRAM_HTML: `<p><b>내일부터 5일 동안</b> 매일 저녁 복습 링크가 가요. 카드뉴스를 보고 짧은 질문에 답하면 돼요(하루 약 5분).</p>
     <p class="sub">5일 복습이 끝나면 마지막 설문 링크를 보내 드려요.</p>`,
 
-  // 5일 복습 카드뉴스 이미지: true로 바꾸고 cards/day1_1.png ~ cards/day5_6.png 를 올리면 이미지로 보여 줌.
-  // false면 카드 내용을 글로 보여 줌 (daily.js의 DAYS 참고)
-  CARD_IMAGES: false,
+  // 5일 복습 카드뉴스: true면 cards/day1_1.jpg ~ cards/day5_6.jpg 이미지를 보여 줌 (1080×1350).
+  // false면 같은 내용을 글 카드로 보여 줌 (daily.js의 DAYS 참고)
+  CARD_IMAGES: true,
 
   // 영상 시청 인정 기준: 실제 재생 시간이 영상 길이의 몇 % 이상이어야 '다음' 버튼이 열리는지
   MIN_WATCH_RATIO: 0.95,
