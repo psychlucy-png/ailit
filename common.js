@@ -237,7 +237,7 @@ function videoTrial(n, stepIdx, title, task) { // video{n}.mp4
     type: jsPsychHtmlButtonResponse,
     stimulus: `${steps(stepIdx)}<h1>영상 ${n}. ${title}</h1>
       <div class="vwrap" id="vwrap">
-        <video id="vid" src="video${n}.mp4?v=1116k" playsinline preload="auto"></video>
+        <video id="vid" src="video${n}.mp4?v=1116m" playsinline preload="auto"></video>
         <div class="vbig" id="vbig"><span id="vbigtxt">▶ 영상 재생하기</span></div>
         <div class="vctl"><button type="button" id="vplay">▶ 재생</button><div class="vbar"><div id="vfill"></div></div>
           <span class="vtime" id="vtime">0:00</span><button type="button" id="vfs">⛶ 전체화면</button></div>
