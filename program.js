@@ -73,10 +73,10 @@ const video2 = videoTrial(2, 1, "AI에게 생각을 맡길 때");
 const check2 = checkTrial(2, 1); // 확인 문항은 활동 1-B의 B5
 const video3 = videoTrial(3, 3, "AI에게 마음을 기댈 때");
 const check3 = checkTrial(3, 3); // 확인 문항은 활동 2-B의 B4
-// 영상 4: '오늘의 작은 변화'를 묻는 순간(약 2:31) 영상이 멈추고 아래에 입력창이 뜹니다. 입력하면 생각할 시간(빈 화면 약 10초)을 건너뛰고 이어서 재생합니다.
+// 영상 4: '오늘의 작은 변화'를 묻는 순간(약 2:48) 영상이 멈추고 아래에 입력창이 뜹니다. 입력하면 생각할 시간(빈 화면 약 10초)을 건너뛰고 이어서 재생합니다.
 const CHANGE_OPTS = ["과제를 시작할 때 5분 동안 내 생각 먼저 적기", "AI 답변을 천천히 읽고, 중요한 정보는 믿을 만한 출처로 확인하기", "AI가 내 편만 들 때 다른 관점을 요청하기", "직접 정할게요"];
 const video4 = videoTrial(4, 5, "주체적으로 AI 사용하기", {
-  at: 151.0, skipTo: 161.0,
+  at: 168.2, skipTo: 178.2,
   html: `<h2>나의 작은 변화</h2><p>예시 중 하나를 고르거나, 직접 정해 보세요.</p>
     <div class="opts">${CHANGE_OPTS.map((o, i) => `<label><input type="radio" name="change_pick" value="${i + 1}"> ${o}</label>`).join("")}</div>
     <label class="f"><b>오늘부터 해 볼 작은 변화를 구체적으로 적어 주세요.</b></label>
