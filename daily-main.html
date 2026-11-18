@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 리터러시 5일 복습</title>
+<link rel="stylesheet" href="jspsych.css">
+<link rel="stylesheet" href="style.css?v=1117a">
+<script src="jspsych.js"></script>
+<script src="plugin-html-button-response.js"></script>
+<script src="plugin-survey-html-form.js"></script>
+<script src="plugin-browser-check.js"></script>
+<script src="plugin-call-function.js"></script>
+<script src="config.js?v=1117a"></script>
+<script src="measures.js?v=1117a"></script>
+<script>const DAY = Math.min(5, Math.max(1, Number(new URLSearchParams(location.search).get("day")) || 1)); const FORM = "day" + DAY;</script>
+<script src="common.js?v=1117a"></script>
+</head>
+<body>
+<div id="app"></div>
+<script src="daily-main.js?v=1118b"></script>
+</body>
+</html>
