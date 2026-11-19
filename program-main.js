@@ -65,7 +65,7 @@ function checkTrial(n, stepIdx, q, options, correct) {
 }
 
 const video1 = videoTrial(1, 0, "AI는 어떻게 답을 만들까?");
-video1.stimulus = video1.stimulus.replace(/src="video1\.mp4[^"]*"/, 'src="video1-main.mp4?v=1118c"'); // 본실험 전용: 자막과 용어 설명 카드를 넣은 영상 1 (2026-11-18)
+video1.stimulus = video1.stimulus.replace(/src="video1\.mp4[^"]*"/, 'src="video1-main.mp4?v=1120a"'); // 본실험 전용: 자막과 용어 설명 카드를 넣은 영상 1 (2026-11-18)
 const check1 = checkTrial(1, 0, "영상에서 설명한, AI가 답을 만드는 방식에 가장 가까운 것은?", [
   "질문의 의미를 사람처럼 이해한 뒤 답한다",
   "학습한 패턴을 바탕으로 다음에 올 표현을 확률적으로 예측한다",
