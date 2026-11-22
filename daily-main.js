@@ -112,6 +112,7 @@ const cardTrial = {
   on_load: () => {
     const N = D.cards.length; let k = 0, t0 = performance.now(), seen = 0;
     CARD_SEC = Array(N).fill(0);
+    const HOLD_MS = (typeof DEBUG !== "undefined" && DEBUG) ? 0 : 4000, held = Array(N).fill(false); let holdT = null;
     const go = document.querySelector("#jspsych-html-button-response-btngroup"); go.style.display = "none";
     const cn = document.getElementById("cn"), pos = document.getElementById("cnpos"), prev = document.getElementById("cnprev"), next = document.getElementById("cnnext");
     const show = () => {
@@ -121,9 +122,12 @@ const cardTrial = {
         : `<div class="cn-in ${k === 0 ? "cover" : k === N - 1 ? "today" : ""}"><div class="cn-k">${k === 0 ? `Day ${DAY}` : k === N - 1 ? "오늘의 한 가지" : `${k} / ${N - 2}`}</div>
            <h2>${k === N - 1 ? "" : h}</h2><p>${b.replace("{{change}}", "")}</p>${b.includes("{{change}}") ? changeBox() : ""}</div>`;
       pos.textContent = `${k + 1} / ${N}`; prev.disabled = k === 0;
-      next.style.visibility = k === N - 1 ? "hidden" : "visible";
       seen = Math.max(seen, k);
-      if (seen === N - 1) go.style.display = "";
+      // 2026-11-23: 처음 보는 카드는 4초 머문 뒤에야 넘어가는 버튼이 나타남 (이미 본 카드로 돌아가면 바로 나타남)
+      clearTimeout(holdT);
+      const reveal = () => { held[k] = true; next.style.visibility = k === N - 1 ? "hidden" : "visible"; if (k === N - 1) go.style.display = ""; };
+      next.style.visibility = "hidden"; go.style.display = "none";
+      if (held[k] || HOLD_MS <= 0) reveal(); else { const kk = k; holdT = setTimeout(() => { if (k === kk) reveal(); }, HOLD_MS); }
     };
     const tick = () => { const now = performance.now(); CARD_SEC[k] += (now - t0) / 1000; t0 = now; };
     prev.onclick = () => { tick(); k = Math.max(0, k - 1); show(); };
