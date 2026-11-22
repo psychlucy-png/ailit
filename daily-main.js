@@ -1,5 +1,5 @@
 /* 5일 복습 (본실험용) — daily-main.html?day=1~5&pid=P001
-   카드뉴스 6장 → 자가점검 1(오늘의 퀴즈 1문항) → 정답 확인 → 자가점검 2(AI 사용 여부·시간, 실천 6문항, 오늘의 한 줄) → (Day 5) 복습 마무리 → 저장
+   카드뉴스 6장 → 자가점검 1(오늘의 퀴즈 1문항) → 정답 확인 → 자가점검 2(AI 사용 여부·시간, 실천 6문항, 오늘의 한 줄) → (Day 5) 복습 마무리 2문항(d_f1, d_f6) → 저장 → (Day 5) T2 설문으로 이어지는 버튼
    2026-11-23 개편. 파일럿은 daily.html/daily.js(하루 15문항)를 그대로 씀. d_form="v1123" (이전 본실험 구성은 "short5") */
 
 STEPS = ["카드뉴스", "자가점검", "완료"];
@@ -223,20 +223,14 @@ const partCDE = {
 };
 
 /* ---------- 5. Day 5: 복습 마무리 F1~F7 ---------- */
-const TOPICS = [1, 2, 3, 4, 5].map(k => `Day ${k}. ${DAYS[k].topic}`);
 const partF = {
   type: jsPsychSurveyHtmlForm,
   html: () => `${steps(1)}<h1>5일 복습을 마치며</h1><div class="note">5일 동안의 카드뉴스와 자가점검을 떠올리며 답해 주세요.</div><div class="card">
-    ${likert("d_f1", "F1. 카드뉴스는 영상 내용을 다시 떠올리는 데 도움이 되었다.", ["전혀 아니다", "", "", "", "매우 그렇다"])}
-    <div class="lk"><div class="lq">F2. 카드뉴스 한 세트(6장)의 길이는 어땠나요?</div>${radios("d_f2", ["너무 짧다", "적당하다", "너무 길다"], null, "opts row2")}</div>
-    ${likert("d_f3", "F3. 매일 자가점검에 답하는 것이 부담스럽지 않았다.", ["전혀 아니다", "", "", "", "매우 그렇다"])}
-    ${likert("d_f4", "F4. 5일 동안 내가 AI를 어떻게 쓰는지 더 의식하게 되었다.", ["전혀 아니다", "", "", "", "매우 그렇다"])}
-    <div class="lk"><div class="lq">F5. 가장 도움이 된 날의 주제는?</div>${radios("d_f5", TOPICS)}</div>
-    <div class="lk"><div class="lq">F6. 앞으로도 계속해 볼 실천은? (모두 선택)</div>
+    ${likert("d_f1", "1. 카드뉴스는 영상 내용을 다시 떠올리는 데 도움이 되었다.", ["전혀 아니다", "", "", "", "매우 그렇다"])}
+    <div class="lk"><div class="lq">2. 앞으로도 계속해 볼 실천은? (모두 선택)</div>
       <div class="opts">${PRAC.map((it, i) => `<label><input type="checkbox" name="d_f6_${i + 1}" value="1"> ${it.text}</label>`).join("")}
       <label><input type="checkbox" name="d_f6_6" value="1"> 기타</label></div>
-      <input type="text" name="d_f6_other" placeholder="기타: 직접 적어 주세요 (선택)"></div>
-    <div class="lk"><div class="lq">F7. 카드뉴스나 자가점검에서 바뀌었으면 하는 점이 있다면 적어 주세요. <span class="sub">(선택)</span></div><textarea name="d_f7"></textarea></div></div>`,
+      <input type="text" name="d_f6_other" placeholder="기타: 직접 적어 주세요 (선택)"></div></div>`,
   button_label: "다음",
   data: { task: "daily_f" },
   on_load: () => wireBlock(document.getElementById("jspsych-survey-html-form")),
@@ -248,7 +242,9 @@ function END_EXTRA() {
   const next = DAYS[DAY + 1];
   return `<div class="card center"><p style="font-size:22px;font-weight:800;margin:4px 0">오늘도 완료! (${DAY}/5)</p>
     <div class="dots">${[1, 2, 3, 4, 5].map(k => `<span class="${k <= DAY ? "on" : ""}"></span>`).join("")}</div>
-    ${next ? `<p class="sub">내일의 주제: <b>${next.topic}</b></p>` : `<p class="sub">5일 복습을 모두 마쳤어요. 마지막 설문 링크를 곧 보내 드릴게요.</p>`}</div>`;
+    ${next ? `<p class="sub">내일의 주제: <b>${next.topic}</b></p>` : `<p class="sub">5일 복습을 모두 마쳤어요. 이어서 <b>마지막 설문</b>에 답해 주세요.</p>
+      <p style="margin:16px 0 4px"><a class="jspsych-btn" id="tot2" href="survey.html?t=2&pid=${encodeURIComponent(PID)}" style="display:inline-block;text-decoration:none">마지막 설문 시작하기 →</a></p>
+      <p class="sub">지금 하기 어렵다면 이 창을 닫아도 됩니다. 나중에 같은 설문 링크를 다시 보내 드려요.</p>`}</div>`;
 }
 
 const flow = [browserCheck, ...(HAS_PID ? [] : [pidEntryTrial(`5일 복습 · Day ${DAY}`)]), cardTrial, partB, partBfb, partCDE, ...(DAY === 5 ? [partF] : []), save, endPage];
