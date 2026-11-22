@@ -243,8 +243,7 @@ function END_EXTRA() {
   return `<div class="card center"><p style="font-size:22px;font-weight:800;margin:4px 0">오늘도 완료! (${DAY}/5)</p>
     <div class="dots">${[1, 2, 3, 4, 5].map(k => `<span class="${k <= DAY ? "on" : ""}"></span>`).join("")}</div>
     ${next ? `<p class="sub">내일의 주제: <b>${next.topic}</b></p>` : `<p class="sub">5일 복습을 모두 마쳤어요. 이어서 <b>마지막 설문</b>에 답해 주세요.</p>
-      <p style="margin:16px 0 4px"><a class="jspsych-btn" id="tot2" href="survey.html?t=2&pid=${encodeURIComponent(PID)}" style="display:inline-block;text-decoration:none">마지막 설문 시작하기 →</a></p>
-      <p class="sub">지금 하기 어렵다면 이 창을 닫아도 됩니다. 나중에 같은 설문 링크를 다시 보내 드려요.</p>`}</div>`;
+      <p style="margin:16px 0 4px"><a class="jspsych-btn" id="tot2" href="survey.html?t=2&pid=${encodeURIComponent(PID)}" style="display:inline-block;text-decoration:none">마지막 설문 시작하기 →</a></p>`}</div>`;
 }
 
 const flow = [browserCheck, ...(HAS_PID ? [] : [pidEntryTrial(`5일 복습 · Day ${DAY}`)]), cardTrial, partB, partBfb, partCDE, ...(DAY === 5 ? [partF] : []), save, endPage];
