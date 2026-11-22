@@ -91,6 +91,8 @@ const video4 = videoTrial(4, 5, "주체적으로 AI 사용하기", {
     return { change_pick: Number(pick.value), change_text: txt };
   },
 });
+// 본실험 전용: 내레이션 자막을 넣은 영상 2~4 (2026-11-23). 파일럿은 video2~4.mp4 그대로.
+[video2, video3, video4].forEach((v, k) => { v.stimulus = v.stimulus.replace(new RegExp(`src="video${k + 2}\\.mp4[^"]*"`), `src="video${k + 2}-main.mp4?v=1123a"`); });
 const check4 = checkTrial(4, 5, "영상에서 ‘신경가소성’을 이야기한 이유로 가장 알맞은 것은?", [
   "AI를 많이 쓰면 뇌가 줄어들기 때문에",
   "먼저 생각하고 확인하는 경험이 쌓이면 새로운 습관이 될 수 있기 때문에",
