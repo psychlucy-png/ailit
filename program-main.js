@@ -65,7 +65,7 @@ function checkTrial(n, stepIdx, q, options, correct) {
 }
 
 const video1 = videoTrial(1, 0, "AI는 어떻게 답을 만들까?");
-video1.stimulus = video1.stimulus.replace(/src="video1\.mp4[^"]*"/, 'src="video1-main.mp4?v=1120a"'); // 본실험 전용: 자막과 용어 설명 카드를 넣은 영상 1 (2026-11-18)
+video1.stimulus = video1.stimulus.replace(/src="video1\.mp4[^"]*"/, 'src="video1-main.mp4?v=1123d"'); // 본실험 전용: 자막과 용어 설명 카드를 넣은 영상 1 (2026-11-18)
 const check1 = checkTrial(1, 0, "영상에서 설명한, AI가 답을 만드는 방식에 가장 가까운 것은?", [
   "질문의 의미를 사람처럼 이해한 뒤 답한다",
   "학습한 패턴을 바탕으로 다음에 올 표현을 확률적으로 예측한다",
@@ -93,7 +93,7 @@ const video4 = videoTrial(4, 5, "주체적으로 AI 사용하기", {
   },
 });
 // 본실험 전용: 내레이션 자막을 넣은 영상 2~4 (2026-11-23). 파일럿은 video2~4.mp4 그대로.
-[video2, video3, video4].forEach((v, k) => { v.stimulus = v.stimulus.replace(new RegExp(`src="video${k + 2}\\.mp4[^"]*"`), `src="video${k + 2}-main.mp4?v=1123a"`); });
+[video2, video3, video4].forEach((v, k) => { v.stimulus = v.stimulus.replace(new RegExp(`src="video${k + 2}\\.mp4[^"]*"`), `src="video${k + 2}-main.mp4?v=1123d"`); });
 const check4 = checkTrial(4, 5, "영상에서 ‘신경가소성’을 이야기한 이유로 가장 알맞은 것은?", [
   "AI를 많이 쓰면 뇌가 줄어들기 때문에",
   "먼저 생각하고 확인하는 경험이 쌓이면 새로운 습관이 될 수 있기 때문에",
