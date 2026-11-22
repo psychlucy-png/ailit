@@ -123,11 +123,11 @@ const cardTrial = {
            <h2>${k === N - 1 ? "" : h}</h2><p>${b.replace("{{change}}", "")}</p>${b.includes("{{change}}") ? changeBox() : ""}</div>`;
       pos.textContent = `${k + 1} / ${N}`; prev.disabled = k === 0;
       seen = Math.max(seen, k);
-      // 2026-11-23: 처음 보는 카드는 4초 머문 뒤에야 넘어가는 버튼이 나타남 (이미 본 카드로 돌아가면 바로 나타남)
+      // 2026-11-23: 처음 보는 카드는 4초(첫 장은 2초) 머문 뒤에야 넘어가는 버튼이 나타남 (이미 본 카드로 돌아가면 바로 나타남)
       clearTimeout(holdT);
       const reveal = () => { held[k] = true; next.style.visibility = k === N - 1 ? "hidden" : "visible"; if (k === N - 1) go.style.display = ""; };
       next.style.visibility = "hidden"; go.style.display = "none";
-      if (held[k] || HOLD_MS <= 0) reveal(); else { const kk = k; holdT = setTimeout(() => { if (k === kk) reveal(); }, HOLD_MS); }
+      if (held[k] || HOLD_MS <= 0) reveal(); else { const kk = k; holdT = setTimeout(() => { if (k === kk) reveal(); }, k === 0 ? 2000 : HOLD_MS); } // 첫 장(표지)은 2초
     };
     const tick = () => { const now = performance.now(); CARD_SEC[k] += (now - t0) / 1000; t0 = now; };
     prev.onclick = () => { tick(); k = Math.max(0, k - 1); show(); };
