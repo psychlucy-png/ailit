@@ -467,7 +467,7 @@ const baseSelf = {
       <div id="usedpart" style="display:none">
         <div class="lk"><div class="lq">2. 지난 24시간 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
           <p style="font-size:18px"><input type="number" name="d0_time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
-          &nbsp;<input type="number" name="d0_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p></div>
+          &nbsp;<input type="number" name="d0_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p><div class="warn" id="timewarn" style="display:none">AI를 사용했다고 답했는데 사용 시간이 0시간 0분이에요. 사용 시간을 다시 확인해 주세요. 사용하지 않았다면 위 문항에서 ‘아니요’를 골라 주세요.</div></div>
         <p class="sub" style="margin:14px 0 4px"><b>지난 24시간 동안 AI를 쓰면서</b> 아래의 일을 얼마나 했는지 골라 주세요. 그런 상황이 없었다면 ‘해당 상황이 없었다’를 고릅니다.</p>
         ${BASE_SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 3}. ${t}</div>${scaleRow(`d0_s${i + 1}`, BASE_FREQ5, false)}</div>`).join("")}
       </div>
@@ -480,7 +480,13 @@ const baseSelf = {
     const need = on => { part.style.display = on ? "" : "none";
       part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on; if (!on) el.value = ""; });
       part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
-    form.querySelectorAll('input[name="d0_use"]').forEach(r => r.addEventListener("change", () => need(r.value === "1" && r.checked)));
+    // 사용했다고 답했는데 0시간 0분이면 불일치 안내를 띄우고 넘어가지 못하게 함
+    const hEl = form.querySelector('input[name="d0_time_h"]'), mEl = form.querySelector('input[name="d0_time_m"]'), warn = document.getElementById("timewarn");
+    const chk = () => { const used = (form.querySelector('input[name="d0_use"]:checked') || {}).value === "1";
+      const bad = used && hEl.value !== "" && mEl.value !== "" && Number(hEl.value) * 60 + Number(mEl.value) === 0;
+      warn.style.display = bad ? "" : "none"; mEl.setCustomValidity(bad ? "AI를 사용했다고 답했는데 사용 시간이 0시간 0분입니다. 다시 확인해 주세요." : ""); };
+    [hEl, mEl].forEach(el => el.addEventListener("input", chk));
+    form.querySelectorAll('input[name="d0_use"]').forEach(r => r.addEventListener("change", () => { need(r.value === "1" && r.checked); chk(); }));
   },
   on_finish: d => {
     flatten(d); const used = String(d.d0_use) === "1"; d.d0_nouse = used ? 0 : 1;
