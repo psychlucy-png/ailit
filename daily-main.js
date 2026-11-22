@@ -1,6 +1,6 @@
 /* 5일 복습 (본실험용, 하루 5문항) — daily-main.html?day=1~5&pid=P001
    카드뉴스 6장 → 자가점검 1(A1 사용 시간 + 오늘의 퀴즈 1문항) → 정답 확인 → 자가점검 2(그날 주제의 실천 1문항 + C6 나의 작은 변화 + E 한 줄) → (Day 5) 복습 마무리 → 저장
-   파일럿은 daily.html/daily.js(하루 15문항)를 그대로 씀. 열 이름은 같음: d_a1, d_b1(+_ok), d_c1~c5 중 그날 문항 하나, d_c6, d_e, d_f1~f7, d_form="short5"
+   파일럿은 daily.html/daily.js(하루 15문항)를 그대로 씀. 열 이름은 같음: d_a1, d_b1(+_ok), d_c1~c5 중 그날 문항 하나, d_c6(2026-11-23부터 1 전혀 하지 않았다~5 완전히 실천했다), d_change_text(작은 변화가 이 기기에 없을 때 다시 적은 내용), d_e, d_f1~f7, d_form="short5"
    그날의 실천 문항: Day1=C2(확인) Day2=C1(내 생각 먼저) Day3=C3(내 말로 정리) Day4=C5(사람에게도) Day5=C4(다른 관점) */
 
 STEPS = ["카드뉴스", "자가점검", "완료"];
@@ -179,12 +179,15 @@ const partCDE = {
   html: () => { const skip = NOUSE && DAYC < 5; return `${steps(1)}<h1>자가점검 2. 나의 실천</h1>
     <div class="card">${skip ? `<p class="sub">어제 AI를 쓰지 않았다고 답해서 AI 사용 중의 실천 문항은 건너뛰었어요.</p>` :
       `<div class="lk"><div class="lq">3. <b>지난 24시간 동안</b> 다음을 얼마나 했나요? <span class="sub">(그런 상황이 없었다면 '해당 상황 없음')</span><br>${PRAC[DAYC - 1].text}</div>${scaleRow(`d_c${DAYC}`, SC.prac)}</div>`}
-      <div class="lk"><div class="lq">${skip ? 3 : 4}. 프로그램에서 고른 '나의 작은 변화'를 지난 24시간 동안 실천했나요?${changeBox()}</div>${radios("d_c6", ["예", "조금", "아니오"], null, "opts row2")}</div></div>
+      <div class="lk">${myChange()
+        ? `<div class="mychange">내가 적은 작은 변화: <b>${esc(myChange())}</b></div>`
+        : `<p class="sub">이 기기에는 프로그램에서 적은 ‘나의 작은 변화’가 저장되어 있지 않아요. 기억나는 대로 다시 적어 주세요.</p><input type="text" name="d_change_text" maxlength="200" placeholder="프로그램에서 적은 나의 작은 변화" style="width:100%">`}
+        ${likert("d_c6", `${skip ? 3 : 4}. 프로그램에서 적은 ‘나의 작은 변화’를 <b>지난 24시간 동안</b> 얼마나 실천했나요?`, ["전혀 하지 않았다", "거의 하지 않았다", "절반쯤 했다", "대부분 했다", "완전히 실천했다"])}</div></div>
     <div class="card"><div class="lq">${skip ? 4 : 5}. 오늘의 한 줄 <span class="sub">(선택)</span></div><p>${D.e}</p><textarea name="d_e" placeholder="빈칸으로 두어도 괜찮아요"></textarea>${D.help ? HELP : ""}</div>`; },
   button_label: "다음",
   data: { task: "daily_cde" },
   on_load: () => wireBlock(document.getElementById("jspsych-survey-html-form")),
-  on_finish: d => { flatten(d); d.d_c_item = "c" + DAYC; window.scrollTo(0, 0); },
+  on_finish: d => { flatten(d); d.d_c_item = "c" + DAYC; if (d.d_change_text && String(d.d_change_text).trim().length > 1) rememberChange(String(d.d_change_text).trim()); window.scrollTo(0, 0); },
 };
 
 /* ---------- 5. Day 5: 복습 마무리 F1~F7 ---------- */
