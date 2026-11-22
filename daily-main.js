@@ -1,11 +1,9 @@
-/* 5일 복습 (본실험용, 하루 5문항) — daily-main.html?day=1~5&pid=P001
-   카드뉴스 6장 → 자가점검 1(A1 사용 시간 + 오늘의 퀴즈 1문항) → 정답 확인 → 자가점검 2(그날 주제의 실천 1문항 + C6 나의 작은 변화 + E 한 줄) → (Day 5) 복습 마무리 → 저장
-   파일럿은 daily.html/daily.js(하루 15문항)를 그대로 씀. 열 이름은 같음: d_a1, d_b1(+_ok), d_c1~c5 중 그날 문항 하나, d_c6(2026-11-23부터 1 전혀 하지 않았다~5 완전히 실천했다), d_change_text(작은 변화가 이 기기에 없을 때 다시 적은 내용), d_e, d_f1~f7, d_form="short5"
-   그날의 실천 문항: Day1=C2(확인) Day2=C1(내 생각 먼저) Day3=C3(내 말로 정리) Day4=C5(사람에게도) Day5=C4(다른 관점) */
+/* 5일 복습 (본실험용) — daily-main.html?day=1~5&pid=P001
+   카드뉴스 6장 → 자가점검 1(오늘의 퀴즈 1문항) → 정답 확인 → 자가점검 2(AI 사용 여부·시간, 실천 6문항, 오늘의 한 줄) → (Day 5) 복습 마무리 → 저장
+   2026-11-23 개편. 파일럿은 daily.html/daily.js(하루 15문항)를 그대로 씀. d_form="v1123" (이전 본실험 구성은 "short5") */
 
 STEPS = ["카드뉴스", "자가점검", "완료"];
-jsPsych.data.addProperties({ day: DAY, d_form: "short5" });
-const DAYC = { 1: 2, 2: 1, 3: 3, 4: 5, 5: 4 }[DAY]; // 그날 묻는 실천 문항 번호 (C1~C5)
+jsPsych.data.addProperties({ day: DAY, d_form: "v1123" });
 
 /* ---------- 날짜별 내용 (5일 복습 설계 문서 기준) ---------- */
 const DAYS = {
@@ -141,20 +139,17 @@ const cardTrial = {
 };
 
 /* ---------- 2. A1 사용 시간 + B 오늘의 퀴즈(1문항) ---------- */
-const TIME7 = ["사용 안 함", "15분 미만", "15~30분", "30분~1시간", "1~2시간", "2~3시간", "3시간 이상"];
-let NOUSE = false;
 D.quiz = D.quiz.slice(0, 1);
 const QORD = D.quiz.map(q => jsPsych.randomization.shuffle(q.opts.map((_, i) => i + 1)));
 const partB = {
   type: jsPsychSurveyHtmlForm,
-  html: () => `${steps(1)}<h1>자가점검 1. 어제의 AI 사용과 오늘의 퀴즈</h1><div class="card">
-    <div class="lk"><div class="lq">1. <b>지난 24시간 동안</b> 생성형 AI(ChatGPT, Gemini 등)를 사용한 시간은 모두 합쳐 얼마인가요?</div>${radios("d_a1", TIME7)}</div>
-    ${D.quiz.map((q, i) => `<div class="lk"><div class="lq">2. [오늘의 퀴즈] ${q.q}</div>
+  html: () => `${steps(1)}<h1>자가점검 1. 오늘의 퀴즈</h1><div class="card">
+    ${D.quiz.map((q, i) => `<div class="lk"><div class="lq">1. [오늘의 퀴즈] ${q.q}</div>
       <div class="opts">${QORD[i].map(v => `<label><input type="radio" name="d_b${i + 1}" value="${v}" required> ${q.opts[v - 1]}</label>`).join("")}</div></div>`).join("")}</div>`,
   button_label: "정답 확인",
   data: { task: "daily_b" },
   on_finish: d => {
-    flatten(d); NOUSE = d.d_a1 === "1"; d.d_nouse = NOUSE ? 1 : 0; let sc = 0;
+    flatten(d); let sc = 0;
     D.quiz.forEach((q, i) => { const ok = Number(d[`d_b${i + 1}`]) === q.ans ? 1 : 0; d[`d_b${i + 1}_ok`] = ok; sc += ok; });
     d.d_b_score = sc; d.d_b_order = QORD.map(o => o.join("")).join("|"); window.scrollTo(0, 0);
   },
@@ -172,22 +167,49 @@ const partBfb = {
   data: { task: "daily_b_fb" },
 };
 
-/* ---------- 4. 그날의 실천(C) · C6 · E 한 줄 ---------- */
-const PRAC = BLOCK.prac.items.slice(0, 5);
+/* ---------- 4. AI 사용 자가점검 (2026-11-23 개편: 2~10번) ----------
+   2 d_use(1 예 / 2 아니요) · 3 d_time_h, d_time_m → d_time_min · 4~9 d_s1~d_s6 (1~5, '해당 상황이 없었다'는 빈칸 + d_sK_na=1) · 10 d_e
+   d_s1 먼저 생각 · d_s2 도움 정하기 · d_s3 근거·논리 살피기 · d_s4 AI에게 먼저 맡김(역방향) · d_s5 AI에게 위로·조언 구함 · d_s6 다른 관점 생각 */
+const FREQ5 = { n: 5, labels: { 1: "전혀 하지 않았다", 2: "거의 하지 않았다", 3: "가끔 했다", 4: "자주 했다", 5: "거의 항상 했다" }, na: "해당 상황이 없었다" };
+const SELF = [
+  "AI에게 질문하거나 도움을 요청하기 전에, 스스로 해결 방법이나 답을 먼저 생각해 보았다.",
+  "AI를 사용하기 전에, 어떤 도움을 받을 것인지 구체적으로 정했다.",
+  "AI의 답변을 그대로 받아들이지 않고, 근거나 논리에 문제가 없는지 살펴보았다.",
+  "스스로 해결할 수 있는 일도 AI에게 먼저 맡겼다.",
+  "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다.",
+  "AI가 내 생각이나 감정에 동의했을 때, 다른 관점에서도 상황을 생각해 보았다.",
+];
+const PRAC = BLOCK.prac.items.slice(0, 5); // Day 5 F6 보기용
 const partCDE = {
   type: jsPsychSurveyHtmlForm,
-  html: () => { const skip = NOUSE && DAYC < 5; return `${steps(1)}<h1>자가점검 2. 나의 실천</h1>
-    <div class="card">${skip ? `<p class="sub">어제 AI를 쓰지 않았다고 답해서 AI 사용 중의 실천 문항은 건너뛰었어요.</p>` :
-      `<div class="lk"><div class="lq">3. <b>지난 24시간 동안</b> 다음을 얼마나 했나요? <span class="sub">(그런 상황이 없었다면 '해당 상황 없음')</span><br>${PRAC[DAYC - 1].text}</div>${scaleRow(`d_c${DAYC}`, SC.prac)}</div>`}
-      <div class="lk">${myChange()
-        ? `<div class="mychange">내가 적은 작은 변화: <b>${esc(myChange())}</b></div>`
-        : `<p class="sub">이 기기에는 프로그램에서 적은 ‘나의 작은 변화’가 저장되어 있지 않아요. 기억나는 대로 다시 적어 주세요.</p><input type="text" name="d_change_text" maxlength="200" placeholder="프로그램에서 적은 나의 작은 변화" style="width:100%">`}
-        ${likert("d_c6", `${skip ? 3 : 4}. 프로그램에서 적은 ‘나의 작은 변화’를 <b>지난 24시간 동안</b> 얼마나 실천했나요?`, ["전혀 하지 않았다", "거의 하지 않았다", "절반쯤 했다", "대부분 했다", "완전히 실천했다"])}</div></div>
-    <div class="card"><div class="lq">${skip ? 4 : 5}. 오늘의 한 줄 <span class="sub">(선택)</span></div><p>${D.e}</p><textarea name="d_e" placeholder="빈칸으로 두어도 괜찮아요"></textarea>${D.help ? HELP : ""}</div>`; },
+  html: () => `${steps(1)}<h1>자가점검 2. 나의 AI 사용</h1>
+    <div class="card">
+      <div class="lk"><div class="lq">2. <b>지난 24시간 동안</b> 생성형 AI(ChatGPT, Gemini, 제타 등)를 사용한 적이 있나요?</div>${radios("d_use", ["예", "아니요"], null, "opts row2")}</div>
+      <div id="usedpart" style="display:none">
+        <div class="lk"><div class="lq">3. 지난 24시간 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
+          <p style="font-size:18px"><input type="number" name="d_time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
+          &nbsp;<input type="number" name="d_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p></div>
+        <p class="sub" style="margin:14px 0 4px"><b>지난 24시간 동안 AI를 쓰면서</b> 아래의 일을 얼마나 했는지 골라 주세요. 그런 상황이 없었다면 ‘해당 상황이 없었다’를 고릅니다.</p>
+        ${SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 4}. ${t}</div>${scaleRow(`d_s${i + 1}`, FREQ5, false)}</div>`).join("")}
+      </div>
+    </div>
+    <div class="card"><div class="lq">10. 오늘의 한 줄</div><p>오늘 AI 사용을 돌아보며 느낀 점이나 내일 실천하고 싶은 행동을 자유롭게 적어 주세요.</p><textarea name="d_e" required></textarea>${D.help ? HELP : ""}</div>`,
   button_label: "다음",
   data: { task: "daily_cde" },
-  on_load: () => wireBlock(document.getElementById("jspsych-survey-html-form")),
-  on_finish: d => { flatten(d); d.d_c_item = "c" + DAYC; if (d.d_change_text && String(d.d_change_text).trim().length > 1) rememberChange(String(d.d_change_text).trim()); window.scrollTo(0, 0); },
+  on_load: () => {
+    const form = document.getElementById("jspsych-survey-html-form"), part = document.getElementById("usedpart");
+    wireBlock(form);
+    const need = on => { part.style.display = on ? "" : "none";
+      part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on; if (!on) el.value = ""; });
+      part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
+    form.querySelectorAll('input[name="d_use"]').forEach(r => r.addEventListener("change", () => need(r.value === "1" && r.checked)));
+  },
+  on_finish: d => {
+    flatten(d); const used = String(d.d_use) === "1"; d.d_nouse = used ? 0 : 1;
+    d.d_time_min = used ? (Number(d.d_time_h) || 0) * 60 + (Number(d.d_time_m) || 0) : 0;
+    SELF.forEach((_, i) => { const k = `d_s${i + 1}`; d[`${k}_na`] = d[k] === "NA" ? 1 : 0; if (d[k] === "NA" || d[k] == null) d[k] = ""; });
+    window.scrollTo(0, 0);
+  },
 };
 
 /* ---------- 5. Day 5: 복습 마무리 F1~F7 ---------- */
