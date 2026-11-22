@@ -449,8 +449,49 @@ function END_EXTRA() {
 }
 
 /* ---------- 타임라인 ---------- */
+// 본실험 전용(2026-11-23): 프로그램 시작 전 기준선. 5일 자가점검 2~9번과 같은 문항·척도 (daily-main.js의 d_use, d_time_*, d_s1~d_s6 ↔ 여기서는 d0_*)
+const BASE_SELF = [
+  "AI에게 질문하거나 도움을 요청하기 전에, 스스로 해결 방법이나 답을 먼저 생각해 보았다.",
+  "AI를 사용하기 전에, 어떤 도움을 받을 것인지 구체적으로 정했다.",
+  "AI의 답변을 그대로 받아들이지 않고, 근거나 논리에 문제가 없는지 살펴보았다.",
+  "스스로 해결할 수 있는 일도 AI에게 먼저 맡겼다.",
+  "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다.",
+  "AI가 내 생각이나 감정에 동의했을 때, 다른 관점에서도 상황을 생각해 보았다.",
+];
+const BASE_FREQ5 = { n: 5, labels: { 1: "전혀 하지 않았다", 2: "거의 하지 않았다", 3: "가끔 했다", 4: "자주 했다", 5: "거의 항상 했다" }, na: "해당 상황이 없었다" };
+const baseSelf = {
+  type: jsPsychSurveyHtmlForm,
+  html: () => `<h1>시작하기 전에: 나의 AI 사용</h1><p class="sub">프로그램을 보기 전에, <b>지난 24시간</b>의 AI 사용을 떠올리며 답해 주세요.</p>
+    <div class="card">
+      <div class="lk"><div class="lq">1. <b>지난 24시간 동안</b> 생성형 AI(ChatGPT, Gemini, 제타 등)를 사용한 적이 있나요?</div><div class="opts row2"><label><input type="radio" name="d0_use" value="1" required> 예</label><label><input type="radio" name="d0_use" value="2" required> 아니요</label></div></div>
+      <div id="usedpart" style="display:none">
+        <div class="lk"><div class="lq">2. 지난 24시간 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
+          <p style="font-size:18px"><input type="number" name="d0_time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
+          &nbsp;<input type="number" name="d0_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p></div>
+        <p class="sub" style="margin:14px 0 4px"><b>지난 24시간 동안 AI를 쓰면서</b> 아래의 일을 얼마나 했는지 골라 주세요. 그런 상황이 없었다면 ‘해당 상황이 없었다’를 고릅니다.</p>
+        ${BASE_SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 3}. ${t}</div>${scaleRow(`d0_s${i + 1}`, BASE_FREQ5, false)}</div>`).join("")}
+      </div>
+    </div>`,
+  button_label: "다음",
+  data: { task: "base_self" },
+  on_load: () => {
+    const form = document.getElementById("jspsych-survey-html-form"), part = document.getElementById("usedpart");
+    wireBlock(form);
+    const need = on => { part.style.display = on ? "" : "none";
+      part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on; if (!on) el.value = ""; });
+      part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
+    form.querySelectorAll('input[name="d0_use"]').forEach(r => r.addEventListener("change", () => need(r.value === "1" && r.checked)));
+  },
+  on_finish: d => {
+    flatten(d); const used = String(d.d0_use) === "1"; d.d0_nouse = used ? 0 : 1;
+    d.d0_time_min = used ? (Number(d.d0_time_h) || 0) * 60 + (Number(d.d0_time_m) || 0) : 0;
+    BASE_SELF.forEach((_, i) => { const k = `d0_s${i + 1}`; d[`${k}_na`] = d[k] === "NA" ? 1 : 0; if (d[k] === "NA" || d[k] == null) d[k] = ""; });
+    window.scrollTo(0, 0);
+  },
+};
 const main = [
   welcome, setupGuide, soundCheck,
+  ...(IS_PILOT ? [] : [baseSelf]),
   video1, check1,
   video2, check2,
   act1Intro, act1S1, act1A, act1AFb, act1B, act1BFb, act1Eng,
