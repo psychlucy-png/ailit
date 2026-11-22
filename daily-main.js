@@ -118,7 +118,7 @@ const cardTrial = {
     const show = () => {
       const [h, b] = D.cards[k];
       cn.innerHTML = CONFIG.CARD_IMAGES
-        ? `<img src="cards-main/day${DAY}_${k + 1}.jpg?v=1123i" alt="${esc(h + ". " + b.replace("{{change}}", ""))}">${b.includes("{{change}}") && myChange() ? `<div class="mychange">내가 적은 작은 변화: <b>${esc(myChange())}</b></div>` : ""}`
+        ? `<img src="cards-main/day${DAY}_${k + 1}.jpg?v=1123j" alt="${esc(h + ". " + b.replace("{{change}}", ""))}">${b.includes("{{change}}") && myChange() ? `<div class="mychange">내가 적은 작은 변화: <b>${esc(myChange())}</b></div>` : ""}`
         : `<div class="cn-in ${k === 0 ? "cover" : k === N - 1 ? "today" : ""}"><div class="cn-k">${k === 0 ? `Day ${DAY}` : k === N - 1 ? "오늘의 한 가지" : `${k} / ${N - 2}`}</div>
            <h2>${k === N - 1 ? "" : h}</h2><p>${b.replace("{{change}}", "")}</p>${b.includes("{{change}}") ? changeBox() : ""}</div>`;
       pos.textContent = `${k + 1} / ${N}`; prev.disabled = k === 0;
