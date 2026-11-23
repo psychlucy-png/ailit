@@ -91,7 +91,7 @@ const video4 = videoTrial(4, 5, "주체적으로 AI 사용하기", {
     <label class="f"><b>오늘부터 해 볼 작은 변화를 구체적으로 적어 주세요.</b></label>
     <p class="sub">예시: AI 답변을 천천히 읽고, 중요한 정보는 믿을 만한 출처로 확인하기 / AI가 내 편만 들 때 다른 관점을 요청하기 / 과제를 시작할 때 5분 동안 내 생각 먼저 적기</p>
     <textarea name="change_text" placeholder="여기에 적어 주세요"></textarea>
-    ${likert("change_intent", "나는 위에 적은 작은 변화를 실천할 의향이 있다.", OPT5)}`,
+    ${likert("change_intent", "나는 위에 적은 변화를 실천할 의향이 있다.", OPT5)}`,
   collect: f => {
     const txt = f.querySelector('textarea[name="change_text"]').value.trim(), it = f.querySelector('input[name="change_intent"]:checked');
     if (txt.length < 2) return "오늘부터 해 볼 작은 변화를 적어 주세요.";
