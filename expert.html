@@ -60,7 +60,6 @@ const BASE = "program.html?pid=EXPERT&debug=1&start=";
 const SCALE = [[1, "전혀 적절하지 않다", "삭제하거나 다시 만들어야 함"], [2, "적절하지 않다", "많이 수정해야 함"], [3, "적절하다", "조금 수정하면 됨"], [4, "매우 적절하다", "그대로 써도 됨"]];
 const CRIT = [
   ["목표 적합성", "내용이 이 요소의 목표와 프로그램 전체 목적에 맞다."],
-  ["내용 정확성", "설명과 인용한 연구 결과가 사실에 맞고 과장이나 오류가 없다."],
   ["대상 적절성", "대학(원)생의 실제 AI 사용 상황과 이해 수준에 맞다."],
   ["명확성", "용어, 문장, 화면 구성이 분명해 오해 없이 전달된다."],
   ["분량·난이도", "길이와 어려운 정도가 적당하다."],
@@ -106,7 +105,7 @@ const OPEN = [
 ];
 const INFO = [["rater_name", "성함", "text"], ["rater_affil", "소속 · 직위", "text"], ["rater_degree", "최종 학위 · 전공", "text"], ["rater_years", "관련 분야 경력 (년)", "number"], ["rater_field", "전문 분야", "text", "예: 상담·임상심리, 미디어 리터러시"]];
 
-const COLS = [...INFO.map(x => x[0]), ...PARTS.flatMap(p => [1, 2, 3, 4, 5].map(k => `a_${p.id}_${k}`).concat(`a_${p.id}_c`)), ...OVERALL.map((t, k) => `b_${k + 1}`), "b_c", ...OPEN.map((t, k) => `d_${k + 1}`)];
+const COLS = [...INFO.map(x => x[0]), ...PARTS.flatMap(p => CRIT.map((c, i) => i + 1).map(k => `a_${p.id}_${k}`).concat(`a_${p.id}_c`)), ...OVERALL.map((t, k) => `b_${k + 1}`), "b_c", ...OPEN.map((t, k) => `d_${k + 1}`)];
 const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 let S = { sid: "ex" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8), seq: 0, step: 0, started_at: new Date().toISOString(), r: {} };
@@ -144,7 +143,7 @@ function view() {
       <tr><td>정서</td><td>영상 3. AI에게 마음을 기댈 때 → 활동 2. AI의 다정함 다시 보기</td><td>약 8분</td></tr>
       <tr><td>마무리</td><td>영상 4. 주체적으로 AI 사용하기</td><td>3분 11초</td></tr>
       <tr><td>복습</td><td>5일 동안 매일 카드뉴스 6장 + 자가점검</td><td>하루 5분 이내</td></tr></table>
-      <p>구성 요소 7개를 하나씩 보시면서 다섯 기준으로 평정하고, 마지막에 프로그램 전체를 평정합니다. 모든 문항은 4점 척도이며, 1점이나 2점을 주신 경우 이유나 수정 방향을 의견 칸에 적어 주시면 반영하겠습니다.</p>
+      <p>구성 요소 7개를 하나씩 보시면서 네 기준으로 평정하고, 마지막에 프로그램 전체를 평정합니다. 모든 문항은 4점 척도이며, 1점이나 2점을 주신 경우 이유나 수정 방향을 의견 칸에 적어 주시면 반영하겠습니다.</p>
       ${scaleKey()}
       <p class="sub">약 40~50분 걸립니다. 화면을 넘길 때마다 저장되며, 같은 기기에서 이 주소를 다시 열면 이어서 하실 수 있습니다.</p></div>
       <div class="card"><h2>평정자 정보</h2><p class="sub">논문에는 성함 없이 전공과 경력만 보고합니다.</p>
