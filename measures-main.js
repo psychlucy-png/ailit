@@ -258,13 +258,14 @@ const MORE = [
     ],
   },
   {
-    // 나의 작은 변화 실천 (T3·T4): 프로그램 영상 4에서 적은 문장을 같은 기기라면 화면에 다시 보여 줌. 열 이름 t3_chg_1, t4_chg_1
+    // 나의 작은 변화 실천 (T2·T3·T4): 프로그램 영상 4에서 적은 문장을 저장 시트에서 불러와 화면에 다시 보여 줌(못 불러오면 같은 기기에 남은 문장). 열 이름 t2_chg_1, t3_chg_1, t4_chg_1
     id: "chg", title: "나의 작은 변화",
     instruction: "프로그램에서 적은 ‘나의 작은 변화’에 대한 질문입니다.",
     scale: { n: 5, labels: { 1: "전혀 실천하지 않았다", 2: "거의 실천하지 않았다", 3: "보통이다", 4: "어느 정도 실천하였다", 5: "매우 충실히 실천하였다" } },
     items: [
-      { id: "1", get text() { let c = ""; try { c = typeof myChange === "function" ? myChange() : ""; } catch (e) {}
-          return "프로그램에서 적은 '나의 작은 변화'를 지난 1주일 동안 실천했나요?" + (c ? `<div class="mychange">내가 적은 작은 변화: <b>${esc(c)}</b></div>` : ""); } },
+      { id: "1", get text() { let c = ""; try { c = (typeof SHEET_CHANGE === "string" && SHEET_CHANGE) || (typeof myChange === "function" ? myChange() : ""); } catch (e) {}
+          const span = typeof WAVE !== "undefined" && Number(WAVE) === 2 ? "5일 복습 기간 동안" : "지난 1주일 동안";
+          return `프로그램에서 적은 '나의 작은 변화'를 ${span} 실천했나요?` + (c ? `<div class="mychange">내가 적은 작은 변화: <b>${esc(c)}</b></div>` : ""); } },
     ],
   },
   {
@@ -345,7 +346,7 @@ const REPEATED = new Set(["usetime", "lit", "dep", "attari", "trust", "ct", "s",
 // 척도북 261123_v3의 T1 / T2 / T3·T4 시트와 같은 순서
 const WAVES = {
   1: ["demo", "ses", "usetime", "use", "s", "bsi", "lsis", "lit", "dep", "attari", "gs", "ct", "mot", "trust"],
-  2: ["csq", "usetime", "lit", "dep", "attari", "trust", "ct"],
+  2: ["csq", "usetime", "chg", "lit", "dep", "attari", "trust", "ct"],
   3: ["usetime", "s", "chg", "lit", "dep", "attari", "trust", "ct"],
   4: ["usetime", "s", "chg", "lit", "dep", "attari", "trust", "ct"],
 };

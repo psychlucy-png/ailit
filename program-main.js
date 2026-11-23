@@ -465,11 +465,10 @@ const pilotIntro = {
   data: { task: "pilot_intro" },
 };
 
-// 마지막 화면: 내가 고른 작은 변화 + 다음 일정 안내 (본 실험만)
+// 마지막 화면: 다음 일정 안내 (본 실험만)
 function END_EXTRA() {
   if (IS_PILOT) return "";
-  return `${changeBox() ? `<div class="card center">${changeBox()}<p class="sub">5일 복습과 추적 설문에서 이 문장을 다시 물어봐요. 화면을 캡처해 두면 좋아요.</p></div>` : ""}
-    ${CONFIG.AFTER_PROGRAM_HTML ? `<div class="card">${CONFIG.AFTER_PROGRAM_HTML}</div>` : ""}`;
+  return `${CONFIG.AFTER_PROGRAM_HTML ? `<div class="card">${CONFIG.AFTER_PROGRAM_HTML}</div>` : ""}`;
 }
 
 /* ---------- 타임라인 ---------- */

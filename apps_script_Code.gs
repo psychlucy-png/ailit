@@ -63,7 +63,30 @@ function doPost(e) {
   }
 }
 
-function doGet() {
+// 설문 화면이 참가자의 '나의 작은 변화' 문장을 불러올 때 씁니다: …/exec?get=change&pid=참여번호
+// '프로그램' 탭에서 그 참여 번호의 change_text 한 칸만 돌려주며, 다른 응답은 내보내지 않습니다.
+const SHEET_PROGRAM_NAME = '프로그램';
+
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  if (p.get === 'change' && p.pid) {
+    try {
+      const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_PROGRAM_NAME);
+      if (!sh || sh.getLastRow() < 2) return json({ ok: true, change_text: '' });
+      const headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+      const pidCol = headers.indexOf('pid'), txtCol = headers.indexOf('change_text');
+      if (pidCol < 0 || txtCol < 0) return json({ ok: true, change_text: '' });
+      const rows = sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).getValues();
+      const pid = String(p.pid).trim().toLowerCase();
+      for (let i = rows.length - 1; i >= 0; i--) { // 가장 최근에 적은 문장
+        const t = String(rows[i][txtCol] || '').trim();
+        if (t && String(rows[i][pidCol]).trim().toLowerCase() === pid) return json({ ok: true, change_text: t });
+      }
+      return json({ ok: true, change_text: '' });
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    }
+  }
   return json({ ok: true, message: '저장 주소가 정상적으로 작동합니다.' });
 }
 

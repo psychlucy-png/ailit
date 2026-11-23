@@ -14,6 +14,20 @@ const surveyIntro = {
   choices: ["시작하기"],
   data: { task: "survey_intro" },
 };
+// 프로그램에서 적은 '나의 작은 변화'를 저장 시트에서 불러옴 (다른 기기로 접속해도 문항에 자동으로 표시). 실패하면 같은 기기에 남은 문장을 씀
+var SHEET_CHANGE = "";
+const loadChange = {
+  type: jsPsychCallFunction, async: true,
+  func: done => {
+    const fin = () => { const c = SHEET_CHANGE || myChange(); jsPsych.data.addProperties({ chg_text: c }); done(); };
+    if (!CONFIG.SHEETS_URL || !WAVES[WAVE].includes("chg")) return fin();
+    const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 7000);
+    fetch(`${CONFIG.SHEETS_URL}?get=change&pid=${encodeURIComponent(PID)}`, { signal: ctl.signal })
+      .then(r => r.json()).then(j => { if (j && typeof j.change_text === "string" && j.change_text.trim()) { SHEET_CHANGE = j.change_text.trim().slice(0, 300); rememberChange(SHEET_CHANGE); } })
+      .catch(() => {}).finally(() => { clearTimeout(tm); fin(); });
+  },
+  data: { task: "load_change" },
+};
 const badWave = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `<h1>주소를 확인해 주세요</h1><div class="card"><p>설문 주소가 올바르지 않아요. 받은 링크를 그대로 다시 열어 주세요.</p><p class="sub">${CONFIG.CONTACT_HTML}</p></div>`,
@@ -25,5 +39,5 @@ if (!WAVES[WAVE]) {
   jsPsych.run([badWave]);
 } else {
   const blocks = waveBlocks(WAVE).map(b => blockTrial(b, null, 0, `t${WAVE}`));
-  jsPsych.run([browserCheck, ...(HAS_PID ? [] : [pidEntryTrial(WAVE_NAMES[WAVE])]), surveyIntro, ...blocks, save, endPage]);
+  jsPsych.run([browserCheck, ...(HAS_PID ? [] : [pidEntryTrial(WAVE_NAMES[WAVE])]), surveyIntro, loadChange, ...blocks, save, endPage]);
 }

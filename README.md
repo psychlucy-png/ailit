@@ -192,6 +192,6 @@ jsPsych 7.3.4로 만든 온라인 실험입니다. 척도북(2026-11-16 수정�
 
 ### 2026-11-23 (3) 설문을 척도북 v4에 맞춤
 - `measures-main.js`: `measures.js`의 사본을 본실험용으로 고친 것. `pre-survey.html`, `survey.html`만 불러온다 (파일럿·프로그램·5일 복습은 `measures.js` 그대로).
-- T1: `demo, ses, usetime, use, s, bsi, lsis, lit, dep, attari, gs, ct, mot, trust` / T2: `csq, usetime, lit, dep, attari, trust, ct` / T3·T4: `usetime, s, chg, lit, dep, attari, trust, ct`
-- `s` = AI 사용 실천 6문항(지난 24시간, 1~5 + 해당 상황이 없었다), `chg` = 나의 작은 변화 실천(1~5).
+- T1: `demo, ses, usetime, use, s, bsi, lsis, lit, dep, attari, gs, ct, mot, trust` / T2: `csq, usetime, chg, lit, dep, attari, trust, ct` / T3·T4: `usetime, s, chg, lit, dep, attari, trust, ct`
+- `s` = AI 사용 실천 6문항(지난 24시간, 1~5 + 해당 상황이 없었다), `chg` = 나의 작은 변화 실천(1~5, `t2_chg_1`·`t3_chg_1`·`t4_chg_1`). 프로그램에서 적은 문장(`change_text`)을 설문이 저장 시트(`…/exec?get=change&pid=…`)에서 불러와 문항 아래에 보여 주고, 보여 준 문장을 `chg_text` 열에 남깁니다. 불러오지 못하면 같은 기기에 남은 문장을 씁니다. `apps_script_Code.gs`의 `doGet`이 있어야 하므로 Apps Script를 새 버전으로 다시 배포해야 합니다. 프로그램 마지막 화면에는 작은 변화 문장과 캡처 안내를 보여 주지 않습니다.
 - Day 5 복습 마무리는 `d_f1` 한 문항.
