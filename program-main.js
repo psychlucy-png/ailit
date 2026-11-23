@@ -512,12 +512,9 @@ if (!IS_PILOT && PROGRAM_FEEDBACK.items.length) main.push(blockTrial(PROGRAM_FEE
 // 본실험 전용(2026-11-23): 5일 복습(카드뉴스 + 자가점검)을 받을 시간을 고르게 함 → daily_time ("HH:MM")
 const dailyTime = {
   type: jsPsychSurveyHtmlForm,
-  html: `${steps(6)}<h1>5일 복습 받을 시간과 연락처</h1>
-    <div class="card"><p>내일부터 5일 동안 하루에 한 번, <b>카드뉴스와 자가점검</b> 링크를 보내 드립니다. 3~5분이면 끝나요.</p>
-    <div class="lq">링크를 받고 싶은 시간을 골라 주세요.</div>
-    <p><input type="time" name="daily_time" required style="font-size:20px;padding:8px 12px"></p>
-    <p class="sub">매일 비슷한 시간에 확인하기 편한 때로 정해 주세요. (예: 저녁 9시 → 21:00)</p>
-    <div class="lq" style="margin-top:22px">링크를 받을 휴대전화 번호를 적어 주세요.</div>
+  html: `${steps(6)}<h1>5일 복습 안내</h1>
+    <div class="card"><p>내일부터 5일 동안 <b>매일 저녁 6시</b>에 <b>카드뉴스와 자가점검</b> 링크를 보내 드립니다. 3~5분이면 끝나요.</p>
+    <div class="lq">링크를 받을 휴대전화 번호를 적어 주세요.</div>
     <p><input type="tel" name="daily_phone" required inputmode="tel" autocomplete="tel" pattern="01[016789][\\-\\s]?[0-9]{3,4}[\\-\\s]?[0-9]{4}" placeholder="010-0000-0000" title="휴대전화 번호를 010-0000-0000 형식으로 적어 주세요." style="font-size:20px;padding:8px 12px;width:240px"></p>
     <p class="sub">전화번호는 5일 복습 링크를 보내는 데에만 사용합니다.</p></div>`,
   button_label: "다음",
