@@ -202,6 +202,8 @@ const partCDE = {
   on_load: () => {
     const form = document.getElementById("jspsych-survey-html-form"), part = document.getElementById("usedpart");
     wireBlock(form);
+    // wireBlock은 설정(SURVEY_REQUIRED: false)에 따라 필수 표시를 지우므로, 자가점검 문항은 다시 필수로 둠
+    form.querySelectorAll('input[name="d_use"], textarea[name="d_e"]').forEach(el => { el.required = true; });
     const need = on => { part.style.display = on ? "" : "none";
       part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on; if (!on) el.value = ""; });
       part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
@@ -228,7 +230,8 @@ const partF = {
     ${likert("d_f1", "카드뉴스는 영상 내용을 다시 떠올리는 데 도움이 되었다.", ["전혀 아니다", "", "", "", "매우 그렇다"])}</div>`,
   button_label: "다음",
   data: { task: "daily_f" },
-  on_load: () => wireBlock(document.getElementById("jspsych-survey-html-form")),
+  on_load: () => { const form = document.getElementById("jspsych-survey-html-form"); wireBlock(form);
+    form.querySelectorAll('input[name="d_f1"]').forEach(el => { el.required = true; }); },
   on_finish: d => { flatten(d); window.scrollTo(0, 0); },
 };
 

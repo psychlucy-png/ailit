@@ -100,10 +100,10 @@ const video4 = videoTrial(4, 5, "주체적으로 AI 사용하기", {
     ${likert("change_intent", "나는 위에 적은 변화를 실천할 의향이 있다.", OPT5)}`,
   collect: f => {
     const txt = f.querySelector('textarea[name="change_text"]').value.trim(), it = f.querySelector('input[name="change_intent"]:checked');
-    if (txt.length < 2) return "오늘부터 해 볼 작은 변화를 적어 주세요.";
-    if (!it) return "실천할 의향을 골라 주세요.";
-    rememberChange(txt);
-    return { change_text: txt, change_intent: Number(it.value) };
+    if (!DEBUG && txt.length < 2) return "오늘부터 해 볼 작은 변화를 적어 주세요.";
+    if (!DEBUG && !it) return "실천할 의향을 골라 주세요.";
+    if (txt) rememberChange(txt);
+    return { change_text: txt, change_intent: it ? Number(it.value) : "" };
   },
 });
 // 본실험 전용: 내레이션 자막을 넣은 영상 2~4 (2026-11-23). 파일럿은 video2~4.mp4 그대로.
@@ -501,6 +501,7 @@ const baseSelf = {
   on_load: () => {
     const form = document.getElementById("jspsych-survey-html-form"), part = document.getElementById("usedpart");
     wireBlock(form);
+    form.querySelectorAll('input[name="d0_use"]').forEach(el => { el.required = true; }); // wireBlock이 지운 필수 표시를 되살림
     const need = on => { part.style.display = on ? "" : "none";
       part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on; if (!on) el.value = ""; });
       part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
