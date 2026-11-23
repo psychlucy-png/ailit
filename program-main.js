@@ -17,10 +17,16 @@ const pidEntry = pidEntryTrial("AI 리터러시 프로그램");
 const welcome = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `<h1>AI 리터러시 프로그램</h1>
-    <div class="card"><p>짧은 영상 4편과 활동 2개로 이루어져 있어요. 모두 합쳐 <b>약 30~35분</b> 걸립니다.</p>
+    <div class="card"><p>앞으로 1주일 동안 AI 리터러시 프로그램에 참여합니다. 프로그램은 <b>모두 6일</b>입니다.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:16px;line-height:1.5;margin:6px 0 4px">
+      <tr><th style="width:92px;text-align:left;vertical-align:top;white-space:nowrap;background:#EEF1FB;border:1px solid #E1E4EE;padding:9px 10px">1일차 (오늘)</th><td style="border:1px solid #E1E4EE;padding:9px 10px">영상 4편과 활동 2개<br><b>40분 이내</b></td></tr>
+      <tr><th style="text-align:left;vertical-align:top;white-space:nowrap;background:#EAF6F1;border:1px solid #E1E4EE;padding:9px 10px">2~6일차</th><td style="border:1px solid #E1E4EE;padding:9px 10px">카드뉴스와 자가점검<br><b>하루 5분 이내</b><br><span class="sub" style="word-break:keep-all">매일 저녁 6시에 링크를 보내 드려요.</span></td></tr>
+    </table></div>
+    <div class="card"><p><b>오늘(1일차)의 순서</b></p>
+    <p class="sub">먼저 나의 AI 사용에 대한 짧은 질문에 답한 뒤, 아래 순서로 진행합니다.</p>
     <ol><li>영상 1. AI는 어떻게 답을 만들까?</li><li>영상 2. AI에게 생각을 맡길 때</li><li>활동 1. AI 답변 확인하기</li>
     <li>영상 3. AI에게 마음을 기댈 때</li><li>활동 2. AI의 다정함 다시 보기</li><li>영상 4. 주체적으로 AI 사용하기</li></ol>
-    <p class="sub">마지막에 짧은 설문이 이어집니다.</p></div>`,
+    <p>영상과 활동 사이사이에 짧은 질문이 있습니다. 끝까지 집중해서 적극적으로 참여해 주시면 감사하겠습니다.</p></div>`,
   choices: ["다음"],
   data: { task: "welcome" },
 };
