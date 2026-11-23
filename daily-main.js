@@ -1,5 +1,5 @@
 /* 5일 복습 (본실험용) — daily-main.html?day=1~5&pid=P001
-   카드뉴스 6장 → 자가점검 1(오늘의 퀴즈 1문항) → 정답 확인 → 자가점검 2(AI 사용 여부·시간, 실천 6문항, 오늘의 한 줄) → (Day 5) 복습 마무리 2문항(d_f1, d_f6) → 저장 → (Day 5) T2 설문으로 이어지는 버튼
+   카드뉴스 6장 → 자가점검 1(오늘의 퀴즈 1문항) → 정답 확인 → 자가점검 2(AI 사용 여부·시간, 실천 6문항, 오늘의 한 줄) → (Day 5) 복습 마무리 1문항(d_f1) → 저장 → (Day 5) T2 설문으로 이어지는 버튼
    2026-11-23 개편. 파일럿은 daily.html/daily.js(하루 15문항)를 그대로 씀. d_form="v1123" (이전 본실험 구성은 "short5") */
 
 STEPS = ["카드뉴스", "자가점검", "완료"];
@@ -183,7 +183,6 @@ const SELF = [
   "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다.",
   "AI가 내 생각이나 감정에 동의했을 때, 다른 관점에서도 상황을 생각해 보았다.",
 ];
-const PRAC = BLOCK.prac.items.slice(0, 5); // Day 5 F6 보기용
 const partCDE = {
   type: jsPsychSurveyHtmlForm,
   html: () => `${steps(1)}<h1>자가점검 2. 나의 AI 사용</h1>
@@ -226,11 +225,7 @@ const partCDE = {
 const partF = {
   type: jsPsychSurveyHtmlForm,
   html: () => `${steps(1)}<h1>5일 복습을 마치며</h1><div class="note">5일 동안의 카드뉴스와 자가점검을 떠올리며 답해 주세요.</div><div class="card">
-    ${likert("d_f1", "1. 카드뉴스는 영상 내용을 다시 떠올리는 데 도움이 되었다.", ["전혀 아니다", "", "", "", "매우 그렇다"])}
-    <div class="lk"><div class="lq">2. 앞으로도 계속해 볼 실천은? (모두 선택)</div>
-      <div class="opts">${PRAC.map((it, i) => `<label><input type="checkbox" name="d_f6_${i + 1}" value="1"> ${it.text}</label>`).join("")}
-      <label><input type="checkbox" name="d_f6_6" value="1"> 기타</label></div>
-      <input type="text" name="d_f6_other" placeholder="기타: 직접 적어 주세요 (선택)"></div></div>`,
+    ${likert("d_f1", "카드뉴스는 영상 내용을 다시 떠올리는 데 도움이 되었다.", ["전혀 아니다", "", "", "", "매우 그렇다"])}</div>`,
   button_label: "다음",
   data: { task: "daily_f" },
   on_load: () => wireBlock(document.getElementById("jspsych-survey-html-form")),

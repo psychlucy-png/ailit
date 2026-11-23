@@ -189,3 +189,9 @@ jsPsych 7.3.4로 만든 온라인 실험입니다. 척도북(2026-11-16 수정�
 - 프로그램 시작 전 기준선(`program-main.js`의 `baseSelf`, 본실험만): 자가점검 2~9번과 같은 문항을 `d0_use`, `d0_time_h`·`d0_time_m`·`d0_time_min`, `d0_s1`~`d0_s6`(+ `d0_sK_na`)로 '프로그램' 탭에 저장.
 - 프로그램 끝 '5일 복습 안내' 화면(본실험만): `daily_phone`(010-0000-0000 꼴로 저장). 링크는 매일 저녁 6시에 발송. `daily_time`은 더 이상 받지 않는다.
 - 영상 내용 확인(본실험): 영상 1~4 모두 영상 바로 뒤에 1문항(`check_vN`, `check_vN_correct`, 정답 2·3·2·2). 활동 1-B·2-B 퀴즈(`a1b_*`, `a2b_*`)와는 따로 채점한다.
+
+### 2026-11-23 (3) 설문을 척도북 v4에 맞춤
+- `measures-main.js`: `measures.js`의 사본을 본실험용으로 고친 것. `pre-survey.html`, `survey.html`만 불러온다 (파일럿·프로그램·5일 복습은 `measures.js` 그대로).
+- T1: `demo, ses, usetime, use, s, bsi, lsis, lit, dep, attari, gs, ct, mot, trust` / T2: `csq, usetime, lit, dep, attari, trust, ct` / T3·T4: `usetime, s, chg, lit, dep, attari, trust, ct`
+- `s` = AI 사용 실천 6문항(지난 24시간, 1~5 + 해당 상황이 없었다), `chg` = 나의 작은 변화 실천(1~5).
+- Day 5 복습 마무리는 `d_f1` 한 문항.
