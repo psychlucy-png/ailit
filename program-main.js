@@ -357,7 +357,17 @@ const act2Eng = engageTrial(4, 2);
 
 const best = {
   type: jsPsychSurveyHtmlForm,
-  html: `${steps(6)}<h1>가장 좋았던 것</h1><div class="card">
+  html: `${steps(6)}<h1>가장 좋았던 것</h1>
+    <div class="card"><div class="lq" style="margin-bottom:8px">오늘 본 영상과 활동</div>
+      <table style="width:100%;border-collapse:collapse;font-size:15px;line-height:1.5">${[
+        ["영상 1", "AI는 어떻게 답을 만들까?", "AI가 다음 말을 예측해 답을 만드는 원리, 약점 다섯 가지(환각·편향·딥페이크·자원·개인정보), 윤리적 사용"],
+        ["영상 2", "AI에게 생각을 맡길 때", "인지적 외주화, 기억·비판적 사고에 대한 연구, AI와 나의 역할 나누기"],
+        ["활동 1", "AI 답변 확인하기", "확신에 찬 AI 답변의 문장에서 문제 찾기, 영상 2 내용 퀴즈"],
+        ["영상 3", "AI에게 마음을 기댈 때", "AI가 위로가 되는 이유, 아첨하고 붙잡는 이유, 기댈 때 생기는 문제 세 가지, 힘들 때 찾을 곳"],
+        ["활동 2", "AI의 다정함 다시 보기", "AI와 나눈 대화 A·B·C에서 단서 찾기, 영상 3 내용 퀴즈"],
+        ["영상 4", "주체적으로 AI 사용하기", "나의 AI 사용 돌아보기, 사용 전·중·후 전략, 나의 작은 변화 적기"],
+      ].map(([k, t, d]) => `<tr><th style="width:62px;text-align:left;vertical-align:top;white-space:nowrap;background:${k.startsWith("활동") ? "#EAF6F1" : "#EEF1FB"};border:1px solid #E1E4EE;padding:8px 10px">${k}</th><td style="border:1px solid #E1E4EE;padding:8px 10px"><b>${t}</b><br><span style="color:#5B6078">${d}</span></td></tr>`).join("")}</table></div>
+    <div class="card">
     <div class="lq">가장 좋았던 영상은?</div>
     <div class="opts">${["영상 1. AI는 어떻게 답을 만들까?", "영상 2. AI에게 생각을 맡길 때", "영상 3. AI에게 마음을 기댈 때", "영상 4. 주체적으로 AI 사용하기"].map((o, i) =>
       `<label><input type="radio" name="best_video" value="${i + 1}" required> ${o}</label>`).join("")}</div>
