@@ -69,6 +69,7 @@ jsPsych 7.3.4로 만든 온라인 실험입니다. 척도북(2026-11-16 수정�
 | `daily-main.html`, `daily-main.js` | 본실험 5일 복습 (하루 5문항) | 본실험 복습 수정 시 |
 | `daily.html`, `daily.js` | 파일럿 5일 복습(고정) (카드뉴스 내용·퀴즈·해설은 `daily.js`의 `DAYS`) | 카드 내용 수정 시 |
 | `survey.html`, `survey.js` | T2·T3·T4 설문 | 아니오 |
+| `expert.html` | 전문가 내용 타당도 평정(4점). 영상·카드뉴스를 화면에서 바로 보고 평정, 활동은 `program.html?debug=1&start=act1` 새 창. '전문가평정' 탭에 평정자 1명당 1줄 | 아니오 |
 | `pre-survey.html`, `pre-survey.js` | 사전 설문 페이지 | 동의서 문구 수정 시 |
 | `program.html`, `program.js` | 프로그램 페이지 (영상·확인 문항·활동·회기 평가) | 문항 수정 시 |
 | `common.js` | 두 페이지 공통 기능 (설문 화면, 영상 플레이어, 저장) | 아니오 |

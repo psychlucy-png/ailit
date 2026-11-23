@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 리터러시 프로그램 내용 타당도 평정</title>
+<link rel="stylesheet" href="style.css?v=1117a">
+<style>
+  main{max-width:880px;margin:0 auto;padding:20px 16px 72px;box-sizing:border-box;font-size:17px;line-height:1.65;}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 4px;}
+  .bar i{display:block;height:100%;background:var(--blue);border-radius:99px;transition:width .25s;}
+  .stepno{color:var(--sub);font-size:14px;margin:0 0 10px;}
+  table.ov{width:100%;border-collapse:collapse;font-size:15px;}
+  table.ov th,table.ov td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top;}
+  table.ov th{color:var(--sub);font-weight:600;white-space:nowrap;}
+  .goal{background:var(--blue-soft);border-radius:12px;padding:12px 16px;margin:12px 0;font-size:16px;}
+  .goal b{display:inline-block;min-width:3.2em;}
+  video{width:100%;border-radius:12px;background:#000;display:block;}
+  .cardsrow{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory;}
+  .cardsrow img{height:420px;border-radius:10px;border:1px solid var(--line);scroll-snap-align:start;flex:none;}
+  .daytabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px;}
+  .daytabs button{font:inherit;font-size:15px;font-weight:700;padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;}
+  .daytabs button.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+  a.open{display:inline-block;font-weight:700;color:var(--blue);background:var(--blue-soft);padding:10px 16px;border-radius:12px;text-decoration:none;margin:4px 0;}
+  .scale{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:14px;color:var(--sub);margin:0 0 4px;}
+  .q{padding:14px 0;border-bottom:1px solid var(--line);}
+  .q:last-of-type{border-bottom:none;}
+  .q .t{margin:0 0 8px;}
+  .q .t b{color:var(--blue);margin-right:4px;}
+  .q.miss .t{color:var(--red);}
+  .pick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .pick label{display:block;position:relative;cursor:pointer;}
+  .pick input{position:absolute;opacity:0;inset:0;}
+  .pick span{display:block;text-align:center;border:1.5px solid var(--line);border-radius:12px;padding:8px 4px;background:#fff;font-weight:700;}
+  .pick small{display:block;font-weight:500;font-size:12px;color:var(--sub);line-height:1.3;}
+  .pick input:checked + span{border-color:var(--blue);background:var(--blue);color:#fff;}
+  .pick input:checked + span small{color:#fff;}
+  .pick input:focus-visible + span{outline:3px solid var(--blue-soft);}
+  textarea,input[type=text],input[type=number]{font:inherit;width:100%;box-sizing:border-box;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;color:var(--ink);}
+  textarea{min-height:110px;resize:vertical;}
+  label.f{display:block;font-weight:700;margin:14px 0 6px;}
+  label.f small{font-weight:500;color:var(--sub);}
+  .low{display:none;color:var(--red);font-size:14px;margin:6px 0 0;}
+  .low.on{display:block;}
+  .nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;}
+  .nav .ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .err{color:var(--red);font-weight:700;margin:10px 0 0;min-height:1.4em;}
+  @media (max-width:560px){ .cardsrow img{height:330px;} .pick small{display:none;} }
+</style>
+<script src="config.js?v=1117a"></script>
+</head>
+<body>
+<main id="app"></main>
+<script>
+/* 전문가 내용 타당도 평정 — expert.html
+   응답은 CONFIG.SHEETS_URL의 '전문가평정' 탭에 평정자 1명당 1줄로 저장(화면을 넘길 때마다 덮어씀). 같은 기기에서는 다시 열어도 이어서 할 수 있음. */
+const SHEET = "전문가평정";
+const KEY = "ailit_expert_v1";
+const BASE = "program.html?pid=EXPERT&debug=1&start=";
+const SCALE = [[1, "전혀 적절하지 않다", "삭제하거나 다시 만들어야 함"], [2, "적절하지 않다", "많이 수정해야 함"], [3, "적절하다", "조금 수정하면 됨"], [4, "매우 적절하다", "그대로 써도 됨"]];
+const CRIT = [
+  ["목표 적합성", "내용이 이 요소의 목표와 프로그램 전체 목적에 맞다."],
+  ["내용 정확성", "설명과 인용한 연구 결과가 사실에 맞고 과장이나 오류가 없다."],
+  ["대상 적절성", "대학(원)생의 실제 AI 사용 상황과 이해 수준에 맞다."],
+  ["명확성", "용어, 문장, 화면 구성이 분명해 오해 없이 전달된다."],
+  ["분량·난이도", "길이와 어려운 정도가 적당하다."],
+];
+const PARTS = [
+  { id: "v1", kind: "video", n: 1, name: "영상 1. AI는 어떻게 답을 만들까?", len: "약 4분 50초",
+    goal: "생성형 AI가 학습한 패턴으로 답을 만드는 시스템임을 이해하고, 사람의 판단이 왜 중요한지 알기",
+    body: "작동 원리(대규모 언어 모델, 토큰, 어텐션), 강점과 사회적 이점, 약점(환각, 편향, 딥페이크)과 사회적 영향, 윤리적 사용" },
+  { id: "v2", kind: "video", n: 2, name: "영상 2. AI에게 생각을 맡길 때", len: "2분 43초",
+    goal: "인지적 외주화를 이해하고, AI를 쓸 때 생각하는 일이 ‘확인하고 골라 다듬는 일’로 바뀌어야 함을 알기",
+    body: "인지적 외주화, AI는 무엇이 다른가, 선행연구 세 가지(기억·주인의식, 비판적 사고, AI 신뢰), 확신에 찬 말투, AI와 나의 역할" },
+  { id: "a1", kind: "act", start: "act1", name: "활동 1. AI 답변 확인하기", len: "약 5분",
+    goal: "‘단호한 말투 ≠ 확인된 내용’을 실제 AI 답변에 적용해 문장마다 어떤 문제가 있는지 가려내기",
+    body: "밤샘 공부에 대한 AI 답변 읽기 → 첫인상 평가 → A. 확신에 찬 문장 5개의 문제 유형 고르기 → B. 영상 2 내용 퀴즈 5문항 (10점, 즉시 해설)" },
+  { id: "v3", kind: "video", n: 3, name: "영상 3. AI에게 마음을 기댈 때", len: "3분 26초",
+    goal: "AI가 왜 위로가 되는지, 왜 아첨하거나 붙잡는 말을 하는지 알고, AI 공감의 한계와 사람·전문가의 도움을 찾는 방법 알기",
+    body: "AI가 위로가 되는 이유, 아첨·붙잡는 말의 이유, 정서적 의존의 문제 세 가지(외로움·고립, 관계에 대한 기대 변화, 서비스 변경에 따른 상실), AI는 정신건강 전문가가 아님" },
+  { id: "a2", kind: "act", start: "act2", name: "활동 2. AI의 다정함 다시 보기", len: "약 5분",
+    goal: "따뜻해 보이는 AI 대화에서 아첨·과도한 친밀감·붙잡기를 찾아내기",
+    body: "AI 대화 세 개 읽기 → 첫인상 평가 → A. 단서 찾기 5문항 → B. 영상 3 내용 퀴즈 5문항 (10점, 즉시 해설)" },
+  { id: "v4", kind: "video", n: 4, name: "영상 4. 주체적으로 AI 사용하기", len: "3분 11초",
+    goal: "학업·정서 양쪽의 사용 습관을 점검하고, 실천할 작은 변화 하나를 정하기",
+    body: "자기점검(O/X 5문항), 사용 전·중·후 전략, 감정을 나눌 때, 신경가소성, ‘나의 작은 변화’ 직접 적기" },
+  { id: "cn", kind: "cards", name: "5일 복습 카드뉴스", len: "하루 6장, 5일",
+    goal: "1일차에 배운 내용을 하루 한 주제씩 다시 떠올리고 실천으로 잇기",
+    body: "Day 1 AI는 어떻게 답을 만들까 · Day 2 AI에게 생각을 맡길 때 · Day 3 AI 답변 확인하기 · Day 4 AI에게 마음을 기댈 때 · Day 5 기분 좋은 답 ≠ 나에게 좋은 답" },
+];
+const OVERALL = [
+  "프로그램 구성이 ‘생성형 AI를 주체적·비판적으로 사용하도록 돕는다’는 목적에 적합하다.",
+  "영상과 활동의 순서가 논리적으로 이어진다.",
+  "인지적 의존과 정서적 의존을 균형 있게 다룬다.",
+  "영상으로 배우고 활동으로 적용하는 방식이 학습 목표 달성에 적절하다.",
+  "1일차 분량(40분 이내)과 5일 복습 분량(하루 5분 이내)이 적절하다.",
+  "5일 복습이 1일차에 배운 내용을 유지하고 실천으로 잇는 데 적절하다.",
+  "참여자에게 심리적 불편이나 해를 줄 수 있는 내용이 없다.",
+  "이 프로그램은 대학생의 AI 리터러시를 높이고 AI 의존을 줄이는 데 도움이 될 것이다.",
+];
+const OPEN = [
+  "사실과 다르거나 근거가 약하다고 보신 내용이 있다면 적어 주세요. (어느 영상·활동·카드인지 함께)",
+  "빠져 있어 추가했으면 하는 내용이 있다면 적어 주세요.",
+  "빼거나 줄였으면 하는 내용이 있다면 적어 주세요.",
+  "그 밖에 프로그램을 더 좋게 만들기 위한 의견을 자유롭게 적어 주세요.",
+];
+const INFO = [["rater_name", "성함", "text"], ["rater_affil", "소속 · 직위", "text"], ["rater_degree", "최종 학위 · 전공", "text"], ["rater_years", "관련 분야 경력 (년)", "number"], ["rater_field", "전문 분야", "text", "예: 상담·임상심리, 미디어 리터러시"]];
+
+const COLS = [...INFO.map(x => x[0]), ...PARTS.flatMap(p => [1, 2, 3, 4, 5].map(k => `a_${p.id}_${k}`).concat(`a_${p.id}_c`)), ...OVERALL.map((t, k) => `b_${k + 1}`), "b_c", ...OPEN.map((t, k) => `d_${k + 1}`)];
+const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let S = { sid: "ex" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8), seq: 0, step: 0, started_at: new Date().toISOString(), r: {} };
+try { const o = JSON.parse(localStorage.getItem(KEY) || "null"); if (o && o.sid && !o.done) S = o; } catch (e) {}
+const keep = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const STEPS = 1 + PARTS.length + 2; // 안내, 구성 요소 7, 전체 평정, 서술 의견
+const app = document.getElementById("app");
+
+function send(status) {
+  const row = { pid: "EXPERT", sid: S.sid, form: "expert", status, seq: ++S.seq, step: S.step, debug: DEBUG, started_at: S.started_at, saved_at: new Date().toISOString() };
+  COLS.forEach(k => { row[k] = S.r[k] == null ? "" : S.r[k]; }); // 시트 열 순서를 문항 순서대로
+  keep();
+  if (!CONFIG.SHEETS_URL) return Promise.resolve(true);
+  return fetch(CONFIG.SHEETS_URL, { method: "POST", body: JSON.stringify({ sheet: SHEET, row }) }).then(r => r.json()).then(j => !!(j && j.ok)).catch(() => false);
+}
+const pick = (name, short) => `<div class="pick">${SCALE.map(([v, a, b]) => `<label><input type="radio" name="${name}" value="${v}"${String(S.r[name]) === String(v) ? " checked" : ""}><span>${v}<small>${a}</small></span></label>`).join("")}</div>`;
+const scaleKey = () => `<div class="scale">${SCALE.map(([v, a, b]) => `<span><b>${v}</b> ${a} (${b})</span>`).join("")}</div>`;
+const head = (title) => `<div class="bar"><i style="width:${Math.round(S.step / (STEPS - 1) * 100)}%"></i></div><p class="stepno">${S.step + 1} / ${STEPS}</p><h1>${title}</h1>`;
+const nav = (last) => `<p class="err" id="err"></p><div class="nav">${S.step > 0 ? `<button type="button" class="jspsych-btn ghost" id="prev">이전</button>` : "<span></span>"}<button type="submit" class="jspsych-btn">${last ? "제출하기" : "다음"}</button></div>`;
+
+function material(p) {
+  if (p.kind === "video") return `<video controls preload="metadata" playsinline src="video${p.n}-main.mp4?v=1123e"></video><p class="sub">참가자가 보는 것과 같은 영상입니다. <a href="${BASE}video${p.n}" target="_blank" rel="noopener">참가자 화면 그대로 보기(새 창)</a></p>`;
+  if (p.kind === "act") return `<p>활동은 참가자 화면에서 직접 해 보실 수 있습니다. 응답하지 않아도 다음으로 넘어갑니다.</p><a class="open" href="${BASE}${p.start}" target="_blank" rel="noopener">${esc(p.name.split(". ")[0])} 열기 (새 창) →</a><p class="sub">활동이 끝나 다음 영상이 나오면 창을 닫고 이 화면으로 돌아와 주세요.</p>`;
+  return `<div class="daytabs">${[1, 2, 3, 4, 5].map(d => `<button type="button" data-day="${d}"${d === 1 ? ' class="on"' : ""}>Day ${d}</button>`).join("")}</div><div class="cardsrow" id="cards"></div><p class="sub">옆으로 넘겨 6장을 모두 볼 수 있습니다. 카드를 본 뒤 참가자는 퀴즈 1문항과 자가점검(AI 사용 여부·시간, AI 사용 실천 6문항, 오늘의 한 줄)에 답합니다. <a href="daily-main.html?day=1&pid=EXPERT&debug=1" target="_blank" rel="noopener">참가자 화면 그대로 보기(새 창)</a></p>`;
+}
+
+function view() {
+  const i = S.step; let h = "";
+  if (i === 0) {
+    h = head("AI 리터러시 프로그램 내용 타당도 평정") + `<div class="card">
+      <p>평정에 참여해 주셔서 감사합니다. 대학(원)생이 생성형 AI를 주체적이고 비판적으로 쓰도록 돕는 온라인 프로그램의 내용이 타당한지 여쭙니다. 프로그램은 생각과 판단을 AI에 맡기는 도구적 의존(인지적 외주화)과, AI의 공감과 위로에 기대는 정서적 의존을 다룹니다.</p>
+      <table class="ov"><tr><th>구분</th><th>구성</th><th>길이</th></tr>
+      <tr><td>도입</td><td>영상 1. AI는 어떻게 답을 만들까?</td><td>약 4분 50초</td></tr>
+      <tr><td>인지</td><td>영상 2. AI에게 생각을 맡길 때 → 활동 1. AI 답변 확인하기</td><td>약 8분</td></tr>
+      <tr><td>정서</td><td>영상 3. AI에게 마음을 기댈 때 → 활동 2. AI의 다정함 다시 보기</td><td>약 8분</td></tr>
+      <tr><td>마무리</td><td>영상 4. 주체적으로 AI 사용하기</td><td>3분 11초</td></tr>
+      <tr><td>복습</td><td>5일 동안 매일 카드뉴스 6장 + 자가점검</td><td>하루 5분 이내</td></tr></table>
+      <p>구성 요소 7개를 하나씩 보시면서 다섯 기준으로 평정하고, 마지막에 프로그램 전체를 평정합니다. 모든 문항은 4점 척도이며, 1점이나 2점을 주신 경우 이유나 수정 방향을 의견 칸에 적어 주시면 반영하겠습니다.</p>
+      ${scaleKey()}
+      <p class="sub">약 40~50분 걸립니다. 화면을 넘길 때마다 저장되며, 같은 기기에서 이 주소를 다시 열면 이어서 하실 수 있습니다.</p></div>
+      <div class="card"><h2>평정자 정보</h2><p class="sub">논문에는 성함 없이 전공과 경력만 보고합니다.</p>
+      ${INFO.map(([k, l, t, ph]) => `<label class="f" for="${k}">${l}</label><input type="${t}" id="${k}" name="${k}" ${t === "number" ? 'min="0" max="60" step="0.5" inputmode="decimal"' : 'maxlength="80"'} placeholder="${ph || ""}" value="${esc(S.r[k])}" data-req="1">`).join("")}</div>` + nav();
+  } else if (i <= PARTS.length) {
+    const p = PARTS[i - 1];
+    h = head(p.name) + `<div class="goal"><div><b>목표</b> ${p.goal}</div><div><b>내용</b> ${p.body}</div><div><b>길이</b> ${p.len}</div></div>
+      <div class="card">${material(p)}</div>
+      <div class="card"><h2>평정</h2>${scaleKey()}
+      ${CRIT.map(([a, b], k) => `<div class="q" data-q="a_${p.id}_${k + 1}"><p class="t"><b>${a}</b> ${b}</p>${pick(`a_${p.id}_${k + 1}`)}</div>`).join("")}
+      <label class="f" for="c">의견 <small>(선택 · 수정이 필요한 부분과 방향)</small></label><textarea id="c" name="a_${p.id}_c" maxlength="3000">${esc(S.r[`a_${p.id}_c`])}</textarea>
+      <p class="low" id="low">1점이나 2점을 주신 기준이 있습니다. 이유나 수정 방향을 적어 주시면 큰 도움이 됩니다.</p></div>` + nav();
+  } else if (i === PARTS.length + 1) {
+    h = head("프로그램 전체 평정") + `<div class="card">${scaleKey()}
+      ${OVERALL.map((t, k) => `<div class="q" data-q="b_${k + 1}"><p class="t"><b>${k + 1}.</b> ${t}</p>${pick(`b_${k + 1}`)}</div>`).join("")}
+      <label class="f" for="c">의견 <small>(선택 · 낮게 평정한 문항의 이유와 수정 방향)</small></label><textarea id="c" name="b_c" maxlength="3000">${esc(S.r.b_c)}</textarea>
+      <p class="low" id="low">1점이나 2점을 주신 문항이 있습니다. 이유나 수정 방향을 적어 주시면 큰 도움이 됩니다.</p></div>` + nav();
+  } else {
+    h = head("서술 의견") + `<div class="card"><p class="sub">모두 선택 문항입니다. 해당하는 것만 적어 주세요.</p>
+      ${OPEN.map((t, k) => `<label class="f" for="d${k + 1}">${k + 1}. ${t}</label><textarea id="d${k + 1}" name="d_${k + 1}" maxlength="4000">${esc(S.r[`d_${k + 1}`])}</textarea>`).join("")}</div>` + nav(true);
+  }
+  app.innerHTML = `<form id="f" novalidate>${h}</form>`;
+  window.scrollTo(0, 0);
+  wire();
+}
+
+function collect(form) {
+  form.querySelectorAll("input[type=text],input[type=number],textarea").forEach(e => { S.r[e.name] = e.value.trim(); });
+  form.querySelectorAll("input[type=radio]:checked").forEach(e => { S.r[e.name] = Number(e.value); });
+  keep();
+}
+function wire() {
+  const form = document.getElementById("f"), low = document.getElementById("low");
+  const showLow = () => { if (low) low.classList.toggle("on", [...form.querySelectorAll("input[type=radio]:checked")].some(e => Number(e.value) <= 2) && !form.querySelector("textarea").value.trim()); };
+  form.addEventListener("change", () => { collect(form); showLow(); form.querySelectorAll(".q.miss").forEach(q => { if (q.querySelector("input:checked")) q.classList.remove("miss"); }); });
+  form.addEventListener("input", e => { collect(form); if (e.target.tagName === "TEXTAREA") showLow(); });
+  showLow();
+  const cards = document.getElementById("cards");
+  if (cards) {
+    const show = d => { cards.innerHTML = [1, 2, 3, 4, 5, 6].map(k => `<img loading="lazy" src="cards-main/day${d}_${k}.jpg?v=1123k" alt="Day ${d} 카드 ${k}">`).join(""); cards.scrollLeft = 0; form.querySelectorAll(".daytabs button").forEach(b => b.classList.toggle("on", Number(b.dataset.day) === d)); };
+    form.querySelectorAll(".daytabs button").forEach(b => b.addEventListener("click", () => show(Number(b.dataset.day))));
+    show(1);
+  }
+  const prev = document.getElementById("prev");
+  if (prev) prev.addEventListener("click", () => { collect(form); S.step--; keep(); view(); });
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); collect(form);
+    const err = document.getElementById("err"); err.textContent = "";
+    if (!DEBUG) {
+      const emptyInfo = [...form.querySelectorAll("[data-req]")].find(x => !x.value.trim());
+      if (emptyInfo) { err.textContent = "평정자 정보를 모두 적어 주세요."; emptyInfo.focus(); return; }
+      const miss = [...form.querySelectorAll(".q")].filter(q => !q.querySelector("input:checked"));
+      form.querySelectorAll(".q").forEach(q => q.classList.toggle("miss", miss.includes(q)));
+      if (miss.length) { err.textContent = `아직 평정하지 않은 문항이 ${miss.length}개 있습니다.`; miss[0].scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    }
+    const last = S.step === STEPS - 1;
+    const btn = form.querySelector("button[type=submit]"); btn.disabled = true;
+    if (!last) { S.step++; send("in_progress"); view(); return; }
+    btn.textContent = "저장하는 중…";
+    let ok = await send("complete"); if (!ok) ok = await send("complete");
+    if (!ok) { btn.disabled = false; btn.textContent = "제출하기"; err.textContent = "저장하지 못했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요."; return; }
+    S.done = true; keep();
+    app.innerHTML = `<h1>평정을 마쳤습니다</h1><div class="card"><p>응답이 저장되었습니다. 귀한 시간을 내어 검토해 주셔서 감사합니다.</p><p class="sub">${CONFIG.RESEARCHER_CONTACT ? "문의: " + CONFIG.RESEARCHER_CONTACT : ""}</p></div>`;
+    window.scrollTo(0, 0);
+  });
+}
+view();
+</script>
+</body>
+</html>
