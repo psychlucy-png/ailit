@@ -515,7 +515,7 @@ const main = [
   ...(IS_PILOT ? [pilotPost, pilotOpen] : [best]),
 ].filter(Boolean);
 // 본실험 전용(2026-11-23): 마무리 의견에서 평정 세 문항(fb_text_time, fb_distract, fb_useful)을 빼고 서술 문항만 남김
-PROGRAM_FEEDBACK.items = PROGRAM_FEEDBACK.items.filter(it => !["text_time", "distract", "useful"].includes(it.id));
+PROGRAM_FEEDBACK.items = PROGRAM_FEEDBACK.items.filter(it => !["text_time", "distract", "useful", "open"].includes(it.id)); // "더 하고 싶은 말"도 뺌 → 남는 문항이 없어 이 화면은 나오지 않음
 if (!IS_PILOT && PROGRAM_FEEDBACK.items.length) main.push(blockTrial(PROGRAM_FEEDBACK, "", 6, "feedback"));
 // 본실험 전용(2026-11-23): 5일 복습(카드뉴스 + 자가점검)을 받을 시간을 고르게 함 → daily_time ("HH:MM")
 const dailyTime = {
