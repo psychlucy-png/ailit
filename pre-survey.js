@@ -102,7 +102,7 @@ const contact = {
     window.scrollTo(0, 0); },
 };
 
-const preBlocks = waveBlocks(1).map(b => blockTrial(b, null, 1, "pre")); // 척도북 T1 (measures.js의 WAVES[1])
+const preBlocks = waveBlocks(1).map(b => b.id === "s" ? selfUseTrial(b, 1, "pre") : blockTrial(b, null, 1, "pre")); // 척도북 T1 (measures.js의 WAVES[1])
 
 const timeline = [
   browserCheck, consent, screening,

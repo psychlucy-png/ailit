@@ -3,7 +3,7 @@
    2026-11-23 개편. 파일럿은 daily.html/daily.js(하루 15문항)를 그대로 씀. d_form="v1123" (이전 본실험 구성은 "short5") */
 
 STEPS = ["카드뉴스", "자가점검", "완료"];
-jsPsych.data.addProperties({ day: DAY, d_form: "v1125" });
+jsPsych.data.addProperties({ day: DAY, d_form: "v1125b" });
 
 /* ---------- 날짜별 내용 (5일 복습 설계 문서 기준) ---------- */
 const DAYS = {
@@ -172,36 +172,36 @@ const partBfb = {
 };
 
 /* ---------- 4. AI 사용 자가점검 (2~11번) ----------
-   2 d_use(1 예 / 2 아니요) · 3 d_time_h, d_time_m → d_time_min · 4 d_purpose(가장 오래 사용한 용도 1~5) · 5~10 d_s1~d_s6 (1~5, '해당 상황이 없었다'는 빈칸 + d_sK_na=1) · 11 d_e
-   d_s1 먼저 생각 · d_s2 도움 정하기 · d_s3 근거·논리 살피기 · d_s4 AI에게 먼저 맡김(역방향) · d_s5 AI에게 위로·조언 구함 · d_s6 다른 관점 생각 */
-const FREQ5 = { n: 5, labels: { 1: "전혀 하지 않았다", 2: "거의 하지 않았다", 3: "가끔 했다", 4: "자주 했다", 5: "거의 항상 했다" }, na: "해당 상황이 없었다" };
+   2 d_use(1 예 / 2 아니요) · 3 d_time_h, d_time_m → d_time_min · 4 d_purpose(가장 오래 사용한 주된 목적 1~5) · 5~10 d_s1~d_s6 (1 전혀 그렇지 않았다 ~ 7 매우 그랬다) · 11 d_e
+   d_s1 먼저 생각 · d_s2 근거·논리 살피기 · d_s3 AI에게 먼저 맡김 · d_s4 위로·조언 구함 · d_s5 속마음 털어놓음 · d_s6 계속 대화하고 싶음 (d_s3~d_s6은 높을수록 AI에 기대는 방향) */
+const FREQ5 = { n: 7, labels: { 1: "전혀 그렇지 않았다", 2: "그렇지 않았다", 3: "약간 그렇지 않았다", 4: "보통이었다", 5: "약간 그랬다", 6: "그랬다", 7: "매우 그랬다" } };
 const SELF = [
   "AI에게 질문하거나 도움을 요청하기 전에, 스스로 해결 방법이나 답을 먼저 생각해 보았다.",
-  "AI를 사용하기 전에, 어떤 도움을 받을 것인지 구체적으로 정했다.",
   "AI의 답변을 그대로 받아들이지 않고, 근거나 논리에 문제가 없는지 살펴보았다.",
   "스스로 해결할 수 있는 일도 AI에게 먼저 맡겼다.",
   "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다.",
-  "AI가 내 생각이나 감정에 동의했을 때, 다른 관점에서도 상황을 생각해 보았다.",
+  "다른 사람에게 얘기하기 어려운 이야기나 속마음을 AI에게 털어놓았다.",
+  "AI와 계속해서 대화하고 싶다고 느꼈다.",
 ];
-// 가장 오래 사용한 용도 (d_purpose 1~5, AI를 사용한 날만)
+// 가장 오랜 시간 사용한 주된 목적 (d_purpose 1~5, AI를 사용한 날만)
 const PURPOSES = [
-  "학업 및 업무 과제 수행 (자료 조사, 요약, 번역, 글쓰기 초안 등)",
-  "코딩, 데이터 분석 및 전문 연구 작업",
-  "일상적 정보 검색 및 실용적 문제 해결 (일정 계획, 쇼핑, 생활 팁 등)",
-  "고민상담 및 일상 대화 (고민 상담, 잡담, 위로 등)",
-  "정서적 교류, 재미 (캐릭터 대화 등)",
+  "학업 및 학습 (개념 이해, 시험 준비 등)",
+  "과제 및 연구 수행 (자료 조사, 글 작성, 번역, 코딩, 데이터 분석)",
+  "일상적 정보 탐색 및 문제 해결 (단순 질문, 일정 관리, 추천 등)",
+  "정서적 지원 (스트레스 해소, 고민 상담, 위로 등)",
+  "사회적 상호작용 및 오락 (일상적 잡담, 친구·연인처럼 대화, 상황극 등)",
 ];
 const partCDE = {
   type: jsPsychSurveyHtmlForm,
   html: () => `${steps(1)}<h1>자가점검 2. 나의 AI 사용</h1>
     <div class="card">
-      <div class="lk"><div class="lq">2. <b>지난 24시간 동안</b> 생성형 AI(ChatGPT, Gemini, 제타 등)를 사용한 적이 있나요?</div>${radios("d_use", ["예", "아니요"], null, "opts row2")}</div>
+      <div class="lk"><div class="lq">2. <b>오늘 하루(지난 24시간) 동안</b> 생성형 AI(ChatGPT, Gemini, 제타 등)를 사용한 적이 있나요?</div>${radios("d_use", ["예", "아니요"], null, "opts row2")}</div>
       <div id="usedpart" style="display:none">
-        <div class="lk"><div class="lq">3. 지난 24시간 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
+        <div class="lk"><div class="lq">3. 오늘 하루(지난 24시간) 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
           <p style="font-size:18px"><input type="number" name="d_time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
           &nbsp;<input type="number" name="d_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p><div class="warn" id="timewarn" style="display:none">AI를 사용했다고 답했는데 사용 시간이 0시간 0분이에요. 사용 시간을 다시 확인해 주세요. 사용하지 않았다면 위 문항에서 ‘아니요’를 골라 주세요.</div></div>
-        <div class="lk"><div class="lq">4. 지난 24시간 동안 생성형 AI를 <b>가장 오래 사용한 용도</b>는 무엇인가요? (하나만 선택)</div>${radios("d_purpose", PURPOSES)}</div>
-        <p class="sub" style="margin:14px 0 4px"><b>지난 24시간 동안 AI를 쓰면서</b> 아래의 일을 얼마나 했는지 골라 주세요. 그런 상황이 없었다면 ‘해당 상황이 없었다’를 고릅니다.</p>
+        <div class="lk"><div class="lq">4. 오늘 하루(지난 24시간) 중 AI를 <b>가장 오랜 시간 사용한 주된 목적</b>은 무엇이었나요?</div>${radios("d_purpose", PURPOSES)}</div>
+        <p class="sub" style="margin:14px 0 4px"><b>오늘 하루(지난 24시간) 동안 AI를 사용할 때</b> 다음 각 문장이 얼마나 해당했는지 골라 주세요.</p>
         ${SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 5}. ${t}</div>${scaleRow(`d_s${i + 1}`, FREQ5, false)}</div>`).join("")}
       </div>
     </div>
@@ -228,7 +228,7 @@ const partCDE = {
     flatten(d); const used = String(d.d_use) === "1"; d.d_nouse = used ? 0 : 1;
     d.d_time_min = used ? (Number(d.d_time_h) || 0) * 60 + (Number(d.d_time_m) || 0) : 0;
     d.d_purpose = used && d.d_purpose ? Number(d.d_purpose) : "";
-    SELF.forEach((_, i) => { const k = `d_s${i + 1}`; d[`${k}_na`] = d[k] === "NA" ? 1 : 0; if (d[k] === "NA" || d[k] == null) d[k] = ""; });
+    SELF.forEach((_, i) => { const k = `d_s${i + 1}`; d[k] = used && d[k] ? Number(d[k]) : ""; });
     window.scrollTo(0, 0);
   },
 };

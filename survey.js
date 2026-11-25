@@ -38,6 +38,6 @@ if (!WAVES[WAVE]) {
   window.removeEventListener("beforeunload", warnLeave);
   jsPsych.run([badWave]);
 } else {
-  const blocks = waveBlocks(WAVE).map(b => blockTrial(b, null, 0, `t${WAVE}`));
+  const blocks = waveBlocks(WAVE).map(b => b.id === "s" ? selfUseTrial(b, 0, `t${WAVE}`) : blockTrial(b, null, 0, `t${WAVE}`));
   jsPsych.run([browserCheck, ...(HAS_PID ? [] : [pidEntryTrial(WAVE_NAMES[WAVE])]), surveyIntro, loadChange, ...blocks, save, endPage]);
 }

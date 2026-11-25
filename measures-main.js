@@ -43,7 +43,7 @@ const PRE_ONLY = [
   },
   {
     id: "usetime", title: "", label: "AI 사용 시간",
-    instruction: "다음은 평소의 생성형 AI 사용 경험에 대해서 묻는 질문입니다. 평소의 사용 경험에 가장 근접한 응답을 선택해주세요.",
+    instruction: "다음은 <b>지난 1주일 간</b>의 생성형 AI 사용 경험에 대해서 묻는 질문입니다. 지난 1주일 간의 사용 경험에 가장 근접한 응답을 선택해주세요.",
     items: [
       { id: "weekday", type: "choice", text: "주중에 하루 평균 생성형 AI를 얼마나 사용하십니까?", options: ["전혀 사용하지 않음", "1시간 미만", "1시간 이상-2시간 미만", "2시간 이상-3시간 미만", "3시간 이상-4시간 미만", "4시간 이상"] },
       { id: "weekend", type: "choice", text: "주말 동안 하루 평균 생성형 AI를 얼마나 사용하십니까?", options: ["전혀 사용하지 않음", "1시간 미만", "1시간 이상-2시간 미만", "2시간 이상-3시간 미만", "3시간 이상-4시간 미만", "4시간 이상"] },
@@ -77,7 +77,7 @@ const PRE_ONLY = [
   },
   {
     id: "attari", title: "", label: "AI에 대한 태도",
-    instruction: "다음은 인공지능(AI)에 대한 귀하의 생각을 묻는 질문입니다. 인공지능(AI)이란 인간처럼 스스로 학습하고 판단하여 업무를 수행하는 기술을 말합니다. 컴퓨터나 웹사이트뿐만 아니라 로봇 같은 기계 장치 등 우리 주변의 다양한 곳에서 접할 수 있습니다. 평소 귀하의 생각과 얼마나 일치하는지 답변해 주시기 바랍니다.",
+    instruction: "다음은 인공지능(AI)에 대한 귀하의 생각을 묻는 질문입니다. <b>현재</b> 귀하의 생각과 얼마나 일치하는지 답변해 주시기 바랍니다.",
     scale: SC.agree5,
     items: [
       { id: "1", text: "AI는 세상을 더 나은 곳으로 변화시킬 것이다." },
@@ -124,7 +124,7 @@ const PRE_ONLY = [
 const PREPOST = [
   {
     id: "lit", title: "", label: "AI 리터러시",
-    instruction: "다음은 AI 활용에 대한 문장입니다. 각 문장이 귀하에게 얼마나 해당하는지 선택해 주세요.",
+    instruction: "다음은 AI 활용에 대한 문장입니다. <b>지난 1주일 동안</b>의 경험을 바탕으로 각 문장이 귀하에게 얼마나 해당하는지 선택해 주세요.",
     scale: SC.lit7,
     items: [
       { id: "1", text: "나는 AI를 사용해 필요한 정보를 얻을 수 있다." },
@@ -143,7 +143,7 @@ const PREPOST = [
   },
   {
     id: "dep", title: "", label: "AI 사용 경험 (의존)",
-    instruction: "다음 문항은 귀하가 가장 자주 사용하는 대규모 언어모델(LLM) 기반 생성형 AI(예: ChatGPT, DeepSeek, Gemini, Copilot 등)를 기준으로 응답해 주시기 바랍니다. 각 문항에 대해 얼마나 동의하시는지 표시해 주십시오.",
+    instruction: "다음 문항은 귀하가 가장 자주 사용하는 대규모 언어모델(LLM) 기반 생성형 AI(예: ChatGPT, DeepSeek, Gemini, Copilot 등)를 기준으로 응답해 주시기 바랍니다. <b>지난 1주일 동안</b>의 경험을 바탕으로 각 문항에 대해 얼마나 동의하시는지 표시해 주십시오.",
     scale: SC.agree6,
     items: [
       { id: "1", text: "AI 없이는 결정을 내릴 때 자신감이 떨어진다." },
@@ -177,7 +177,7 @@ const PREPOST = [
   },
   {
     id: "trust", title: "", label: "AI에 대한 신뢰",
-    instruction: "다음은 평소 사용하는 AI 챗봇에 대한 생각을 묻는 문항입니다. 각 문장이 귀하의 생각과 얼마나 일치하는지 선택해 주세요.",
+    instruction: "다음은 AI 챗봇에 대한 생각을 묻는 문항입니다. <b>지난 1주일 동안</b>의 경험을 바탕으로 각 문장이 귀하의 생각과 얼마나 일치하는지 선택해 주세요.",
     scale: SC.trust7,
     items: [
       { id: "1", text: "나는 AI 챗봇을 신뢰한다." },
@@ -226,7 +226,7 @@ const MORE = [
   {
     // ※ 척도북에 안내문이 영문만 있어 번역해 넣었습니다.
     id: "ct", title: "", label: "AI 사용과 비판적 사고",
-    instruction: "평소 AI 도구(예: 챗봇, 이미지 생성기, 음성 비서)를 어떻게 사용하는지 떠올려 보세요. 각 문장이 평소 나의 행동과 얼마나 같은지 선택해 주세요.",
+    instruction: "<b>지난 1주일 간</b> AI 도구(예: 챗봇, 이미지 생성기, 음성 비서)를 어떻게 사용했는지 떠올려 보세요. 각 문장이 지난 1주일 간 나의 행동과 얼마나 같은지 선택해 주세요.",
     scale: SC.agree5,
     items: [
       { id: "1", text: "나는 AI가 제공한 정보를 신뢰하기 전에 해당 정보의 출처를 자주 확인한다." },
@@ -245,17 +245,26 @@ const MORE = [
     ],
   },
   {
-    // AI 사용 실천 6문항: 5일 일일점검 4~9번, 프로그램 시작 전 자가점검과 같은 문장·척도 ('지난 24시간' 기준). 열 이름 t1_s_1~6, t3_s_1~6, t4_s_1~6
+    // AI 사용 (T1·T3·T4): 5일 일일점검 2~10번, 프로그램 시작 전 자가점검과 같은 문항. 화면은 아래 selfUseTrial이 만듦.
+    // 열 이름(앞에 t1_·t3_·t4_): s_use(1 예 / 2 아니요), s_time_h, s_time_m, s_time_min, s_purpose(1~5), s_1~s_6(1 전혀 그렇지 않았다 ~ 7 매우 그랬다. s_3~s_6은 높을수록 AI에 기대는 방향)
     id: "s", title: "", label: "AI 사용 실천",
-    instruction: "<b>지난 24시간 동안</b> AI를 사용할 때 다음을 얼마나 했나요? 그런 상황이 없었다면 '해당 상황이 없었다'를 골라 주세요.",
-    scale: { n: 5, labels: { 1: "전혀 하지 않았다", 2: "거의 하지 않았다", 3: "가끔 했다", 4: "자주 했다", 5: "거의 항상 했다" }, na: "해당 상황이 없었다" },
+    instruction: "<b>오늘 하루(지난 24시간) 동안 AI를 사용할 때</b> 다음 각 문장이 얼마나 해당했는지 골라 주세요.",
+    scale: { n: 7, labels: { 1: "전혀 그렇지 않았다", 2: "그렇지 않았다", 3: "약간 그렇지 않았다", 4: "보통이었다", 5: "약간 그랬다", 6: "그랬다", 7: "매우 그랬다" } },
     items: [
       { id: "1", text: "AI에게 질문하거나 도움을 요청하기 전에, 스스로 해결 방법이나 답을 먼저 생각해 보았다." },
-      { id: "2", text: "AI를 사용하기 전에, 어떤 도움을 받을 것인지 구체적으로 정했다." },
-      { id: "3", text: "AI의 답변을 그대로 받아들이지 않고, 근거나 논리에 문제가 없는지 살펴보았다." },
-      { id: "4", text: "스스로 해결할 수 있는 일도 AI에게 먼저 맡겼다." },
-      { id: "5", text: "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다." },
-      { id: "6", text: "AI가 내 생각이나 감정에 동의했을 때, 다른 관점에서도 상황을 생각해 보았다." },
+      { id: "2", text: "AI의 답변을 그대로 받아들이지 않고, 근거나 논리에 문제가 없는지 살펴보았다." },
+      { id: "3", text: "스스로 해결할 수 있는 일도 AI에게 먼저 맡겼다." },
+      { id: "4", text: "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다." },
+      { id: "5", text: "다른 사람에게 얘기하기 어려운 이야기나 속마음을 AI에게 털어놓았다." },
+      { id: "6", text: "AI와 계속해서 대화하고 싶다고 느꼈다." },
+    ],
+    useQ: "<b>오늘 하루(지난 24시간) 동안</b> 생성형 AI(ChatGPT, Gemini, 제타 등)를 사용한 적이 있나요?", timeQ: "오늘 하루(지난 24시간) 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?", purposeQ: "오늘 하루(지난 24시간) 중 AI를 <b>가장 오랜 시간 사용한 주된 목적</b>은 무엇이었나요?",
+    purposes: [
+      "학업 및 학습 (개념 이해, 시험 준비 등)",
+      "과제 및 연구 수행 (자료 조사, 글 작성, 번역, 코딩, 데이터 분석)",
+      "일상적 정보 탐색 및 문제 해결 (단순 질문, 일정 관리, 추천 등)",
+      "정서적 지원 (스트레스 해소, 고민 상담, 위로 등)",
+      "사회적 상호작용 및 오락 (일상적 잡담, 친구·연인처럼 대화, 상황극 등)",
     ],
   },
   {
@@ -353,6 +362,47 @@ const WAVES = {
 };
 const WAVE_NAMES = { 1: "사전 설문", 2: "프로그램 직후 설문", 3: "1주 뒤 설문", 4: "1달 뒤 설문" };
 // 시점 t의 블록 목록 (그 시점에 안 쓰는 문항은 뺌)
+// AI 사용 블록(s)의 화면: 사용 여부 → (예일 때만) 사용 시간·주된 목적·실천 6문항. 사전 설문과 T3·T4 설문에서 blockTrial 대신 씀
+function selfUseTrial(block, stepIdx, task) {
+  const P = (block.prefix || "") + "s_";
+  return {
+    type: jsPsychSurveyHtmlForm,
+    html: () => `${steps(stepIdx)}<div class="card">
+      <div class="lk"><div class="lq">${block.useQ}</div><div class="opts row2"><label><input type="radio" name="${P}use" value="1" required> 예</label><label><input type="radio" name="${P}use" value="2" required> 아니요</label></div></div>
+      <div id="usedpart" style="display:none">
+        <div class="lk"><div class="lq">${block.timeQ}</div>
+          <p style="font-size:18px"><input type="number" name="${P}time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
+          &nbsp;<input type="number" name="${P}time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p><div class="warn" id="timewarn" style="display:none">AI를 사용했다고 답했는데 사용 시간이 0시간 0분이에요. 사용 시간을 다시 확인해 주세요. 사용하지 않았다면 위 문항에서 ‘아니요’를 골라 주세요.</div></div>
+        <div class="lk"><div class="lq">${block.purposeQ}</div><div class="opts">${block.purposes.map((o, i) => `<label><input type="radio" name="${P}purpose" value="${i + 1}" required> ${o}</label>`).join("")}</div></div>
+        <p class="sub" style="margin:14px 0 4px">${block.instruction}</p>
+        ${block.items.map(it => `<div class="lk"><div class="lq">${it.text}</div>${scaleRow(`${P}${it.id}`, block.scale, false)}</div>`).join("")}
+      </div>
+    </div>`,
+    button_label: "다음",
+    data: { task, block: block.id },
+    on_load: () => {
+      const form = document.getElementById("jspsych-survey-html-form"), part = document.getElementById("usedpart");
+      wireBlock(form);
+      form.querySelectorAll(`input[name="${P}use"]`).forEach(el => { el.required = true; }); // wireBlock이 지운 필수 표시를 되살림
+      const need = on => { part.style.display = on ? "" : "none";
+        part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on; if (!on) el.value = ""; });
+        part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
+      const hEl = form.querySelector(`input[name="${P}time_h"]`), mEl = form.querySelector(`input[name="${P}time_m"]`), warn = document.getElementById("timewarn");
+      const chk = () => { const used = (form.querySelector(`input[name="${P}use"]:checked`) || {}).value === "1";
+        const bad = used && hEl.value !== "" && mEl.value !== "" && Number(hEl.value) * 60 + Number(mEl.value) === 0;
+        warn.style.display = bad ? "" : "none"; mEl.setCustomValidity(bad ? "AI를 사용했다고 답했는데 사용 시간이 0시간 0분입니다. 다시 확인해 주세요." : ""); };
+      [hEl, mEl].forEach(el => el.addEventListener("input", chk));
+      form.querySelectorAll(`input[name="${P}use"]`).forEach(r => r.addEventListener("change", () => { need(r.value === "1" && r.checked); chk(); }));
+    },
+    on_finish: d => {
+      flatten(d); const used = String(d[P + "use"]) === "1";
+      d[P + "time_min"] = used ? (Number(d[P + "time_h"]) || 0) * 60 + (Number(d[P + "time_m"]) || 0) : 0;
+      d[P + "purpose"] = used && d[P + "purpose"] ? Number(d[P + "purpose"]) : "";
+      block.items.forEach(it => { const k = P + it.id; d[k] = used && d[k] ? Number(d[k]) : ""; });
+      window.scrollTo(0, 0);
+    },
+  };
+}
 function waveBlocks(t) {
   return WAVES[t].map(id => {
     const b = BLOCK[id];
