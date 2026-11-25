@@ -200,7 +200,7 @@ const partCDE = {
         <div class="lk"><div class="lq">3. 오늘 하루(지난 24시간) 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
           <p style="font-size:18px"><input type="number" name="d_time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
           &nbsp;<input type="number" name="d_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p><div class="warn" id="timewarn" style="display:none">AI를 사용했다고 답했는데 사용 시간이 0시간 0분이에요. 사용 시간을 다시 확인해 주세요. 사용하지 않았다면 위 문항에서 ‘아니요’를 골라 주세요.</div></div>
-        <div class="lk"><div class="lq">4. 오늘 하루(지난 24시간) 중 AI를 <b>가장 오랜 시간 사용한 주된 목적</b>은 무엇이었나요?</div>${radios("d_purpose", PURPOSES)}</div>
+        <div class="lk"><div class="lq">4. 오늘 하루(지난 24시간) 동안 AI를 <b>어떤 목적으로 가장 오래</b> 사용했나요?</div>${radios("d_purpose", PURPOSES)}</div>
         <p class="sub" style="margin:14px 0 4px"><b>오늘 하루(지난 24시간) 동안 AI를 사용할 때</b> 다음 각 문장이 얼마나 해당했는지 골라 주세요.</p>
         ${SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 5}. ${t}</div>${scaleRow(`d_s${i + 1}`, FREQ5, false)}</div>`).join("")}
       </div>
