@@ -76,7 +76,7 @@ function END_EXTRA() {
 }
 
 // 보상 지급용 연락처 (설문 마지막). 설문 문항 필수 설정과 상관없이 세 칸 모두 필수.
-// 열 이름: contact_name, contact_phone(010-0000-0000 꼴로 저장), contact_email. 개인정보이므로 분석 자료에서는 뺀다.
+// 열 이름: contact_name, contact_phone(010-0000-0000 꼴로 저장), contact_email, agree_link(프로그램 링크 수신·성실 참여 동의 체크, 1). 개인정보이므로 분석 자료에서는 뺀다.
 const contact = {
   type: jsPsychSurveyHtmlForm,
   html: `<h1>연락처</h1>
@@ -88,10 +88,15 @@ const contact = {
       <p><input type="tel" name="contact_phone" required inputmode="tel" autocomplete="tel" pattern="01[016789][\\-\\s]?[0-9]{3,4}[\\-\\s]?[0-9]{4}" placeholder="010-0000-0000" title="휴대전화 번호를 010-0000-0000 형식으로 적어 주세요." style="font-size:18px;padding:8px 12px;width:100%;max-width:320px"></p>
       <label class="f"><b>이메일</b></label>
       <p><input type="email" name="contact_email" required inputmode="email" autocomplete="email" placeholder="name@example.com" style="font-size:18px;padding:8px 12px;width:100%;max-width:320px"></p>
+    </div>
+    <div class="card">
+      <p>1주일 뒤에 온라인 교육 프로그램에 참여할 수 있도록 링크가 발송될 예정입니다.</p>
+      <div class="opts"><label><input type="checkbox" name="agree_link" value="1" required> <b>링크 수신에 동의하고 성실히 참여하겠습니다.</b></label></div>
     </div>`,
   button_label: "제출하기",
   data: { task: "contact" },
   on_finish: d => { flatten(d);
+    d.agree_link = String(d.agree_link) === "1" ? 1 : 0;
     d.contact_name = String(d.contact_name || "").trim(); d.contact_email = String(d.contact_email || "").trim();
     const n = String(d.contact_phone || "").replace(/\D/g, ""); if (n.length >= 10) d.contact_phone = `${n.slice(0, 3)}-${n.slice(3, n.length - 4)}-${n.slice(-4)}`;
     window.scrollTo(0, 0); },
