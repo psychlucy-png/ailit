@@ -3,7 +3,7 @@
    2026-11-23 개편. 파일럿은 daily.html/daily.js(하루 15문항)를 그대로 씀. d_form="v1123" (이전 본실험 구성은 "short5") */
 
 STEPS = ["카드뉴스", "자가점검", "완료"];
-jsPsych.data.addProperties({ day: DAY, d_form: "v1125b" });
+jsPsych.data.addProperties({ day: DAY, d_form: "v1125c" });
 
 /* ---------- 날짜별 내용 (5일 복습 설계 문서 기준) ---------- */
 const DAYS = {
@@ -172,8 +172,8 @@ const partBfb = {
 };
 
 /* ---------- 4. AI 사용 자가점검 (2~11번) ----------
-   2 d_use(1 예 / 2 아니요) · 3 d_time_h, d_time_m → d_time_min · 4 d_purpose(가장 오래 사용한 주된 목적 1~5) · 5~10 d_s1~d_s6 (1 전혀 그렇지 않았다 ~ 7 매우 그랬다) · 11 d_e
-   d_s1 먼저 생각 · d_s2 근거·논리 살피기 · d_s3 AI에게 먼저 맡김 · d_s4 위로·조언 구함 · d_s5 속마음 털어놓음 · d_s6 계속 대화하고 싶음 (d_s3~d_s6은 높을수록 AI에 기대는 방향) */
+   2 d_use(1 예 / 2 아니요) · 3 d_time_h, d_time_m → d_time_min · 4 d_purpose_1~d_purpose_5(다섯 목적에 쓴 비율 %, 합 100) · 5~10 d_s1~d_s6 (1 전혀 그렇지 않았다 ~ 7 매우 그랬다) · 11 d_e
+   d_s1 먼저 생각 · d_s2 근거·논리 살피기 · d_s3 AI에게 먼저 맡김 · d_s4 위로·조언 구함 · d_s5 속마음 털어놓음 · d_s6 AI 대신 주변 사람과 대화하려 함 (d_s3~d_s5는 높을수록 AI에 기대는 방향) */
 const FREQ5 = { n: 7, labels: { 1: "전혀 그렇지 않았다", 2: "그렇지 않았다", 3: "약간 그렇지 않았다", 4: "보통이었다", 5: "약간 그랬다", 6: "그랬다", 7: "매우 그랬다" } };
 const SELF = [
   "AI에게 질문하거나 도움을 요청하기 전에, 스스로 해결 방법이나 답을 먼저 생각해 보았다.",
@@ -181,9 +181,9 @@ const SELF = [
   "스스로 해결할 수 있는 일도 AI에게 먼저 맡겼다.",
   "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다.",
   "다른 사람에게 얘기하기 어려운 이야기나 속마음을 AI에게 털어놓았다.",
-  "AI와 계속해서 대화하고 싶다고 느꼈다.",
+  "AI와 대화하는 대신 주변 사람과 대화하려고 하였다.",
 ];
-// 가장 오랜 시간 사용한 주된 목적 (d_purpose 1~5, AI를 사용한 날만)
+// 사용 목적 다섯 가지 (d_purpose_1~5: 각 목적에 쓴 비율 %, 합 100. AI를 사용한 날만)
 const PURPOSES = [
   "학업 및 학습 (개념 이해, 시험 준비 등)",
   "과제 및 연구 수행 (자료 조사, 글 작성, 번역, 코딩, 데이터 분석)",
@@ -200,7 +200,7 @@ const partCDE = {
         <div class="lk"><div class="lq">3. 오늘 하루(지난 24시간) 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
           <p style="font-size:18px"><input type="number" name="d_time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
           &nbsp;<input type="number" name="d_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p><div class="warn" id="timewarn" style="display:none">AI를 사용했다고 답했는데 사용 시간이 0시간 0분이에요. 사용 시간을 다시 확인해 주세요. 사용하지 않았다면 위 문항에서 ‘아니요’를 골라 주세요.</div></div>
-        <div class="lk"><div class="lq">4. 오늘 하루(지난 24시간) 동안 AI를 <b>어떤 목적으로 가장 오래</b> 사용했나요?</div>${radios("d_purpose", PURPOSES)}</div>
+        <div class="lk"><div class="lq">4. 오늘 하루(지난 24시간) 동안 AI를 사용한 시간 전체를 100이라고 할 때, 아래 다섯 가지 목적에 각각 얼마나 썼는지 <b>비율(%)</b>로 적어 주세요. <b>합이 100</b>이 되어야 합니다. 해당하지 않는 목적은 비워 두거나 0으로 적습니다.</div><div class="pur">${PURPOSES.map((o, i) => `<label style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;cursor:text"><span>${o}</span><span style="white-space:nowrap"><input type="number" class="pur-in" name="d_purpose_${i + 1}" min="0" max="100" step="1" inputmode="numeric" placeholder="0" style="width:72px;font-size:18px;padding:6px 8px;text-align:right"> %</span></label>`).join("")}</div><div id="pursum" style="text-align:right;font-weight:700;margin:6px 4px 0">합계 0 / 100</div></div>
         <p class="sub" style="margin:14px 0 4px"><b>오늘 하루(지난 24시간) 동안 AI를 사용할 때</b> 다음 각 문장이 얼마나 해당했는지 골라 주세요.</p>
         ${SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 5}. ${t}</div>${scaleRow(`d_s${i + 1}`, FREQ5, false)}</div>`).join("")}
       </div>
@@ -214,7 +214,7 @@ const partCDE = {
     // wireBlock은 설정(SURVEY_REQUIRED: false)에 따라 필수 표시를 지우므로, 자가점검 문항은 다시 필수로 둠
     form.querySelectorAll('input[name="d_use"], textarea[name="d_e"]').forEach(el => { el.required = true; });
     const need = on => { part.style.display = on ? "" : "none";
-      part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on; if (!on) el.value = ""; });
+      part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on && !el.classList.contains("pur-in"); if (!on) el.value = ""; });
       part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
     // 사용했다고 답했는데 0시간 0분이면 불일치 안내를 띄우고 넘어가지 못하게 함
     const hEl = form.querySelector('input[name="d_time_h"]'), mEl = form.querySelector('input[name="d_time_m"]'), warn = document.getElementById("timewarn");
@@ -222,12 +222,19 @@ const partCDE = {
       const bad = used && hEl.value !== "" && mEl.value !== "" && Number(hEl.value) * 60 + Number(mEl.value) === 0;
       warn.style.display = bad ? "" : "none"; mEl.setCustomValidity(bad ? "AI를 사용했다고 답했는데 사용 시간이 0시간 0분입니다. 다시 확인해 주세요." : ""); };
     [hEl, mEl].forEach(el => el.addEventListener("input", chk));
-    form.querySelectorAll('input[name="d_use"]').forEach(r => r.addEventListener("change", () => { need(r.value === "1" && r.checked); chk(); }));
+    // 사용 목적 비율: 다섯 칸의 합이 100이어야 넘어감 (빈칸은 0)
+    const purIns = [...form.querySelectorAll(".pur-in")], purSum = document.getElementById("pursum");
+    const purChk = () => { const used = (form.querySelector(`input[name="d_use"]:checked`) || {}).value === "1";
+      const tot = purIns.reduce((a, e) => a + (Number(e.value) || 0), 0);
+      purSum.textContent = `합계 ${tot} / 100`; purSum.style.color = tot === 100 ? "var(--blue)" : "var(--red)";
+      purIns[0].setCustomValidity(used && tot !== 100 ? `다섯 항목의 합이 100이 되도록 적어 주세요. (지금 합계 ${tot})` : ""); };
+    purIns.forEach(e => e.addEventListener("input", purChk));
+    form.querySelectorAll('input[name="d_use"]').forEach(r => r.addEventListener("change", () => { need(r.value === "1" && r.checked); chk(); purChk(); }));
   },
   on_finish: d => {
     flatten(d); const used = String(d.d_use) === "1"; d.d_nouse = used ? 0 : 1;
     d.d_time_min = used ? (Number(d.d_time_h) || 0) * 60 + (Number(d.d_time_m) || 0) : 0;
-    d.d_purpose = used && d.d_purpose ? Number(d.d_purpose) : "";
+    PURPOSES.forEach((_, i) => { const k = `d_purpose_${i + 1}`; d[k] = used ? (Number(d[k]) || 0) : ""; });
     SELF.forEach((_, i) => { const k = `d_s${i + 1}`; d[k] = used && d[k] ? Number(d[k]) : ""; });
     window.scrollTo(0, 0);
   },

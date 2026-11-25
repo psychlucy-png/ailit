@@ -246,7 +246,7 @@ const MORE = [
   },
   {
     // AI 사용 (T1·T3·T4): 5일 일일점검 2~10번, 프로그램 시작 전 자가점검과 같은 문항. 화면은 아래 selfUseTrial이 만듦.
-    // 열 이름(앞에 t1_·t3_·t4_): s_use(1 예 / 2 아니요), s_time_h, s_time_m, s_time_min, s_purpose(1~5), s_1~s_6(1 전혀 그렇지 않았다 ~ 7 매우 그랬다. s_3~s_6은 높을수록 AI에 기대는 방향)
+    // 열 이름(앞에 t1_·t3_·t4_): s_use(1 예 / 2 아니요), s_time_h, s_time_m, s_time_min, s_purpose_1~s_purpose_5(다섯 목적에 쓴 비율 %, 합 100), s_1~s_6(1 전혀 그렇지 않았다 ~ 7 매우 그랬다. s_3~s_5는 높을수록 AI에 기대는 방향)
     id: "s", title: "", label: "AI 사용 실천",
     instruction: "<b>오늘 하루(지난 24시간) 동안 AI를 사용할 때</b> 다음 각 문장이 얼마나 해당했는지 골라 주세요.",
     scale: { n: 7, labels: { 1: "전혀 그렇지 않았다", 2: "그렇지 않았다", 3: "약간 그렇지 않았다", 4: "보통이었다", 5: "약간 그랬다", 6: "그랬다", 7: "매우 그랬다" } },
@@ -256,9 +256,9 @@ const MORE = [
       { id: "3", text: "스스로 해결할 수 있는 일도 AI에게 먼저 맡겼다." },
       { id: "4", text: "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다." },
       { id: "5", text: "다른 사람에게 얘기하기 어려운 이야기나 속마음을 AI에게 털어놓았다." },
-      { id: "6", text: "AI와 계속해서 대화하고 싶다고 느꼈다." },
+      { id: "6", text: "AI와 대화하는 대신 주변 사람과 대화하려고 하였다." },
     ],
-    useQ: "<b>오늘 하루(지난 24시간) 동안</b> 생성형 AI(ChatGPT, Gemini, 제타 등)를 사용한 적이 있나요?", timeQ: "오늘 하루(지난 24시간) 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?", purposeQ: "오늘 하루(지난 24시간) 동안 AI를 <b>어떤 목적으로 가장 오래</b> 사용했나요?",
+    useQ: "<b>오늘 하루(지난 24시간) 동안</b> 생성형 AI(ChatGPT, Gemini, 제타 등)를 사용한 적이 있나요?", timeQ: "오늘 하루(지난 24시간) 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?", purposeQ: "오늘 하루(지난 24시간) 동안 AI를 사용한 시간 전체를 100이라고 할 때, 아래 다섯 가지 목적에 각각 얼마나 썼는지 <b>비율(%)</b>로 적어 주세요. <b>합이 100</b>이 되어야 합니다. 해당하지 않는 목적은 비워 두거나 0으로 적습니다.",
     purposes: [
       "학업 및 학습 (개념 이해, 시험 준비 등)",
       "과제 및 연구 수행 (자료 조사, 글 작성, 번역, 코딩, 데이터 분석)",
@@ -373,7 +373,7 @@ function selfUseTrial(block, stepIdx, task) {
         <div class="lk"><div class="lq">${block.timeQ}</div>
           <p style="font-size:18px"><input type="number" name="${P}time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
           &nbsp;<input type="number" name="${P}time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p><div class="warn" id="timewarn" style="display:none">AI를 사용했다고 답했는데 사용 시간이 0시간 0분이에요. 사용 시간을 다시 확인해 주세요. 사용하지 않았다면 위 문항에서 ‘아니요’를 골라 주세요.</div></div>
-        <div class="lk"><div class="lq">${block.purposeQ}</div><div class="opts">${block.purposes.map((o, i) => `<label><input type="radio" name="${P}purpose" value="${i + 1}" required> ${o}</label>`).join("")}</div></div>
+        <div class="lk"><div class="lq">${block.purposeQ}</div><div class="pur">${block.purposes.map((o, i) => `<label style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;cursor:text"><span>${o}</span><span style="white-space:nowrap"><input type="number" class="pur-in" name="${P}purpose_${i + 1}" min="0" max="100" step="1" inputmode="numeric" placeholder="0" style="width:72px;font-size:18px;padding:6px 8px;text-align:right"> %</span></label>`).join("")}</div><div id="pursum" style="text-align:right;font-weight:700;margin:6px 4px 0">합계 0 / 100</div></div>
         <p class="sub" style="margin:14px 0 4px">${block.instruction}</p>
         ${block.items.map(it => `<div class="lk"><div class="lq">${it.text}</div>${scaleRow(`${P}${it.id}`, block.scale, false)}</div>`).join("")}
       </div>
@@ -385,19 +385,26 @@ function selfUseTrial(block, stepIdx, task) {
       wireBlock(form);
       form.querySelectorAll(`input[name="${P}use"]`).forEach(el => { el.required = true; }); // wireBlock이 지운 필수 표시를 되살림
       const need = on => { part.style.display = on ? "" : "none";
-        part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on; if (!on) el.value = ""; });
+        part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on && !el.classList.contains("pur-in"); if (!on) el.value = ""; });
         part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
       const hEl = form.querySelector(`input[name="${P}time_h"]`), mEl = form.querySelector(`input[name="${P}time_m"]`), warn = document.getElementById("timewarn");
       const chk = () => { const used = (form.querySelector(`input[name="${P}use"]:checked`) || {}).value === "1";
         const bad = used && hEl.value !== "" && mEl.value !== "" && Number(hEl.value) * 60 + Number(mEl.value) === 0;
         warn.style.display = bad ? "" : "none"; mEl.setCustomValidity(bad ? "AI를 사용했다고 답했는데 사용 시간이 0시간 0분입니다. 다시 확인해 주세요." : ""); };
       [hEl, mEl].forEach(el => el.addEventListener("input", chk));
-      form.querySelectorAll(`input[name="${P}use"]`).forEach(r => r.addEventListener("change", () => { need(r.value === "1" && r.checked); chk(); }));
+    // 사용 목적 비율: 다섯 칸의 합이 100이어야 넘어감 (빈칸은 0)
+    const purIns = [...form.querySelectorAll(".pur-in")], purSum = document.getElementById("pursum");
+    const purChk = () => { const used = (form.querySelector(`input[name="${P}use"]:checked`) || {}).value === "1";
+      const tot = purIns.reduce((a, e) => a + (Number(e.value) || 0), 0);
+      purSum.textContent = `합계 ${tot} / 100`; purSum.style.color = tot === 100 ? "var(--blue)" : "var(--red)";
+      purIns[0].setCustomValidity(used && tot !== 100 ? `다섯 항목의 합이 100이 되도록 적어 주세요. (지금 합계 ${tot})` : ""); };
+    purIns.forEach(e => e.addEventListener("input", purChk));
+      form.querySelectorAll(`input[name="${P}use"]`).forEach(r => r.addEventListener("change", () => { need(r.value === "1" && r.checked); chk(); purChk(); }));
     },
     on_finish: d => {
       flatten(d); const used = String(d[P + "use"]) === "1";
       d[P + "time_min"] = used ? (Number(d[P + "time_h"]) || 0) * 60 + (Number(d[P + "time_m"]) || 0) : 0;
-      d[P + "purpose"] = used && d[P + "purpose"] ? Number(d[P + "purpose"]) : "";
+      block.purposes.forEach((_, i) => { const k = `${P}purpose_${i + 1}`; d[k] = used ? (Number(d[k]) || 0) : ""; });
       block.items.forEach(it => { const k = P + it.id; d[k] = used && d[k] ? Number(d[k]) : ""; });
       window.scrollTo(0, 0);
     },
