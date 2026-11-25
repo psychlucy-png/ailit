@@ -23,9 +23,10 @@ const SC = {
 };
 
 /* ---------- 사전 설문에만 ---------- */
+// 설문 화면에는 척도 이름(제목)을 보여 주지 않음: title은 비워 두고, 척도 이름은 label에 기록만 함
 const PRE_ONLY = [
   {
-    id: "demo", title: "기본 정보", instruction: "",
+    id: "demo", title: "", label: "기본 정보", instruction: "",
     items: [
       { id: "name", type: "text", text: "참가자분의 성함을 예시와 같이 입력해주세요. (예: 홍길동 → 홍*동)", placeholder: "홍*동" },
       { id: "gender", type: "choice", text: "귀하의 성별은 무엇입니까?", options: ["남자", "여자"] },
@@ -36,12 +37,12 @@ const PRE_ONLY = [
     ],
   },
   {
-    id: "ses", title: "주관적 사회경제적 지위",
+    id: "ses", title: "", label: "주관적 사회경제적 지위",
     instruction: "이 사다리는 사람들이 자신이 속한 사회에서 어느 정도 위치에 있는지를 나타내는 그림입니다.<br><br>사다리의 꼭대기(=10)는 사회에서 가장 높은 사회경제적 위치에 있는 사람으로, 가장 많은 돈을 벌고, 가장 높은 교육수준을 갖고 있으며, 가장 존경받는 직업을 가진 사람을 의미합니다. 반면, 사다리의 가장 아랫부분(=1)은 경제적, 교육적, 직업적인 면에서 가장 낮은 위치를 나타냅니다.<br><br>귀하가 현재 시점에 어느 정도의 위치에 있다고 생각하는지 사다리의 알맞은 단을 선택해주세요.",
     items: [{ id: "ladder", type: "ladder", text: "" }],
   },
   {
-    id: "usetime", title: "AI 사용 시간",
+    id: "usetime", title: "", label: "AI 사용 시간",
     instruction: "다음은 평소의 생성형 AI 사용 경험에 대해서 묻는 질문입니다. 평소의 사용 경험에 가장 근접한 응답을 선택해주세요.",
     items: [
       { id: "weekday", type: "choice", text: "주중에 하루 평균 생성형 AI를 얼마나 사용하십니까?", options: ["전혀 사용하지 않음", "1시간 미만", "1시간 이상-2시간 미만", "2시간 이상-3시간 미만", "3시간 이상-4시간 미만", "4시간 이상"] },
@@ -49,14 +50,14 @@ const PRE_ONLY = [
     ],
   },
   {
-    id: "use", title: "AI 사용 경험 (플랫폼)",
+    id: "use", title: "", label: "AI 사용 경험 (플랫폼)",
     instruction: "다음은 평소의 생성형 AI 사용 경험에 대해서 묻는 질문입니다. 평소의 사용 경험에 가장 근접한 응답을 선택해주세요.",
     items: [
       { id: "platform", type: "multi", text: "현재 주로 사용하는 생성형 AI 플랫폼을 모두 선택해 주십시오. (복수응답가능)", options: ["ChatGPT", "Google Gemini", "Microsoft Copilot", "Perplexity AI", "Claude", "Zeta", "기타"], other: 7 },
     ],
   },
   {
-    id: "chat", title: "AI 챗봇 사용 경험", instruction: "",
+    id: "chat", title: "", label: "AI 챗봇 사용 경험", instruction: "",
     items: [
       { id: "type_rank", type: "rank", max: 4, text: "1. 생성형 AI와 대화할 때, 주로 어떤 종류의 대화를 나누시나요? 가장 자주 하는 유형의 대화부터 순위대로 4가지 선택해주세요.", options: [
         "일상적인 대화 (예. '요즘 뭐 재미있는 거 있어?', 일상 대화나 좋아하는 음식, 영화, 음악 등)",
@@ -75,7 +76,7 @@ const PRE_ONLY = [
     ],
   },
   {
-    id: "attari", title: "AI에 대한 태도",
+    id: "attari", title: "", label: "AI에 대한 태도",
     instruction: "다음은 인공지능(AI)에 대한 귀하의 생각을 묻는 질문입니다. 인공지능(AI)이란 인간처럼 스스로 학습하고 판단하여 업무를 수행하는 기술을 말합니다. 컴퓨터나 웹사이트뿐만 아니라 로봇 같은 기계 장치 등 우리 주변의 다양한 곳에서 접할 수 있습니다. 평소 귀하의 생각과 얼마나 일치하는지 답변해 주시기 바랍니다.",
     scale: SC.agree5,
     items: [
@@ -94,7 +95,7 @@ const PRE_ONLY = [
     ],
   },
   {
-    id: "gs", title: "생성형 AI에 대한 인상",
+    id: "gs", title: "", label: "생성형 AI에 대한 인상",
     instruction: "다음은 평소 생성형 AI 모델에게서 느낀 인상을 묻는 척도입니다. 척도에 따라 평소 사용하는 생성형 AI의 인상을 평가해주세요.",
     scale: SC.sd5,
     items: [
@@ -122,7 +123,7 @@ const PRE_ONLY = [
 /* ---------- 사전·사후 공통 ---------- */
 const PREPOST = [
   {
-    id: "lit", title: "AI 리터러시",
+    id: "lit", title: "", label: "AI 리터러시",
     instruction: "다음은 AI 활용에 대한 문장입니다. 각 문장이 귀하에게 얼마나 해당하는지 선택해 주세요.",
     scale: SC.lit7,
     items: [
@@ -141,7 +142,7 @@ const PREPOST = [
     ],
   },
   {
-    id: "dep", title: "AI 사용 경험 (의존)",
+    id: "dep", title: "", label: "AI 사용 경험 (의존)",
     instruction: "다음 문항은 귀하가 가장 자주 사용하는 대규모 언어모델(LLM) 기반 생성형 AI(예: ChatGPT, DeepSeek, Gemini, Copilot 등)를 기준으로 응답해 주시기 바랍니다. 각 문항에 대해 얼마나 동의하시는지 표시해 주십시오.",
     scale: SC.agree6,
     items: [
@@ -160,7 +161,7 @@ const PREPOST = [
     ],
   },
   {
-    id: "mot", title: "AI 사용 동기",
+    id: "mot", title: "", label: "AI 사용 동기",
     instruction: "다음은 AI를 사용하는 이유에 대한 문장입니다. 각 문장에 얼마나 동의하시는지 선택해 주세요.",
     scale: SC.agree7,
     items: [
@@ -175,7 +176,7 @@ const PREPOST = [
     ],
   },
   {
-    id: "trust", title: "AI에 대한 신뢰",
+    id: "trust", title: "", label: "AI에 대한 신뢰",
     instruction: "다음은 평소 사용하는 AI 챗봇에 대한 생각을 묻는 문항입니다. 각 문장이 귀하의 생각과 얼마나 일치하는지 선택해 주세요.",
     scale: SC.trust7,
     items: [
@@ -189,7 +190,7 @@ const PREPOST = [
 /* ---------- 척도북 2026-11-16 추가·보완 ---------- */
 const MORE = [
   {
-    id: "bsi", title: "최근의 마음 상태",
+    id: "bsi", title: "", label: "최근의 마음 상태",
     instruction: "각 문항을 주의 깊게 읽고, 귀하가 지난 한 주 동안(오늘을 포함해서) 이런 문제 때문에 얼마나 괴로워했는지를 평가해보십시오. 그런 후에, 귀하의 상태를 가장 잘 나타내는 선택지에 표시하여 주십시오.",
     scale: SC.bsi,
     items: [
@@ -210,7 +211,7 @@ const MORE = [
     ],
   },
   {
-    id: "lsis", title: "외로움과 사회적 관계",
+    id: "lsis", title: "", label: "외로움과 사회적 관계",
     instruction: "최근 한 달 간 자신의 상태를 가장 잘 설명하는 항목에 표시해주세요.",
     scale: SC.lsis,
     items: [
@@ -224,7 +225,7 @@ const MORE = [
   },
   {
     // ※ 척도북에 안내문이 영문만 있어 번역해 넣었습니다.
-    id: "ct", title: "AI 사용과 비판적 사고",
+    id: "ct", title: "", label: "AI 사용과 비판적 사고",
     instruction: "평소 AI 도구(예: 챗봇, 이미지 생성기, 음성 비서)를 어떻게 사용하는지 떠올려 보세요. 각 문장이 평소 나의 행동과 얼마나 같은지 선택해 주세요.",
     scale: SC.agree5,
     items: [
@@ -245,7 +246,7 @@ const MORE = [
   },
   {
     // AI 사용 실천 6문항: 5일 일일점검 4~9번, 프로그램 시작 전 자가점검과 같은 문장·척도 ('지난 24시간' 기준). 열 이름 t1_s_1~6, t3_s_1~6, t4_s_1~6
-    id: "s", title: "AI 사용 실천",
+    id: "s", title: "", label: "AI 사용 실천",
     instruction: "<b>지난 24시간 동안</b> AI를 사용할 때 다음을 얼마나 했나요? 그런 상황이 없었다면 '해당 상황이 없었다'를 골라 주세요.",
     scale: { n: 5, labels: { 1: "전혀 하지 않았다", 2: "거의 하지 않았다", 3: "가끔 했다", 4: "자주 했다", 5: "거의 항상 했다" }, na: "해당 상황이 없었다" },
     items: [
@@ -259,7 +260,7 @@ const MORE = [
   },
   {
     // 나의 작은 변화 실천 (T2·T3·T4): 프로그램 영상 4에서 적은 문장을 저장 시트에서 불러와 화면에 다시 보여 줌(못 불러오면 같은 기기에 남은 문장). 열 이름 t2_chg_1, t3_chg_1, t4_chg_1
-    id: "chg", title: "나의 작은 변화",
+    id: "chg", title: "", label: "나의 작은 변화",
     instruction: "프로그램에서 적은 ‘나의 작은 변화’에 대한 질문입니다.",
     scale: { n: 5, labels: { 1: "전혀 실천하지 않았다", 2: "거의 실천하지 않았다", 3: "보통이다", 4: "어느 정도 실천하였다", 5: "매우 충실히 실천하였다" } },
     items: [
@@ -270,7 +271,7 @@ const MORE = [
   },
   {
     // 실천 체크 C1~C5 (5일 복습의 매일 문항과 같은 문장, 사전·추적에서는 '지난 1주일' 기준)
-    id: "prac", title: "AI 사용 실천",
+    id: "prac", title: "", label: "AI 사용 실천",
     instruction: "<b>지난 1주일 동안</b> 다음을 얼마나 했나요? 그런 상황이 없었다면 '해당 상황 없음'을 골라 주세요.",
     scale: SC.prac,
     items: [
@@ -285,7 +286,7 @@ const MORE = [
   },
   {
     // 생각의 변화 D1~D4 (5일 복습의 매일 문항과 같은 문장)
-    id: "think", title: "AI에 대한 생각",
+    id: "think", title: "", label: "AI에 대한 생각",
     instruction: "지금 나의 생각과 얼마나 같나요?",
     scale: SC.think7,
     items: [
@@ -297,7 +298,7 @@ const MORE = [
   },
   {
     // 지식 유지 퀴즈 (T3·T4). answer = 정답 보기 번호 → 저장 시 _ok(0/1), quiz_score(0~5) 자동 계산
-    id: "quiz", title: "기억나는 내용 확인", quiz: true,
+    id: "quiz", title: "", label: "기억나는 내용 확인", quiz: true,
     instruction: "프로그램에서 본 내용을 떠올리며 답해 주세요. 점수와 상관없이 기억나는 대로 고르면 됩니다.",
     items: [
       { id: "1", type: "choice", answer: 1, text: "생성형 AI가 답을 만드는 방식으로 가장 알맞은 것은?", options: ["학습한 패턴으로 다음에 올 말을 예측한다", "인터넷에서 정답을 찾아 그대로 가져온다", "사람처럼 뜻을 이해하고 사실을 확인한다", "미리 저장된 답 중 하나를 고른다"] },
@@ -308,7 +309,7 @@ const MORE = [
     ],
   },
   {
-    id: "csq", title: "프로그램 만족도",
+    id: "csq", title: "", label: "프로그램 만족도",
     instruction: "AI 리터러시 프로그램(영상·활동·5일 복습) 전체를 떠올리며 답해 주세요.",
     items: [
       { id: "1", text: "제공받은 프로그램이 귀하의 필요(요구)를 얼마나 충족해 주었습니까?", scale: { n: 4, labels: { 1: "거의 충족되지 않았다", 2: "일부분만 충족되었다", 3: "대부분 충족되었다", 4: "거의 완전히 충족되었다" } } },
@@ -317,7 +318,7 @@ const MORE = [
     ],
   },
   {
-    id: "intern", title: "프로그램의 메시지",
+    id: "intern", title: "", label: "프로그램의 메시지",
     instruction: "AI 리터러시 프로그램(영상·활동·5일 복습) 전체를 떠올리며 답해 주세요.",
     scale: SC.lit7,
     items: [
@@ -327,7 +328,7 @@ const MORE = [
     ],
   },
   {
-    id: "intent", title: "앞으로의 계획",
+    id: "intent", title: "", label: "앞으로의 계획",
     instruction: "앞으로 한 달 동안 다음을 하려는 마음이 얼마나 있나요?",
     scale: SC.lit7,
     items: [
