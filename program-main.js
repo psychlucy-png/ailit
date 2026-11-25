@@ -482,6 +482,13 @@ const BASE_SELF = [
   "AI가 내 생각이나 감정에 동의했을 때, 다른 관점에서도 상황을 생각해 보았다.",
 ];
 const BASE_FREQ5 = { n: 5, labels: { 1: "전혀 하지 않았다", 2: "거의 하지 않았다", 3: "가끔 했다", 4: "자주 했다", 5: "거의 항상 했다" }, na: "해당 상황이 없었다" };
+const BASE_PURPOSES = [
+  "학업 및 업무 과제 수행 (자료 조사, 요약, 번역, 글쓰기 초안 등)",
+  "코딩, 데이터 분석 및 전문 연구 작업",
+  "일상적 정보 검색 및 실용적 문제 해결 (일정 계획, 쇼핑, 생활 팁 등)",
+  "고민상담 및 일상 대화 (고민 상담, 잡담, 위로 등)",
+  "정서적 교류, 재미 (캐릭터 대화 등)",
+];
 const baseSelf = {
   type: jsPsychSurveyHtmlForm,
   html: () => `<h1>시작하기 전에: 나의 AI 사용</h1><p class="sub">프로그램을 보기 전에, <b>지난 24시간</b>의 AI 사용을 떠올리며 답해 주세요.</p>
@@ -491,8 +498,9 @@ const baseSelf = {
         <div class="lk"><div class="lq">2. 지난 24시간 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
           <p style="font-size:18px"><input type="number" name="d0_time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
           &nbsp;<input type="number" name="d0_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p><div class="warn" id="timewarn" style="display:none">AI를 사용했다고 답했는데 사용 시간이 0시간 0분이에요. 사용 시간을 다시 확인해 주세요. 사용하지 않았다면 위 문항에서 ‘아니요’를 골라 주세요.</div></div>
+        <div class="lk"><div class="lq">3. 지난 24시간 동안 생성형 AI를 <b>가장 오래 사용한 용도</b>는 무엇인가요? (하나만 선택)</div><div class="opts">${BASE_PURPOSES.map((o, i) => `<label><input type="radio" name="d0_purpose" value="${i + 1}" required> ${o}</label>`).join("")}</div></div>
         <p class="sub" style="margin:14px 0 4px"><b>지난 24시간 동안 AI를 쓰면서</b> 아래의 일을 얼마나 했는지 골라 주세요. 그런 상황이 없었다면 ‘해당 상황이 없었다’를 고릅니다.</p>
-        ${BASE_SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 3}. ${t}</div>${scaleRow(`d0_s${i + 1}`, BASE_FREQ5, false)}</div>`).join("")}
+        ${BASE_SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 4}. ${t}</div>${scaleRow(`d0_s${i + 1}`, BASE_FREQ5, false)}</div>`).join("")}
       </div>
     </div>`,
   button_label: "다음",
@@ -515,6 +523,7 @@ const baseSelf = {
   on_finish: d => {
     flatten(d); const used = String(d.d0_use) === "1"; d.d0_nouse = used ? 0 : 1;
     d.d0_time_min = used ? (Number(d.d0_time_h) || 0) * 60 + (Number(d.d0_time_m) || 0) : 0;
+    d.d0_purpose = used && d.d0_purpose ? Number(d.d0_purpose) : "";
     BASE_SELF.forEach((_, i) => { const k = `d0_s${i + 1}`; d[`${k}_na`] = d[k] === "NA" ? 1 : 0; if (d[k] === "NA" || d[k] == null) d[k] = ""; });
     window.scrollTo(0, 0);
   },
