@@ -1,5 +1,5 @@
 /* 일상 속 디지털 기술 이해 프로그램 · 5일 복습 — daily-b.html?day=1~5&pid=P001
-   카드뉴스 6장(글 카드) → 오늘의 퀴즈 1문항 → 정답 확인 → 오늘의 점검 6문항(d_k1~d_k6) → 오늘의 한 줄(d_e). AI 사용 자가점검은 묻지 않음 → (Day 5) 복습 마무리 1문항 → 저장
+   카드뉴스 6장(cards-b/ 이미지) → 오늘의 퀴즈 1문항 → 정답 확인 → 오늘의 점검 6문항(d_k1~d_k6) → 오늘의 한 줄(d_e). AI 사용 자가점검은 묻지 않음 → (Day 5) 복습 마무리 1문항 → 저장
    응답은 "5일복습_B" 탭에 저장되고 cond 열에 "B"가 기록됩니다. */
 
 sheetName = () => "5일복습_B";
@@ -242,8 +242,8 @@ const cardTrial = {
     const cn = document.getElementById("cn"), pos = document.getElementById("cnpos"), prev = document.getElementById("cnprev"), next = document.getElementById("cnnext");
     const show = () => {
       const [h, b] = D.cards[k];
-      cn.innerHTML = false
-        ? `<img src="cards-main/day${DAY}_${k + 1}.jpg?v=1123k" alt="${esc(h + ". " + b.replace("{{change}}", ""))}">${b.includes("{{change}}") && myChange() ? `<div class="mychange">내가 적은 작은 변화: <b>${esc(myChange())}</b></div>` : ""}`
+      cn.innerHTML = CONFIG.CARD_IMAGES
+        ? `<img src="cards-b/day${DAY}_${k + 1}.jpg?v=1126a" alt="${esc(h + ". " + b.replace("{{change}}", ""))}">${b.includes("{{change}}") && myChange() ? `<div class="mychange">내가 적은 작은 변화: <b>${esc(myChange())}</b></div>` : ""}`
         : `<div class="cn-in ${k === 0 ? "cover" : k === N - 1 ? "today" : ""}"><div class="cn-k">${k === 0 ? `Day ${DAY}` : k === N - 1 ? "한 줄 정리" : `${k} / ${N - 2}`}</div>
            <h2>${k === N - 1 ? "" : h}</h2><p>${b.replace("{{change}}", "")}</p>${b.includes("{{change}}") ? changeBox() : ""}</div>`;
       pos.textContent = `${k + 1} / ${N}`; prev.disabled = k === 0;
