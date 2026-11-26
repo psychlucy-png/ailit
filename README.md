@@ -197,3 +197,20 @@ jsPsych 7.3.4로 만든 온라인 실험입니다. 척도북(2026-11-16 수정�
 - 5일 복습·프로그램 시작 전 자가점검: 사용 시간 다음에 ‘가장 오래 사용한 용도’(`d_purpose`, `d0_purpose`, 1~5)를 묻습니다. 5일 복습은 하루 11문항, `d_form = v1125`.
 - `s` = AI 사용 실천 6문항(지난 24시간, 1~5 + 해당 상황이 없었다), `chg` = 나의 작은 변화 실천(1~5, `t2_chg_1`·`t3_chg_1`·`t4_chg_1`). 프로그램에서 적은 문장(`change_text`)을 설문이 저장 시트(`…/exec?get=change&pid=…`)에서 불러와 문항 아래에 보여 주고, 보여 준 문장을 `chg_text` 열에 남깁니다. 불러오지 못하면 같은 기기에 남은 문장을 씁니다. `apps_script_Code.gs`의 `doGet`이 있어야 하므로 Apps Script를 새 버전으로 다시 배포해야 합니다. 프로그램 마지막 화면에는 작은 변화 문장과 캡처 안내를 보여 주지 않습니다.
 - Day 5 복습 마무리는 `d_f1` 한 문항.
+
+## 통제집단 페이지 (일상 속 디지털 기술 이해 프로그램)
+
+T1 사전 설문(`pre-survey.html`)은 두 집단이 같습니다. 무선배정 뒤부터 통제집단에는 아래 주소를 보냅니다. 주소와 화면 제목에는 집단을 알 수 있는 말을 넣지 않았습니다.
+
+| 시점 | 주소 | 응답 시트 탭 |
+|---|---|---|
+| 프로그램 | `program-b.html?pid=P001` | `프로그램_B` |
+| 5일 복습 Day 1~5 | `daily-b.html?day=1&pid=P001` ~ `day=5` | `5일복습_B` |
+| T2 · T3 · T4 | `survey-b.html?t=2&pid=P001` (`t=3`, `t=4`) | `T2_직후_B`, `T3_1주뒤_B`, `T4_1달뒤_B` |
+
+- 모든 응답에 `cond = B`가 기록됩니다. 탭은 처음 저장될 때 자동으로 만들어집니다.
+- 파일: `program-b.html`·`program-b.js`, `daily-b.html`·`daily-b.js`, `survey-b.html`·`survey-b.js`, 영상 `tech1.mp4`~`tech4.mp4`. 공통 파일(`common.js`, `config.js`, `measures.js`, `measures-main.js`, `style.css`)은 그대로 불러 씁니다.
+- 프로그램: 틀은 `program.html`과 같습니다(시작 전 AI 사용 기준선 `d0_*`, 영상 뒤 확인 1문항 `check_vN`·평정 `rate_vN_like`·`rate_vN_chg`, 활동마다 10점 `a1a_*`·`a1b_*`·`act1_total` 등, 참여 평정 `eng_aK_*`, 가장 좋았던 것, `daily_phone`). 다른 점: 영상 뒤 실천 의향(`rate_vN_int`)을 묻지 않음 · 활동 첫인상은 `aKs1_complex`, `aKs1_familiar` · 영상 4 중간 입력은 `memo_text`(가장 기억에 남은 내용, 2분 31초쯤 멈춤).
+- 활동 정답: 1-A 1, 4, 2, 5, 3 / 1-B 3, 2, 4, 1, 3 / 2-A 4, 1, 3, 5, 2 / 2-B 2, 4, 1, 3, 1. 영상 확인 문항 정답: 2, 3, 1, 4.
+- 5일 복습: 카드뉴스는 글 카드 6장(이미지 없음), 퀴즈 1문항, AI 사용 자가점검은 `daily-main.html`과 같은 문항·열 이름(`d_use`, `d_time_*`, `d_purpose_*`, `d_s1`~`d_s6`), 오늘의 한 줄(`d_e`)은 “카드뉴스에서 가장 기억에 남은 내용”. `d_form = b1126`. Day 5 끝의 버튼은 `survey-b.html?t=2`로 이어집니다.
+- T2~T4: `survey.html`과 같은 문항·열 이름이며 ‘나의 작은 변화 실천’(`tN_chg_1`)만 없습니다.
