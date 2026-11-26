@@ -47,7 +47,7 @@ function checkTrial(n, stepIdx, q, options, correct) {
     on_finish: d => { flatten(d); d[`check_v${n}_correct`] = Number(d[`check_v${n}`]) === correct ? 1 : 0; window.scrollTo(0, 0); },
   };
 }
-const VSRC = "1126a";
+const VSRC = "1126b";
 function vt(n, stepIdx, task) { const v = videoTrial(n, stepIdx, TITLES[n - 1], task); v.stimulus = v.stimulus.replace(new RegExp(`src="video${n}\\.mp4[^"]*"`), `src="tech${n}.mp4?v=${VSRC}"`); return v; }
 const video1 = vt(1, 0);
 const check1 = checkTrial(1, 0, "영상에서 설명한 정전식 터치스크린이 손가락의 위치를 아는 방법은?", [
@@ -57,9 +57,9 @@ const check2 = checkTrial(2, 1, "영상에서 QR코드에 대해 말한 내용�
   "가로 한 방향으로만 정보를 담는다", "조금이라도 가려지면 읽을 수 없다", "세 모서리의 무늬 덕분에 어느 방향에서도 읽힌다", "크기는 한 가지뿐이다"], 3);
 const video3 = vt(3, 3);
 const check3 = checkTrial(3, 3, "영상에서 설명한, 스마트폰이 선 없이 정보를 주고받을 수 있게 해 주는 것은?", ["전파", "소리", "바람", "열"], 1);
-// 영상 4: 2분 31초쯤(한 줄 적기 안내가 끝난 뒤) 영상이 멈추고 아래에 입력창이 뜹니다. 입력하면 적는 시간(약 10초)을 건너뛰고 이어서 재생합니다.
+// 영상 4: 2분 51초쯤(한 줄 적기 안내가 끝난 뒤) 영상이 멈추고 아래에 입력창이 뜹니다. 입력하면 적는 시간(약 10초)을 건너뛰고 이어서 재생합니다.
 const video4 = vt(4, 5, {
-  at: 150.9, skipTo: 160.7,
+  at: 170.9, skipTo: 180.7,
   html: `<h2>가장 기억에 남은 내용</h2>
     <label class="f"><b>오늘 본 내용 가운데 가장 기억에 남은 것을 한 가지 적어 주세요.</b></label>
     <textarea name="memo_text" placeholder="여기에 적어 주세요"></textarea>`,

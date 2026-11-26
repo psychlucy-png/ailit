@@ -210,7 +210,7 @@ T1 사전 설문(`pre-survey.html`)은 두 집단이 같습니다. 무선배정 
 
 - 모든 응답에 `cond = B`가 기록됩니다. 탭은 처음 저장될 때 자동으로 만들어집니다.
 - 파일: `program-b.html`·`program-b.js`, `daily-b.html`·`daily-b.js`, `survey-b.html`·`survey-b.js`, 영상 `tech1.mp4`~`tech4.mp4`. 공통 파일(`common.js`, `config.js`, `measures.js`, `measures-main.js`, `style.css`)은 그대로 불러 씁니다.
-- 프로그램: 틀은 `program.html`과 같습니다(영상 뒤 확인 1문항 `check_vN`·평정 `rate_vN_like`, 활동마다 10점 `a1a_*`·`a1b_*`·`act1_total` 등, 참여 평정 `eng_aK_*`, 가장 좋았던 것, `daily_phone`). 다른 점: 시작 전 AI 사용 자가점검(`d0_*`)을 묻지 않음 · 영상 뒤 생각 변화(`rate_vN_chg`)·실천 의향(`rate_vN_int`)을 묻지 않음 · 활동 첫인상은 `aKs1_complex`, `aKs1_familiar` · 영상 4 중간 입력은 `memo_text`(가장 기억에 남은 내용, 2분 31초쯤 멈춤).
+- 프로그램: 틀은 `program.html`과 같습니다(영상 뒤 확인 1문항 `check_vN`·평정 `rate_vN_like`, 활동마다 10점 `a1a_*`·`a1b_*`·`act1_total` 등, 참여 평정 `eng_aK_*`, 가장 좋았던 것, `daily_phone`). 다른 점: 시작 전 AI 사용 자가점검(`d0_*`)을 묻지 않음 · 영상 뒤 생각 변화(`rate_vN_chg`)·실천 의향(`rate_vN_int`)을 묻지 않음 · 활동 첫인상은 `aKs1_complex`, `aKs1_familiar` · 영상 4 중간 입력은 `memo_text`(가장 기억에 남은 내용, 2분 51초쯤 멈춤).
 - 활동 정답: 1-A 1, 4, 2, 5, 3 / 1-B 3, 2, 4, 1, 3 / 2-A 4, 1, 3, 5, 2 / 2-B 2, 4, 1, 3, 1. 영상 확인 문항 정답: 2, 3, 1, 4.
 - 5일 복습: 카드뉴스는 글 카드 6장(이미지 없음), 퀴즈 1문항, 오늘의 점검 6문항(`d_k1`~`d_k6`: 지난 24시간 동안 프로그램에서 다룬 기술을 떠올리거나 살펴본 정도, 1 전혀 그렇지 않았다 ~ 7 매우 그랬다), 오늘의 한 줄(`d_e`)은 “카드뉴스에서 가장 기억에 남은 내용”. AI 사용 자가점검(`d_use`, `d_s*` 등)은 묻지 않음. `d_form = b1126b`. Day 5 끝의 버튼은 `survey-b.html?t=2`로 이어집니다.
 - T2~T4: `survey.html`과 같은 문항·열 이름이며 ‘나의 작은 변화 실천’(`tN_chg_1`)과 AI 사용 자가점검(`tN_s_*`)이 없습니다. AI 사용 자가점검은 T1 사전 설문에서만 묻습니다.
