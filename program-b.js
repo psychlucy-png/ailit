@@ -31,7 +31,7 @@ const welcome = {
 };
 
 /* ---------- 1. 영상 + 확인 문항·영상 평정 ---------- */
-// 영상 뒤: 내용 확인 1문항(check_vN, check_vN_correct) + 평정 2문항(rate_vN_like, rate_vN_chg). 실천 의향 문항(rate_vN_int)은 묻지 않음
+// 영상 뒤: 내용 확인 1문항(check_vN, check_vN_correct) + 평정 1문항(rate_vN_like). 생각 변화(rate_vN_chg)·실천 의향(rate_vN_int) 문항은 묻지 않음
 function checkTrial(n, stepIdx, q, options, correct) {
   return {
     type: jsPsychSurveyHtmlForm,
@@ -41,7 +41,6 @@ function checkTrial(n, stepIdx, q, options, correct) {
       <h2>영상 ${n}에 대한 생각</h2>
       <div class="card">
         ${likert(`rate_v${n}_like`, "이 영상이 흥미로웠다.", OPT5)}
-        ${likert(`rate_v${n}_chg`, "영상을 시청한 후 AI 사용에 대한 생각이 바뀌었다.", OPT5)}
       </div>`,
     button_label: "다음",
     data: { task: "video_check", video: n },
