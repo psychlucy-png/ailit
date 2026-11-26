@@ -1,9 +1,9 @@
 /* 일상 속 디지털 기술 이해 프로그램 · 사후·추적 설문 — survey-b.html?t=2 (5일 복습 직후) · ?t=3 (1주 뒤) · ?t=4 (1달 뒤)
-   문항은 survey.html과 같되(measures-main.js의 WAVES), ‘나의 작은 변화 실천’(chg)만 묻지 않습니다. 열 이름도 같습니다(t2_lit_1 …).
+   문항은 survey.html과 같되(measures-main.js의 WAVES), ‘나의 작은 변화 실천’(chg)과 AI 사용 자가점검(s)은 묻지 않습니다. 열 이름도 같습니다(t2_lit_1 …).
    응답은 "T2_직후_B", "T3_1주뒤_B", "T4_1달뒤_B" 탭에 저장되고 cond 열에 "B"가 기록됩니다. */
 
 sheetName = () => ({ 2: "T2_직후_B", 3: "T3_1주뒤_B", 4: "T4_1달뒤_B" })[WAVE] || "T_B";
-[2, 3, 4].forEach(t => { WAVES[t] = WAVES[t].filter(id => id !== "chg"); });
+[2, 3, 4].forEach(t => { WAVES[t] = WAVES[t].filter(id => id !== "chg" && id !== "s"); }); // AI 사용 자가점검(s)은 T1에서만
 BLOCK.csq.instruction = "참여하신 프로그램(영상·활동·5일 복습) 전체를 떠올리며 답해 주세요.";
 STEPS = ["설문", "완료"];
 jsPsych.data.addProperties({ wave: WAVE, cond: "B" });

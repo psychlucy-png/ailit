@@ -23,7 +23,6 @@ const welcome = {
       <tr><th style="text-align:left;vertical-align:top;white-space:nowrap;background:#EAF6F1;border:1px solid #E1E4EE;padding:9px 10px">2~6일차</th><td style="border:1px solid #E1E4EE;padding:9px 10px">카드뉴스와 자가점검<br><b>하루 5분 이내</b><br><span class="sub" style="word-break:keep-all">매일 저녁 6시에 링크를 보내 드려요.</span></td></tr>
     </table></div>
     <div class="card"><p><b>오늘(1일차)의 순서</b></p>
-    <p class="sub">먼저 나의 AI 사용에 대한 짧은 질문에 답한 뒤, 아래 순서로 진행합니다.</p>
     <ol><li>영상 1. ${TITLES[0]}</li><li>영상 2. ${TITLES[1]}</li><li>활동 1. ${ACT_T[0]}</li>
     <li>영상 3. ${TITLES[2]}</li><li>활동 2. ${ACT_T[1]}</li><li>영상 4. ${TITLES[3]}</li></ol>
     <p>영상과 활동 사이사이에 짧은 질문이 있습니다. 끝까지 집중해서 적극적으로 참여해 주시면 감사하겠습니다.</p></div>`,
@@ -274,69 +273,7 @@ const debrief = {
 function END_EXTRA() { return CONFIG.AFTER_PROGRAM_HTML ? `<div class="card">${CONFIG.AFTER_PROGRAM_HTML}</div>` : ""; }
 
 /* ---------- 타임라인 ---------- */
-// 프로그램 시작 전 기준선: program-main.js와 같은 문항·열 이름(d0_*)
-const BASE_SELF = [
-  "AI에게 질문하거나 도움을 요청하기 전에, 스스로 해결 방법이나 답을 먼저 생각해 보았다.",
-  "AI의 답변을 그대로 받아들이지 않고, 근거나 논리에 문제가 없는지 살펴보았다.",
-  "스스로 해결할 수 있는 일도 AI에게 먼저 맡겼다.",
-  "기분이 좋지 않거나 고민이 생겼을 때, AI에게 위로나 조언을 구했다.",
-  "다른 사람에게 얘기하기 어려운 이야기나 속마음을 AI에게 털어놓았다.",
-  "AI와 대화하는 대신 주변 사람과 대화하려고 하였다.",
-];
-const BASE_FREQ5 = { n: 7, labels: { 1: "전혀 그렇지 않았다", 2: "그렇지 않았다", 3: "약간 그렇지 않았다", 4: "보통이었다", 5: "약간 그랬다", 6: "그랬다", 7: "매우 그랬다" } };
-const BASE_PURPOSES = [
-  "학업 및 학습 (개념 이해, 시험 준비 등)",
-  "과제 및 연구 수행 (자료 조사, 글 작성, 번역, 코딩, 데이터 분석)",
-  "일상적 정보 탐색 및 문제 해결 (단순 질문, 일정 관리, 추천 등)",
-  "정서적 지원 (스트레스 해소, 고민 상담, 위로 등)",
-  "사회적 상호작용 및 오락 (일상적 잡담, 친구·연인처럼 대화, 상황극 등)",
-];
-const baseSelf = {
-  type: jsPsychSurveyHtmlForm,
-  html: () => `<h1>시작하기 전에: 나의 AI 사용</h1><p class="sub">프로그램을 보기 전에, <b>지난 24시간</b>의 AI 사용을 떠올리며 답해 주세요.</p>
-    <div class="card">
-      <div class="lk"><div class="lq">1. <b>오늘 하루(지난 24시간) 동안</b> 생성형 AI(ChatGPT, Gemini, 제타 등)를 사용한 적이 있나요?</div><div class="opts row2"><label><input type="radio" name="d0_use" value="1" required> 예</label><label><input type="radio" name="d0_use" value="2" required> 아니요</label></div></div>
-      <div id="usedpart" style="display:none">
-        <div class="lk"><div class="lq">2. 오늘 하루(지난 24시간) 동안 생성형 AI를 사용한 시간을 모두 합하면 얼마나 되나요?</div>
-          <p style="font-size:18px"><input type="number" name="d0_time_h" min="0" max="24" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 시간
-          &nbsp;<input type="number" name="d0_time_m" min="0" max="59" step="1" inputmode="numeric" style="width:84px;font-size:18px;padding:8px;text-align:right"> 분</p><div class="warn" id="timewarn" style="display:none">AI를 사용했다고 답했는데 사용 시간이 0시간 0분이에요. 사용 시간을 다시 확인해 주세요. 사용하지 않았다면 위 문항에서 ‘아니요’를 골라 주세요.</div></div>
-        <div class="lk"><div class="lq">3. 오늘 하루(지난 24시간) 동안 AI를 사용한 시간 전체를 100이라고 할 때, 아래 다섯 가지 목적에 각각 얼마나 썼는지 <b>비율(%)</b>로 적어 주세요. <b>합이 100</b>이 되어야 합니다. 해당하지 않는 목적은 비워 두거나 0으로 적습니다.</div><div class="pur">${BASE_PURPOSES.map((o, i) => `<label style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;cursor:text"><span>${o}</span><span style="white-space:nowrap"><input type="number" class="pur-in" name="d0_purpose_${i + 1}" min="0" max="100" step="1" inputmode="numeric" placeholder="0" style="width:72px;font-size:18px;padding:6px 8px;text-align:right"> %</span></label>`).join("")}</div><div id="pursum" style="text-align:right;font-weight:700;margin:6px 4px 0">합계 0 / 100</div></div>
-        <p class="sub" style="margin:14px 0 4px"><b>오늘 하루(지난 24시간) 동안 AI를 사용할 때</b> 다음 각 문장이 얼마나 해당했는지 골라 주세요.</p>
-        ${BASE_SELF.map((t, i) => `<div class="lk"><div class="lq">${i + 4}. ${t}</div>${scaleRow(`d0_s${i + 1}`, BASE_FREQ5, false)}</div>`).join("")}
-      </div>
-    </div>`,
-  button_label: "다음",
-  data: { task: "base_self" },
-  on_load: () => {
-    const form = document.getElementById("jspsych-survey-html-form"), part = document.getElementById("usedpart");
-    wireBlock(form);
-    form.querySelectorAll('input[name="d0_use"]').forEach(el => { el.required = true; }); // wireBlock이 지운 필수 표시를 되살림
-    const need = on => { part.style.display = on ? "" : "none";
-      part.querySelectorAll('input[type="number"]').forEach(el => { el.required = on && !el.classList.contains("pur-in"); if (!on) el.value = ""; });
-      part.querySelectorAll('input[type="radio"]').forEach(el => { el.required = on; if (!on) el.checked = false; }); };
-    // 사용했다고 답했는데 0시간 0분이면 불일치 안내를 띄우고 넘어가지 못하게 함
-    const hEl = form.querySelector('input[name="d0_time_h"]'), mEl = form.querySelector('input[name="d0_time_m"]'), warn = document.getElementById("timewarn");
-    const chk = () => { const used = (form.querySelector('input[name="d0_use"]:checked') || {}).value === "1";
-      const bad = used && hEl.value !== "" && mEl.value !== "" && Number(hEl.value) * 60 + Number(mEl.value) === 0;
-      warn.style.display = bad ? "" : "none"; mEl.setCustomValidity(bad ? "AI를 사용했다고 답했는데 사용 시간이 0시간 0분입니다. 다시 확인해 주세요." : ""); };
-    [hEl, mEl].forEach(el => el.addEventListener("input", chk));
-    // 사용 목적 비율: 다섯 칸의 합이 100이어야 넘어감 (빈칸은 0)
-    const purIns = [...form.querySelectorAll(".pur-in")], purSum = document.getElementById("pursum");
-    const purChk = () => { const used = (form.querySelector(`input[name="d0_use"]:checked`) || {}).value === "1";
-      const tot = purIns.reduce((a, e) => a + (Number(e.value) || 0), 0);
-      purSum.textContent = `합계 ${tot} / 100`; purSum.style.color = tot === 100 ? "var(--blue)" : "var(--red)";
-      purIns[0].setCustomValidity(used && tot !== 100 ? `다섯 항목의 합이 100이 되도록 적어 주세요. (지금 합계 ${tot})` : ""); };
-    purIns.forEach(e => e.addEventListener("input", purChk));
-    form.querySelectorAll('input[name="d0_use"]').forEach(r => r.addEventListener("change", () => { need(r.value === "1" && r.checked); chk(); purChk(); }));
-  },
-  on_finish: d => {
-    flatten(d); const used = String(d.d0_use) === "1"; d.d0_nouse = used ? 0 : 1;
-    d.d0_time_min = used ? (Number(d.d0_time_h) || 0) * 60 + (Number(d.d0_time_m) || 0) : 0;
-    BASE_PURPOSES.forEach((_, i) => { const k = `d0_purpose_${i + 1}`; d[k] = used ? (Number(d[k]) || 0) : ""; });
-    BASE_SELF.forEach((_, i) => { const k = `d0_s${i + 1}`; d[k] = used && d[k] ? Number(d[k]) : ""; });
-    window.scrollTo(0, 0);
-  },
-};
+// 시작 전 AI 사용 자가점검(d0_*)은 묻지 않음 (AI 사용 자가점검은 T1 사전 설문에서만)
 const dailyTime = {
   type: jsPsychSurveyHtmlForm,
   html: `${steps(6)}<h1>5일 복습 안내</h1>
@@ -349,7 +286,7 @@ const dailyTime = {
   // daily_phone은 010-0000-0000 꼴로 맞춰 저장 (시트에서 숫자로 바뀌어 앞자리 0이 사라지지 않게)
   on_finish: d => { flatten(d); const n = String(d.daily_phone || "").replace(/\D/g, ""); if (n.length >= 10) d.daily_phone = `${n.slice(0, 3)}-${n.slice(3, n.length - 4)}-${n.slice(-4)}`; window.scrollTo(0, 0); },
 };
-const main = [welcome, setupGuide, soundCheck, baseSelf, video1, check1, video2, check2, ...act1, video3, check3, ...act2, video4, check4, best, dailyTime, debrief, save, endPage];
+const main = [welcome, setupGuide, soundCheck, video1, check1, video2, check2, ...act1, video3, check3, ...act2, video4, check4, best, dailyTime, debrief, save, endPage];
 
 // ?debug=1&start=act1 또는 ?preview=1&start=video2 처럼 특정 지점부터 시작 (연구자 확인용, 데이터에 debug/preview 표시됨)
 const PREVIEW = URLP.get("preview") === "1";
