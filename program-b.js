@@ -47,7 +47,7 @@ function checkTrial(n, stepIdx, q, options, correct) {
     on_finish: d => { flatten(d); d[`check_v${n}_correct`] = Number(d[`check_v${n}`]) === correct ? 1 : 0; window.scrollTo(0, 0); },
   };
 }
-const VSRC = "1126b";
+const VSRC = "1126c";
 function vt(n, stepIdx, task) { const v = videoTrial(n, stepIdx, TITLES[n - 1], task); v.stimulus = v.stimulus.replace(new RegExp(`src="video${n}\\.mp4[^"]*"`), `src="tech${n}.mp4?v=${VSRC}"`); return v; }
 const video1 = vt(1, 0);
 const check1 = checkTrial(1, 0, "영상에서 설명한 정전식 터치스크린이 손가락의 위치를 아는 방법은?", [
