@@ -218,3 +218,12 @@ T1 사전 설문(`pre-survey.html`)은 두 집단이 같습니다. 무선배정 
 ## 설문 문항 필수 응답 (본실험)
 
 `pre-survey.html`, `survey.html`, `survey-b.html`은 화면의 문항에 모두 응답해야 ‘다음’으로 넘어갑니다(`measures-main.js`에서 `CONFIG.SURVEY_REQUIRED = true`). 비워 둘 수 있는 것은 ‘(선택)’이라고 적힌 서술 문항과, 조건에 해당하지 않아 화면에 나타나지 않은 문항뿐입니다. 파일럿 페이지는 `config.js`의 설정(`SURVEY_REQUIRED: false`)을 그대로 따릅니다.
+
+## 본실험 T1 참여 번호 자동 부여
+
+`pre-survey.html`을 pid 없이 열면 시작할 때 저장 서버(Apps Script)에서 1~1000 가운데 다음 번호를 받아 참여 번호로 씁니다.
+
+- Apps Script에 `apps_script_Code.gs`를 새로 붙여넣고 **새 버전으로 배포**해야 작동합니다. 배포 전에는 무작위 번호로 진행됩니다(`pid_source` 열이 `random`).
+- 다음 번호는 스크립트 속성 `NEXT_PID`에 저장됩니다. 지우면 1부터 다시 시작합니다.
+- 같은 브라우저에서 새로고침하면 받은 번호를 그대로 씁니다. `?pid=`를 붙인 주소는 그 번호를 쓰고, `?debug=1`은 번호를 받지 않습니다.
+- `pid_source` 열: `auto`(새로 받음), `auto_saved`(같은 브라우저에서 다시 들어옴), `url`, `random`, `debug`.

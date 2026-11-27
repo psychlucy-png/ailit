@@ -1,5 +1,5 @@
 /* 사전 설문 — 안내문·동의 → 참여 대상 확인 → 사전 설문 → 저장
-   주소 예: pre-survey.html?pid=P001  (pid가 없으면 무작위 참여 번호를 만들어 마지막 화면에 보여 줍니다) */
+   주소 예: pre-survey.html  (pid가 없으면 시작할 때 1~1000 가운데 다음 참여 번호를 자동으로 받습니다. pre-survey.html?pid=P001처럼 pid를 붙이면 그 번호를 씁니다) */
 
 STEPS = ["동의·확인", "사전 설문", "완료"];
 
@@ -104,8 +104,41 @@ const contact = {
 
 const preBlocks = waveBlocks(1).map(b => b.id === "s" ? selfUseTrial(b, 1, "pre") : blockTrial(b, null, 1, "pre")); // 척도북 T1 (measures.js의 WAVES[1])
 
+// 참여 번호 자동 부여: 주소에 pid가 없으면 시작할 때 저장 서버에서 1~1000 가운데 다음 번호를 받아 옵니다.
+// · 같은 브라우저에서 새로고침하거나 다시 들어오면 받은 번호를 그대로 씁니다(번호가 낭비되지 않게).
+// · 서버에서 번호를 받지 못하면(연결 문제, Apps Script 미배포) 예전처럼 무작위 번호로 진행하고 pid_source에 "random"이 남습니다.
+// · debug=1(연구자 확인용)일 때는 번호를 받지 않습니다.
+const PID_KEY = "ailit_main_pid";
+function setPid(v, src) { PID = String(v); jsPsych.data.addProperties({ pid: PID, pid_source: src }); }
+const assignPid = {
+  type: jsPsychCallFunction,
+  async: true,
+  func: async done => {
+    if (HAS_PID) { jsPsych.data.addProperties({ pid_source: "url" }); return done(); }
+    if (DEBUG) { jsPsych.data.addProperties({ pid_source: "debug" }); return done(); }
+    try { const saved = localStorage.getItem(PID_KEY); if (/^\d{1,4}$/.test(saved || "")) { setPid(saved, "auto_saved"); return done(); } } catch (e) {}
+    jsPsych.getDisplayElement().innerHTML = `<div class="card center"><p>설문을 준비하고 있어요. 잠시만 기다려 주세요.</p></div>`;
+    for (let i = 0; i < 2; i++) {
+      try {
+        const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 10000);
+        const r = await (await fetch(`${CONFIG.SHEETS_URL}?get=newid`, { signal: ctl.signal })).json();
+        clearTimeout(tm);
+        if (r && r.ok && Number(r.pid) >= 1 && Number(r.pid) <= 1000) {
+          setPid(Number(r.pid), "auto");
+          try { localStorage.setItem(PID_KEY, PID); } catch (e) {}
+          return done();
+        }
+        if (r && r.error === "full") break;
+      } catch (e) {}
+    }
+    jsPsych.data.addProperties({ pid_source: "random" });
+    done();
+  },
+  data: { task: "assign_pid" },
+};
+
 const timeline = [
-  browserCheck, consent, screening,
+  assignPid, browserCheck, consent, screening,
   { timeline: [save, screenOutPage], conditional_function: () => !ELIGIBLE },
   { timeline: [...preBlocks, contact, save, endPage], conditional_function: () => ELIGIBLE },
 ];

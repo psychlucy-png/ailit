@@ -87,6 +87,23 @@ function doGet(e) {
       return json({ ok: false, error: String(err) });
     }
   }
+  // 본실험 T1: 참여 번호를 1부터 차례로 하나씩 내줍니다(최대 1000). 스크립트 속성 NEXT_PID에 다음 번호를 기억합니다.
+  // 번호를 처음부터 다시 매기려면: 프로젝트 설정 > 스크립트 속성에서 NEXT_PID를 지우거나 원하는 숫자로 바꿉니다.
+  if (p.get === 'newid') {
+    const lock = LockService.getScriptLock();
+    try { lock.waitLock(20000); } catch (err) { return json({ ok: false, error: 'busy' }); }
+    try {
+      const props = PropertiesService.getScriptProperties();
+      const n = Number(props.getProperty('NEXT_PID')) || 1;
+      if (n > 1000) return json({ ok: false, error: 'full' });
+      props.setProperty('NEXT_PID', String(n + 1));
+      return json({ ok: true, pid: n });
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    } finally {
+      lock.releaseLock();
+    }
+  }
   return json({ ok: true, message: '저장 주소가 정상적으로 작동합니다.' });
 }
 
