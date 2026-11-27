@@ -125,7 +125,7 @@ const contact = {
 const preBlocks = waveBlocks(1).map(b => b.id === "s" ? selfUseTrial(b, 1, "pre") : blockTrial(b, null, 1, "pre")); // 척도북 T1 (measures.js의 WAVES[1])
 
 // 참여 번호 자동 부여: 주소에 pid가 없으면 동의 화면에서 두 항목 모두 동의한 직후에 저장 서버에서 1~1000 가운데 다음 번호를 받아 옵니다.
-// · 같은 브라우저에서 새로고침하거나 다시 들어오면 받은 번호를 그대로 씁니다(번호가 낭비되지 않게).
+// · 같은 브라우저에서 새로고침하거나 다시 들어오면 받은 번호를 그대로 씁니다(번호가 낭비되지 않게). 설문을 제출하면 기억해 둔 번호를 지웁니다(clearPid).
 // · 서버에서 번호를 받지 못하면(연결 문제, Apps Script 미배포) 예전처럼 무작위 번호로 진행하고 pid_source에 "random"이 남습니다.
 // · debug=1(연구자 확인용)일 때는 번호를 받지 않습니다.
 const PID_KEY = "ailit_main_pid";
@@ -157,9 +157,13 @@ const assignPid = {
   data: { task: "assign_pid" },
 };
 
+// 설문을 끝까지 제출하면 이 브라우저에 기억해 둔 참여 번호를 지웁니다.
+// 같은 기기에서 다른 사람이 이어서 시작해도 앞사람 번호를 물려받지 않고 새 번호를 받게 하기 위해서입니다.
+// (중간에 나갔다가 다시 들어온 경우에는 지워지지 않으므로 같은 번호로 이어집니다.)
+const clearPid = { type: jsPsychCallFunction, func: () => { try { localStorage.removeItem(PID_KEY); } catch (e) {} }, data: { task: "clear_pid" } };
 const timeline = [
   browserCheck, consent, assignPid, screening,
   { timeline: [save, screenOutPage], conditional_function: () => !ELIGIBLE },
-  { timeline: [...preBlocks, contact, save, endPage], conditional_function: () => ELIGIBLE },
+  { timeline: [...preBlocks, contact, save, clearPid, endPage], conditional_function: () => ELIGIBLE },
 ];
 jsPsych.run(timeline);
