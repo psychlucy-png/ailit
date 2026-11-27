@@ -431,3 +431,33 @@ const PROGRAM_FEEDBACK = {
     { id: "open", type: "textarea", optional: true, text: "더 하고 싶은 말이 있다면 적어 주세요. (선택)" },
   ],
 };
+
+// ── 너무 빨리 넘기는 응답 막기 (본실험 설문 T1~T4) ──
+// 문항 화면을 다 고른 뒤 넘기려 할 때, 화면이 뜬 뒤 지난 시간이 "문항 수 × 0.5초"(최소 1초)보다 짧으면
+// 넘어가지 않고 "충분히 읽고 응답해주세요."를 띄웁니다. 그 시간이 지난 뒤 다시 누르면 넘어갑니다.
+// 선택형 문항이 3개 이상인 화면에만 적용하고, debug=1에서는 끕니다. 경고가 뜬 횟수는 speed_warn 열에 남습니다.
+CONFIG.SPEED_SEC_PER_ITEM = 0.5;
+(function () {
+  const shown = new WeakMap(); let warned = 0;
+  const debugOn = () => new URLSearchParams(location.search).get("debug") === "1" || window.ARTIFACT_PREVIEW === true;
+  new MutationObserver(() => document.querySelectorAll("form").forEach(f => { if (!shown.has(f)) shown.set(f, performance.now()); }))
+    .observe(document.documentElement, { childList: true, subtree: true });
+  document.addEventListener("submit", e => {
+    const f = e.target; if (debugOn() || !f || !f.querySelectorAll) return;
+    const n = new Set([...f.querySelectorAll("input[type=radio]")].map(i => i.name)).size;
+    if (n < 3) return;
+    const need = Math.max(1, n * CONFIG.SPEED_SEC_PER_ITEM) * 1000;
+    if (performance.now() - (shown.get(f) || 0) >= need) return;
+    e.preventDefault(); e.stopPropagation();
+    warned++; try { jsPsych.data.addProperties({ speed_warn: warned }); } catch (err) {}
+    let w = f.querySelector(".speed-warn");
+    if (!w) {
+      w = document.createElement("div"); w.className = "note speed-warn";
+      w.style.cssText = "background:#FFF1F0;border:1.5px solid #E5484D;color:#B42318;font-weight:700;text-align:center";
+      w.textContent = "충분히 읽고 응답해주세요.";
+      const btn = f.querySelector("input[type=submit], button[type=submit], #jspsych-survey-html-form-next");
+      (btn && btn.parentNode ? btn.parentNode : f).insertBefore(w, btn || null);
+    }
+    w.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, true);
+})();
