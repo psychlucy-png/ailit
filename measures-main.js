@@ -433,10 +433,11 @@ const PROGRAM_FEEDBACK = {
 };
 
 // ── 너무 빨리 넘기는 응답 막기 (본실험 설문 T1~T4) ──
-// 문항 화면을 다 고른 뒤 넘기려 할 때, 화면이 뜬 뒤 지난 시간이 "문항 수 × 0.5초"(최소 1초)보다 짧으면
+// 문항 화면을 다 고른 뒤 넘기려 할 때, 화면이 뜬 뒤 지난 시간이 "문항 수 × 0.8초"보다 짧으면
 // 넘어가지 않고 "충분히 읽고 응답해주세요."를 띄웁니다. 그 시간이 지난 뒤 다시 누르면 넘어갑니다.
-// 선택형 문항이 3개 이상인 화면에만 적용하고, debug=1에서는 끕니다. 경고가 뜬 횟수는 speed_warn 열에 남습니다.
-CONFIG.SPEED_SEC_PER_ITEM = 0.5;
+// 선택형 문항이 5개를 넘는(6개 이상) 화면에만 적용합니다. 지난 24시간 AI 사용 화면(selfUseTrial)에는 적용하지 않고, debug=1에서는 끕니다.
+// 경고가 뜬 횟수는 speed_warn 열에 남습니다.
+CONFIG.SPEED_SEC_PER_ITEM = 0.8;
 (function () {
   const shown = new WeakMap(); let warned = 0;
   const debugOn = () => new URLSearchParams(location.search).get("debug") === "1" || window.ARTIFACT_PREVIEW === true;
@@ -445,8 +446,8 @@ CONFIG.SPEED_SEC_PER_ITEM = 0.5;
   document.addEventListener("submit", e => {
     const f = e.target; if (debugOn() || !f || !f.querySelectorAll) return;
     const n = new Set([...f.querySelectorAll("input[type=radio]")].map(i => i.name)).size;
-    if (n < 3) return;
-    const need = Math.max(1, n * CONFIG.SPEED_SEC_PER_ITEM) * 1000;
+    if (n <= 5 || f.querySelector("#usedpart")) return;
+    const need = n * CONFIG.SPEED_SEC_PER_ITEM * 1000;
     if (performance.now() - (shown.get(f) || 0) >= need) return;
     e.preventDefault(); e.stopPropagation();
     warned++; try { jsPsych.data.addProperties({ speed_warn: warned }); } catch (err) {}
