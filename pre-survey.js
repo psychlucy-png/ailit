@@ -85,19 +85,19 @@ const contact = {
     <div class="note">참여 보상을 지급하기 위해 이름, 전화번호, 이메일을 받습니다. 이 정보는 <b>보상 지급에만</b> 사용하며, 설문 응답과는 따로 관리합니다.</div>
     <div class="card">
       <label class="f"><b>이름</b></label>
-      <p><input type="text" name="contact_name" required autocomplete="name" placeholder="홍길동" style="font-size:18px;padding:8px 12px;width:100%;max-width:320px"></p>
+      <p><input type="text" name="contact_name" required autocomplete="name" placeholder="홍길동" style="font-size:18px;padding:10px 14px;width:100%;max-width:320px;box-sizing:border-box;border:1.5px solid #d9d9e6;border-radius:12px"></p>
       <label class="f"><b>휴대전화 번호</b></label>
-      <p><input type="tel" name="contact_phone" required inputmode="tel" autocomplete="tel" pattern="01[016789][\\-\\s]?[0-9]{3,4}[\\-\\s]?[0-9]{4}" placeholder="010-0000-0000" title="휴대전화 번호를 010-0000-0000 형식으로 적어 주세요." style="font-size:18px;padding:8px 12px;width:100%;max-width:320px"></p>
+      <p><input type="tel" name="contact_phone" required inputmode="tel" autocomplete="tel" pattern="01[016789][\\-\\s]?[0-9]{3,4}[\\-\\s]?[0-9]{4}" placeholder="010-0000-0000" title="휴대전화 번호를 010-0000-0000 형식으로 적어 주세요." style="font-size:18px;padding:10px 14px;width:100%;max-width:320px;box-sizing:border-box;border:1.5px solid #d9d9e6;border-radius:12px"></p>
       <label class="f"><b>이메일</b></label>
-      <p><input type="email" name="contact_email" required inputmode="email" autocomplete="email" placeholder="name@example.com" style="font-size:18px;padding:8px 12px;width:100%;max-width:320px"></p>
+      <p><input type="email" name="contact_email" required inputmode="email" autocomplete="email" placeholder="name@example.com" style="font-size:18px;padding:10px 14px;width:100%;max-width:320px;box-sizing:border-box;border:1.5px solid #d9d9e6;border-radius:12px"></p>
     </div>
     <div class="card">
       <p>1주일 뒤에 온라인 교육 프로그램에 참여할 수 있도록 링크가 발송될 예정입니다.<br>온라인 교육 프로그램을 수신할 이메일과 휴대폰번호를 입력해주세요.</p>
       <div class="opts" style="margin-bottom:12px"><label><input type="checkbox" name="link_same" value="1"> 위 보상 지급용 연락처와 같음</label></div>
       <label class="f"><b>휴대전화 번호</b></label>
-      <p><input type="tel" name="link_phone" required inputmode="tel" autocomplete="tel" pattern="01[016789][\\-\\s]?[0-9]{3,4}[\\-\\s]?[0-9]{4}" placeholder="010-0000-0000" title="휴대전화 번호를 010-0000-0000 형식으로 적어 주세요." style="font-size:18px;padding:8px 12px;width:100%;max-width:320px"></p>
+      <p><input type="tel" name="link_phone" required inputmode="tel" autocomplete="tel" pattern="01[016789][\\-\\s]?[0-9]{3,4}[\\-\\s]?[0-9]{4}" placeholder="010-0000-0000" title="휴대전화 번호를 010-0000-0000 형식으로 적어 주세요." style="font-size:18px;padding:10px 14px;width:100%;max-width:320px;box-sizing:border-box;border:1.5px solid #d9d9e6;border-radius:12px"></p>
       <label class="f"><b>이메일</b></label>
-      <p><input type="email" name="link_email" required inputmode="email" autocomplete="email" placeholder="name@example.com" style="font-size:18px;padding:8px 12px;width:100%;max-width:320px"></p>
+      <p><input type="email" name="link_email" required inputmode="email" autocomplete="email" placeholder="name@example.com" style="font-size:18px;padding:10px 14px;width:100%;max-width:320px;box-sizing:border-box;border:1.5px solid #d9d9e6;border-radius:12px"></p>
       <div class="opts"><label><input type="checkbox" name="agree_link" value="1" required> <b>링크 수신에 동의하고 성실히 참여하겠습니다.</b></label></div>
     </div>`,
   button_label: "제출하기",
