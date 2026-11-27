@@ -1,5 +1,5 @@
 /* 사전 설문 — 안내문·동의 → 참여 대상 확인 → 사전 설문 → 저장
-   주소 예: pre-survey.html  (pid가 없으면 시작할 때 1~1000 가운데 다음 참여 번호를 자동으로 받습니다. pre-survey.html?pid=P001처럼 pid를 붙이면 그 번호를 씁니다) */
+   주소 예: pre-survey.html  (pid가 없으면 연구 참여에 동의한 직후 1~1000 가운데 다음 참여 번호를 자동으로 받습니다. pre-survey.html?pid=P001처럼 pid를 붙이면 그 번호를 씁니다) */
 
 STEPS = ["동의·확인", "사전 설문", "완료"];
 
@@ -104,7 +104,7 @@ const contact = {
 
 const preBlocks = waveBlocks(1).map(b => b.id === "s" ? selfUseTrial(b, 1, "pre") : blockTrial(b, null, 1, "pre")); // 척도북 T1 (measures.js의 WAVES[1])
 
-// 참여 번호 자동 부여: 주소에 pid가 없으면 시작할 때 저장 서버에서 1~1000 가운데 다음 번호를 받아 옵니다.
+// 참여 번호 자동 부여: 주소에 pid가 없으면 동의 화면에서 두 항목 모두 동의한 직후에 저장 서버에서 1~1000 가운데 다음 번호를 받아 옵니다.
 // · 같은 브라우저에서 새로고침하거나 다시 들어오면 받은 번호를 그대로 씁니다(번호가 낭비되지 않게).
 // · 서버에서 번호를 받지 못하면(연결 문제, Apps Script 미배포) 예전처럼 무작위 번호로 진행하고 pid_source에 "random"이 남습니다.
 // · debug=1(연구자 확인용)일 때는 번호를 받지 않습니다.
@@ -138,7 +138,7 @@ const assignPid = {
 };
 
 const timeline = [
-  assignPid, browserCheck, consent, screening,
+  browserCheck, consent, assignPid, screening,
   { timeline: [save, screenOutPage], conditional_function: () => !ELIGIBLE },
   { timeline: [...preBlocks, contact, save, endPage], conditional_function: () => ELIGIBLE },
 ];

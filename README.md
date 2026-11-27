@@ -221,7 +221,7 @@ T1 사전 설문(`pre-survey.html`)은 두 집단이 같습니다. 무선배정 
 
 ## 본실험 T1 참여 번호 자동 부여
 
-`pre-survey.html`을 pid 없이 열면 시작할 때 저장 서버(Apps Script)에서 1~1000 가운데 다음 번호를 받아 참여 번호로 씁니다.
+`pre-survey.html`을 pid 없이 열면, 동의 화면에서 두 항목 모두 동의한 직후에 저장 서버(Apps Script)에서 1~1000 가운데 다음 번호를 받아 참여 번호로 씁니다.
 
 - Apps Script에 `apps_script_Code.gs`를 새로 붙여넣고 **새 버전으로 배포**해야 작동합니다. 배포 전에는 무작위 번호로 진행됩니다(`pid_source` 열이 `random`).
 - 다음 번호는 스크립트 속성 `NEXT_PID`에 저장됩니다. 지우면 1부터 다시 시작합니다.
