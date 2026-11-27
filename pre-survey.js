@@ -43,7 +43,9 @@ const consent = {
 let ELIGIBLE = true;
 const screening = {
   type: jsPsychSurveyHtmlForm,
-  html: `<h1>참여 대상 확인</h1><div class="card">
+  html: `<h1>참여 대상 확인</h1>
+    <div class="note">연구 참여에 동의해주셔서 감사합니다. 오늘은 약 20분 소요되는 설문에 참여하게 됩니다. 연구 참여 조건에 충족하실 경우, 1주일 뒤에는 온라인 교육 프로그램 링크가 발송될 예정입니다.</div>
+    <div class="card">
     ${yesno("scr_student", "현재 대학생 또는 대학원생이십니까?")}
     ${yesno("scr_age", "만 19세 이상 30세 이하이십니까?")}
     ${yesno("scr_ai", "생성형 AI(ChatGPT, Gemini, Claude 등)를 사용하고 계십니까?")}
