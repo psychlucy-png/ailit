@@ -110,3 +110,34 @@ function doGet(e) {
 function json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
+
+// ── 열 정리(한 번만 직접 실행) ──
+// 복수 선택 문항(use_platform_1~7, use_platform_other)의 열이 시트 여기저기에 흩어져 있을 때 한자리에 모읍니다.
+// 편집기 위쪽 함수 목록에서 tidyPlatformColumns를 고르고 ▶ 실행을 누르세요. 웹 앱을 다시 배포할 필요는 없습니다.
+// · 가장 왼쪽에 있는 use_platform 열 자리에 1, 2, …, 7, other 순서로 모읍니다. 아직 없는 열은 빈 열로 만들어 둡니다.
+// · 응답 저장은 열 위치가 아니라 머리글 이름으로 찾아 들어가므로, 옮긴 뒤에도 그대로 저장됩니다.
+function tidyPlatformColumns() {
+  const NAMES = ['use_platform_1', 'use_platform_2', 'use_platform_3', 'use_platform_4', 'use_platform_5', 'use_platform_6', 'use_platform_7', 'use_platform_other'];
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    SpreadsheetApp.getActiveSpreadsheet().getSheets().forEach(function (sh) {
+      if (sh.getLastColumn() < 1) return;
+      const read = function () { return sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(String); };
+      let headers = read();
+      const found = NAMES.map(function (n) { return headers.indexOf(n); }).filter(function (i) { return i >= 0; });
+      if (!found.length) return;
+      const base = Math.min.apply(null, found) + 1; // 모을 자리(1부터 세는 열 번호)
+      NAMES.forEach(function (name, k) {
+        headers = read();
+        const dest = base + k, cur = headers.indexOf(name) + 1;
+        if (cur === dest) return;
+        if (cur === 0) { sh.insertColumnBefore(dest); sh.getRange(1, dest).setValue(name); return; }
+        sh.moveColumns(sh.getRange(1, cur, 1, 1), dest); // cur > dest (왼쪽으로 옮김)
+      });
+      SpreadsheetApp.flush();
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
